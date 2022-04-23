@@ -8,7 +8,7 @@ import { io } from "socket.io-client"
 import { App } from "./App"
 import "./scss/main.scss"
 
-const serverUrl = "https://wyvernapi.tkdkid1000.net"
+const serverUrl = "https://wyvern-api.tkdkid1000.net"
 
 axios.defaults.validateStatus = (status) => status >= 200 && status < 500
 axios.defaults.baseURL = serverUrl
