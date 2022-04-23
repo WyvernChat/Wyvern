@@ -2,9 +2,11 @@ import React from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"
 import { FaArrowCircleRight, FaDoorOpen, FaDownload } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "./Auth"
 
 export function Index() {
     const navigate = useNavigate()
+    const { authenticated } = useAuth()
 
     return (
         <div>
@@ -38,33 +40,21 @@ export function Index() {
                                     url: "/login",
                                     icon: <FaDoorOpen />,
                                     important: false,
-                                    predicate: () => {
-                                        return localStorage.getItem("token")
-                                            ? localStorage.getItem("token").length < 1
-                                            : true
-                                    }
+                                    predicate: () => !authenticated
                                 },
                                 {
                                     title: "Register",
                                     url: "/register",
                                     icon: <FaArrowCircleRight />,
                                     important: false,
-                                    predicate: () => {
-                                        return localStorage.getItem("token")
-                                            ? localStorage.getItem("token").length < 1
-                                            : true
-                                    }
+                                    predicate: () => !authenticated
                                 },
                                 {
                                     title: "Launch Wyvern",
                                     url: "/channels/@me",
                                     icon: <FaDoorOpen />,
                                     important: false,
-                                    predicate: () => {
-                                        return localStorage.getItem("token")
-                                            ? localStorage.getItem("token").length > 0
-                                            : false
-                                    }
+                                    predicate: () => authenticated
                                 }
                             ].map((item, index) => (
                                 <Nav.Item

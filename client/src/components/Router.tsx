@@ -15,7 +15,9 @@ export function Router() {
     const [token] = useGlobalState("token")
 
     useEffect(() => {
-        login(token)
+        if (token.length > 0) {
+            login(token)
+        }
     }, [])
 
     return (
