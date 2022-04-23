@@ -99,7 +99,7 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
             },
             {
                 headers: {
-                    authorization: sessionStorage.getItem("token")
+                    authorization: localStorage.getItem("token")
                 }
             }
         )
@@ -205,7 +205,7 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
                                         {},
                                         {
                                             headers: {
-                                                authorization: sessionStorage.getItem("token")
+                                                authorization: localStorage.getItem("token")
                                             }
                                         }
                                     )

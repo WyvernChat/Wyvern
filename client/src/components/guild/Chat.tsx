@@ -75,7 +75,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
             axios
                 .get(`/api/channels/${props.guildId}/${props.channelId}`, {
                     headers: {
-                        authorization: sessionStorage.getItem("token")
+                        authorization: localStorage.getItem("token")
                     }
                 })
                 .then((response) => {

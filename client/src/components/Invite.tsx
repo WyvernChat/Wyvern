@@ -14,7 +14,7 @@ export function Invite() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (sessionStorage.getItem("token")) {
+        if (localStorage.getItem("token")) {
             axios.get(`/api/guilds/invites/${inviteCode}`).then((response) => {
                 setGuild(response.data)
             })
@@ -59,7 +59,7 @@ export function Invite() {
                                         {},
                                         {
                                             headers: {
-                                                authorization: sessionStorage.getItem("token")
+                                                authorization: localStorage.getItem("token")
                                             }
                                         }
                                     )

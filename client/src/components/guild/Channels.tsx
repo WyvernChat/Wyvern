@@ -28,7 +28,7 @@ export function Channels(props: { guildId: string }) {
         axios
             .get(`/api/guilds/${props.guildId}/invites`, {
                 headers: {
-                    authorization: sessionStorage.getItem("token")
+                    authorization: localStorage.getItem("token")
                 }
             })
             .then((res) => {
@@ -135,7 +135,7 @@ function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: st
                             },
                             {
                                 headers: {
-                                    authorization: sessionStorage.getItem("token")
+                                    authorization: localStorage.getItem("token")
                                 }
                             }
                         )

@@ -36,7 +36,7 @@ export function App() {
     }, [])
     useEffect(() => {
         if (isMounted()) {
-            sessionStorage.setItem("token", token)
+            localStorage.setItem("token", token)
             updateUser()
         }
     }, [token])

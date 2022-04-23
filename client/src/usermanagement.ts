@@ -10,7 +10,7 @@ async function getUserData() {
 }
 
 async function getUser(): Promise<User | undefined> {
-    const token = sessionStorage.getItem("token")
+    const token = localStorage.getItem("token")
     if (token) {
         const response = await axios.get(`/api/user`, {
             headers: {
@@ -45,7 +45,7 @@ async function getCachedUser(id: string, userCache: User[]) {
 }
 
 async function getGuilds(): Promise<string[] | undefined> {
-    const token = sessionStorage.getItem("token")
+    const token = localStorage.getItem("token")
     if (token) {
         const response = await axios.get(`/api/user/guilds`, {
             headers: {

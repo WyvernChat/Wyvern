@@ -39,7 +39,7 @@ export function Index() {
                                     icon: <FaDoorOpen />,
                                     important: false,
                                     predicate: () => {
-                                        return sessionStorage.getItem("token") === null
+                                        return localStorage.getItem("token") === null
                                     }
                                 },
                                 {
@@ -48,7 +48,7 @@ export function Index() {
                                     icon: <FaArrowCircleRight />,
                                     important: false,
                                     predicate: () => {
-                                        return sessionStorage.getItem("token") === null
+                                        return localStorage.getItem("token") === null
                                     }
                                 },
                                 {
@@ -57,7 +57,7 @@ export function Index() {
                                     icon: <FaDoorOpen />,
                                     important: false,
                                     predicate: () => {
-                                        return sessionStorage.getItem("token") !== null
+                                        return localStorage.getItem("token") !== null
                                     }
                                 }
                             ].map((item, index) => (
