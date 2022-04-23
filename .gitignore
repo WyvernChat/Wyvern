@@ -1,0 +1,7 @@
+node_modules/
+desktop/
+.env
+install.sh
+server/database.json
+server/build
+client/build

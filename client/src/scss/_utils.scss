@@ -1,0 +1,46 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: $gray-dark3;
+    overflow: hidden;
+    height: 100%;
+    user-select: none;
+}
+
+.FadeTransition {
+    opacity: 1;
+    animation-name: fadeIn;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
+    animation-duration: 0.5s;
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+}
+
+.selectable {
+    user-select: text;
+}
+
+@mixin zIndex($start, $end) {
+    @for $index from $start to $end {
+        .zi-#{$index} {
+            z-index: $index;
+        }
+    }
+}
+
+@include zIndex(-1, 10);
+
+.horizontal {
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+}

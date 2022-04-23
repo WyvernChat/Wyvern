@@ -1,0 +1,30 @@
+{
+    "name": "server",
+    "version": "1.0.0",
+    "description": "Wyvern Chat Server",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "serve": "nodemon",
+        "watch": "tsc --watch",
+        "start": "node build/index.js"
+    },
+    "author": "TKDKid1000",
+    "license": "MIT",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^10.0.0",
+        "express": "^4.17.1",
+        "serve-favicon": "^2.5.0",
+        "socket.io": "^4.3.1"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.12",
+        "@types/express": "^4.17.13",
+        "@types/serve-favicon": "^2.5.3",
+        "@typescript-eslint/eslint-plugin": "^5.16.0",
+        "@typescript-eslint/parser": "^5.16.0",
+        "eslint": "^8.11.0",
+        "eslint-plugin-react": "^7.29.4"
+    }
+}

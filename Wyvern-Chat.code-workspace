@@ -1,0 +1,107 @@
+{
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "server"
+        },
+        {
+            "path": "client"
+        }
+    ],
+    "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSaveMode": "file",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "launch": {
+        "configurations": [
+            {
+                "name": "server: serve",
+                "request": "launch",
+                "runtimeArgs": ["run-script", "serve", "-w", "server"],
+                "runtimeExecutable": "npm",
+                "skipFiles": ["<node_internals>/**"],
+                "type": "pwa-node"
+            },
+            {
+                "name": "client: serve",
+                "request": "launch",
+                "runtimeArgs": ["run-script", "serve", "-w", "client"],
+                "runtimeExecutable": "npm",
+                "skipFiles": ["<node_internals>/**"],
+                "type": "pwa-node"
+            },
+            {
+                "name": "server: build",
+                "request": "launch",
+                "runtimeArgs": ["run-script", "build", "-w", "server"],
+                "runtimeExecutable": "npm",
+                "skipFiles": ["<node_internals>/**"],
+                "type": "pwa-node"
+            },
+            {
+                "name": "client: build",
+                "request": "launch",
+                "runtimeArgs": ["run-script", "build", "-w", "client"],
+                "runtimeExecutable": "npm",
+                "skipFiles": ["<node_internals>/**"],
+                "type": "pwa-node"
+            },
+            {
+                "name": "server: watch",
+                "request": "launch",
+                "runtimeArgs": ["run-script", "watch", "-w", "server"],
+                "runtimeExecutable": "npm",
+                "skipFiles": ["<node_internals>/**"],
+                "type": "pwa-node"
+            },
+            {
+                "name": "client: watch",
+                "request": "launch",
+                "runtimeArgs": ["run-script", "watch", "-w", "client"],
+                "runtimeExecutable": "npm",
+                "skipFiles": ["<node_internals>/**"],
+                "type": "pwa-node"
+            },
+            {
+                "name": "server: start",
+                "request": "launch",
+                "runtimeArgs": ["run-script", "start", "-w", "server"],
+                "runtimeExecutable": "npm",
+                "skipFiles": ["<node_internals>/**"],
+                "type": "pwa-node"
+            },
+            {
+                "name": "client: start",
+                "request": "launch",
+                "runtimeArgs": ["run-script", "start", "-w", "client"],
+                "runtimeExecutable": "npm",
+                "skipFiles": ["<node_internals>/**"],
+                "type": "pwa-node"
+            }
+        ],
+        "compounds": [
+            {
+                "name": "Build",
+                "configurations": ["server: build", "client: build"]
+            },
+            {
+                "name": "Serve",
+                "configurations": ["server: serve", "client: serve"]
+            },
+            {
+                "name": "Watch",
+                "configurations": ["server: watch", "client: watch"]
+            },
+            {
+                "name": "Start",
+                "configurations": ["server: start", "client: start"]
+            }
+        ]
+    }
+}

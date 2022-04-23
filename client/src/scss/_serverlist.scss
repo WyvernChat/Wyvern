@@ -1,0 +1,161 @@
+.ServerList {
+    display: flex;
+    flex-direction: column;
+    flex: 0;
+    flex-basis: 70px;
+    height: 100%;
+    width: 70px;
+    background-color: $gray-dark;
+    padding: 10px;
+    .SidebarButton {
+        width: 50px;
+        height: 50px;
+        background-color: $gray-dark3;
+        border-radius: 100px;
+        border: none;
+        padding: 0.5em;
+        transition: border-radius 0.3s ease-in-out;
+        cursor: pointer;
+        margin-bottom: 5px;
+        &:hover,
+        &.active {
+            position: relative;
+            border-radius: 20px;
+        }
+        &.active::before {
+            position: absolute;
+            top: 0;
+            left: -15px;
+            content: "";
+            width: 10px;
+            height: 50%;
+            transform: translateY(50%);
+            border-radius: 5px;
+            background-color: #ffffff;
+            transition: height 0.5s;
+        }
+        &:active {
+            transform: translateY(2px);
+        }
+    }
+    .WyvernButton {
+        transition: background-color 0.3s ease-in-out;
+        &:hover,
+        &.active {
+            background-color: $purple;
+        }
+    }
+    .ServerIcon {
+        @extend .WyvernButton;
+        color: white;
+    }
+    .JoinButton {
+        @extend .WyvernButton;
+        color: $green;
+        &:hover {
+            color: white;
+            background-color: $green;
+        }
+    }
+}
+
+.GuildBar {
+    display: flex;
+    position: relative;
+    flex: 0;
+    flex-basis: 200px;
+    flex-direction: column;
+    background-color: $gray;
+    height: 100%;
+    width: 200px;
+    .GuildMenu {
+        font-size: 15px;
+        font-weight: bold;
+        padding: 10px;
+        border-bottom: solid #000 0.5px;
+        width: inherit;
+        .name {
+            width: 150px;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .icon {
+            float: right;
+        }
+        &:hover {
+            background-color: $gray-dark2;
+        }
+        &.active {
+            background-color: $gray-dark2;
+        }
+    }
+    .Menu {
+        position: absolute;
+        top: 60px;
+        left: 10px;
+        .ContextMenu {
+            width: 180px;
+        }
+        &.show {
+            visibility: visible;
+            opacity: 1;
+            transition: visibility 0s linear 0s, opacity 0.25s;
+        }
+        &.hide {
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.25s, opacity 0.25s;
+        }
+    }
+    .ChannelsList {
+        padding: 10px;
+        height: 100%;
+        width: inherit;
+        .ChannelLink {
+            color: #8f8e8e;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 3px;
+            cursor: pointer;
+            .name {
+                font-size: medium;
+                padding-left: 5px;
+            }
+            &:hover {
+                background-color: darken($color: $gray, $amount: 2);
+                .name {
+                    color: white;
+                }
+            }
+            &.active {
+                background-color: darken($color: $gray, $amount: 3);
+                .name {
+                    color: white;
+                }
+            }
+        }
+    }
+    .User-Card {
+        background-color: $gray-dark2;
+        padding: 5px;
+        width: inherit;
+        display: flex;
+        .avatar {
+            width: 35px;
+            height: 35px;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+        .username {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .tag {
+            font-size: 12px;
+            color: #a6a6a6;
+        }
+    }
+}
