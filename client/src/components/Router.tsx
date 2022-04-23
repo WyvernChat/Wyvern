@@ -1,5 +1,7 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { useGlobalState } from "../App"
+import { useAuth } from "./Auth"
 import { Guild } from "./guild/Guild"
 import { Home } from "./Home"
 import { Index } from "./Index"
@@ -9,6 +11,13 @@ import { Register } from "./Register"
 import { Voice } from "./Voice"
 
 export function Router() {
+    const { login } = useAuth()
+    const [token] = useGlobalState("token")
+
+    useEffect(() => {
+        login(token)
+    }, [])
+
     return (
         <BrowserRouter>
             <Routes>

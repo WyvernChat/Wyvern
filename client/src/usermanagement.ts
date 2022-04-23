@@ -1,16 +1,15 @@
 import axios from "axios"
 import { User } from "./globals"
 
-async function getUserData() {
-    const user = await getUser()
+async function getUserData(token: string | undefined) {
+    const user = await getUser(token)
     if (user) {
-        user.guilds = await getGuilds()
+        user.guilds = await getGuilds(token)
     }
     return user
 }
 
-async function getUser(): Promise<User | undefined> {
-    const token = localStorage.getItem("token")
+async function getUser(token: string | undefined): Promise<User | undefined> {
     if (token) {
         const response = await axios.get(`/api/user`, {
             headers: {
@@ -44,8 +43,7 @@ async function getCachedUser(id: string, userCache: User[]) {
     }
 }
 
-async function getGuilds(): Promise<string[] | undefined> {
-    const token = localStorage.getItem("token")
+async function getGuilds(token: string | undefined): Promise<string[] | undefined> {
     if (token) {
         const response = await axios.get(`/api/user/guilds`, {
             headers: {

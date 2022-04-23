@@ -32,16 +32,14 @@ export function Chat(props: { guildId: string; channelId: string }) {
         setTimeout(() => {
             forceUpdate()
             if (messagesRef) {
-                setTimeout(() => {
-                    if (messageScroll) {
-                        messagesRef.current.scroll({
-                            top: messagesRef.current.scrollHeight,
-                            behavior: "auto"
-                        })
-                    }
-                }, 0)
+                if (messageScroll) {
+                    messagesRef.current.scroll({
+                        top: messagesRef.current.scrollHeight,
+                        behavior: "auto"
+                    })
+                }
             }
-        }, 100)
+        }, 0)
     }, [])
 
     const initalChatMessages = useCallback(

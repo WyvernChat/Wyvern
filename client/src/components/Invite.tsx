@@ -7,6 +7,7 @@ import { Guild } from "../globals"
 import { getUserData } from "../usermanagement"
 
 export function Invite() {
+    const [token] = useGlobalState("token")
     const [user, setUser] = useGlobalState("user")
     const [guild, setGuild] = useState<Guild>(undefined)
     const [inviteLoading, setInviteLoading] = useState(false)
@@ -65,7 +66,7 @@ export function Invite() {
                                     )
                                     .then((response) => {
                                         navigate(`/channels/${response.data.id}`)
-                                        getUserData().then(setUser)
+                                        getUserData(token).then(setUser)
                                     })
                             }
                         }}

@@ -4,7 +4,6 @@ import { Button, Stack } from "react-bootstrap"
 import { Link, useNavigate } from "react-router-dom"
 
 export function Register() {
-    const [emailTaken, setEmailTaken] = useState(false)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [username, setUsername] = useState("")

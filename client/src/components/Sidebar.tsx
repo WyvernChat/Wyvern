@@ -85,6 +85,7 @@ export function Sidebar() {
 }
 
 function GuildModal(props: { open: boolean; hide: () => void }) {
+    const [token] = useGlobalState("token")
     const [, setUser] = useGlobalState("user")
     const [modal, setModal] = useState(0)
     const [guildName, setGuildName] = useState("")
@@ -109,7 +110,7 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
                 type: "success"
             })
             setInvite(response.data.invite)
-            getUserData().then(setUser)
+            getUserData(token).then(setUser)
             setModal(3)
         })
     }

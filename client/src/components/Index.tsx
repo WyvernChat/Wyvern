@@ -39,7 +39,9 @@ export function Index() {
                                     icon: <FaDoorOpen />,
                                     important: false,
                                     predicate: () => {
-                                        return localStorage.getItem("token") === null
+                                        return localStorage.getItem("token")
+                                            ? localStorage.getItem("token").length < 1
+                                            : true
                                     }
                                 },
                                 {
@@ -48,7 +50,9 @@ export function Index() {
                                     icon: <FaArrowCircleRight />,
                                     important: false,
                                     predicate: () => {
-                                        return localStorage.getItem("token") === null
+                                        return localStorage.getItem("token")
+                                            ? localStorage.getItem("token").length < 1
+                                            : true
                                     }
                                 },
                                 {
@@ -57,7 +61,9 @@ export function Index() {
                                     icon: <FaDoorOpen />,
                                     important: false,
                                     predicate: () => {
-                                        return localStorage.getItem("token") !== null
+                                        return localStorage.getItem("token")
+                                            ? localStorage.getItem("token").length > 0
+                                            : false
                                     }
                                 }
                             ].map((item, index) => (

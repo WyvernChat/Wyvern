@@ -1,19 +1,19 @@
 import axios from "axios"
 import React, { useState } from "react"
 import { Button, Stack } from "react-bootstrap"
-import { Link, useNavigate, useSearchParams } from "react-router-dom"
-import { useGlobalState } from "../App"
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom"
 import { useAlert } from "./Alerts"
+import { useAuth } from "./Auth"
 
 export function Login() {
-    const [token, setToken] = useGlobalState("token")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const alert = useAlert()
+    const { authenticated, login } = useAuth()
 
-    return (
+    return !authenticated ? (
         <div className="Login-Card">
             <form
                 onSubmit={async (event) => {
@@ -29,9 +29,9 @@ export function Login() {
                             type: "danger"
                         })
                     } else if (result.status === 200) {
-                        setToken(result.data.token)
+                        login(result.data.token)
                         if (searchParams.has("redirect")) {
-                            window.location.href = searchParams.get("redirect")
+                            navigate(searchParams.get("redirect"))
                         } else {
                             navigate("/")
                         }
@@ -90,5 +90,9 @@ export function Login() {
                 </Stack>
             </form>
         </div>
+    ) : (
+        <Navigate
+            to={searchParams.has("redirect") ? searchParams.get("redirect") : "/channels/@me"}
+        />
     )
 }
