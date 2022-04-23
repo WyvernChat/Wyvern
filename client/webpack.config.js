@@ -72,7 +72,16 @@ module.exports = /** @type {import("webpack").Configuration} */ ({
     },
     plugins: [
         new CopyWebpackPlugin({
-            patterns: [{ from: "img", to: "img" }]
+            patterns: [
+                {
+                    from: "img",
+                    to: "img"
+                },
+                {
+                    from: "_redirects",
+                    to: "_redirects"
+                }
+            ]
         }),
         new HtmlWebpackPlugin({
             template: "index.html",
