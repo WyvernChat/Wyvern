@@ -7,6 +7,7 @@
         "build": "webpack",
         "serve": "webpack serve",
         "watch": "webpack --watch",
+        "production": "webpack --config webpack.prod.config.js",
         "start": "webpack serve --config webpack.prod.config.js"
     },
     "author": "TKDKid1000",
