@@ -75,8 +75,7 @@ module.exports = /** @type {import("webpack").Configuration} */ ({
                     to: "img"
                 },
                 {
-                    from: "_redirects",
-                    to: "_redirects"
+                    from: "_redirects"
                 }
             ]
         }),
