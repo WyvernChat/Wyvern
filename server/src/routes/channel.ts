@@ -38,6 +38,10 @@ export default function (app: express.Application) {
                     id: channel.id
                 }
             })
+        } else {
+            res.status(401).json({
+                error: "Permission denied"
+            })
         }
     })
 }

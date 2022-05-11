@@ -8,14 +8,20 @@ import { initSockets } from "./sockets"
 
 const app = express()
 const server = createServer(app)
+
+app.use(express.json())
+app.use(
+    cors({
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "DELETE"]
+    })
+)
+
 const io = initSockets(server)
 const database = new Database<WyvernDatabase>(path.join(__dirname, "..", "database.json"), {
     guilds: [],
     users: []
 })
-
-app.use(express.json())
-app.use(cors())
 
 fs.readdirSync(path.join(__dirname, "routes")).forEach((file) => {
     import("./" + path.join("routes", file)).then((r) => r.default(app))

@@ -1,7 +1,7 @@
 import axios from "axios"
 import React, { useEffect, useRef, useState } from "react"
 import { Button, Modal } from "react-bootstrap"
-import { FaAngleDown, FaHashtag, FaMicrophone, FaWindowClose } from "react-icons/fa"
+import { FaAngleDown, FaCog, FaHashtag, FaMicrophone, FaWindowClose } from "react-icons/fa"
 import { useNavigate, useParams } from "react-router-dom"
 import { useGlobalState } from "../../App"
 import { Channel, Guild } from "../../globals"
@@ -9,11 +9,13 @@ import { useAlert } from "../Alerts"
 import { ContextMenu, ContextMenuButton } from "../ui/ContextMenu"
 
 export function Channels(props: { guildId: string }) {
+    const [token] = useGlobalState("token")
     const [user] = useGlobalState("user")
     const [guild, setGuild] = useState<Guild>(undefined)
     const [invites, setInvites] = useState<string[]>(undefined)
     const [channels, setChannels] = useState<Channel[]>([])
     const [menuOpen, setMenuOpen] = useState(false)
+    const [userCardHovered, setUserCardHovered] = useState(false)
     const [channelCreate, setChannelCreate] = useState(false)
     const actionRef = useRef<HTMLDivElement>(null)
     const menuRef = useRef<HTMLDivElement>(null)
@@ -28,7 +30,7 @@ export function Channels(props: { guildId: string }) {
         axios
             .get(`/api/guilds/${props.guildId}/invites`, {
                 headers: {
-                    authorization: localStorage.getItem("token")
+                    authorization: token
                 }
             })
             .then((res) => {
@@ -41,7 +43,7 @@ export function Channels(props: { guildId: string }) {
                 setChannels(response.data.channels)
             }
         })
-    }, [props.guildId])
+    }, [props.guildId, token])
     return (
         <div className="GuildBar">
             <div
@@ -87,11 +89,51 @@ export function Channels(props: { guildId: string }) {
                     <ChannelLink key={index} guild={props.guildId} channel={channel} />
                 ))}
             </div>
-            <div className="User-Card">
+            <div
+                className="User-Card"
+                onMouseEnter={() => setUserCardHovered(true)}
+                onMouseLeave={() => setUserCardHovered(false)}
+            >
                 <img src="/img/logos/WyvernLogoGrayscale-512x512.png" className="avatar" />
-                <div>
+                <div className="user">
                     <div className="username">{user?.username}</div>
-                    <div className="tag">#{user?.tag}</div>
+                    <div
+                        style={{
+                            position: "relative"
+                        }}
+                    >
+                        <div
+                            className={`tag SlideTransition ${userCardHovered ? "out" : ""}`}
+                            style={{
+                                position: "absolute",
+                                top: "-3px"
+                            }}
+                        >
+                            #{user?.tag}
+                        </div>
+                        <div
+                            className={`SlideTransition ${!userCardHovered ? "out" : ""}`}
+                            style={{
+                                position: "absolute",
+                                width: "inherit",
+                                top: "-3px"
+                            }}
+                        >
+                            <span
+                                className="status"
+                                style={{
+                                    width: "100px"
+                                }}
+                            >
+                                This is the demo status. You need to add this feature.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div className="buttons">
+                    <span>
+                        <FaCog />
+                    </span>
                 </div>
             </div>
             <CreateChannelMenu
@@ -104,6 +146,7 @@ export function Channels(props: { guildId: string }) {
 }
 
 function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: string }) {
+    const [token] = useGlobalState("token")
     const [channelName, setChannelName] = useState("")
     return (
         <Modal show={props.open} onHide={props.hide} centered>
@@ -135,7 +178,7 @@ function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: st
                             },
                             {
                                 headers: {
-                                    authorization: localStorage.getItem("token")
+                                    authorization: token
                                 }
                             }
                         )

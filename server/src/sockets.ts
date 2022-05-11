@@ -8,7 +8,7 @@ import { database } from "./server"
 function initSockets(server: http.Server) {
     const io = new Server(server, {
         cors: {
-            origin: true,
+            origin: "*",
             methods: ["GET", "POST", "PUT", "DELETE"]
         }
     })

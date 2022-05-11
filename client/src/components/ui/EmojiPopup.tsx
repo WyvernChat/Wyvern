@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react"
-import { Overlay, Popover } from "react-bootstrap"
+import { Overlay, OverlayTrigger, Tooltip } from "react-bootstrap"
+import { FaDog, FaFlag, FaGamepad, FaGem, FaPlane, FaSmileWink, FaStop } from "react-icons/fa"
 import emojis from "./emojis.json"
 
 interface Emoji {
@@ -15,6 +16,23 @@ const useEmojis = () => {
         emojiList.current = emojis
     }, [])
     return emojiList
+}
+
+const filterEmojis = (text: string) => {
+    const baseEmojis = [].concat.apply(
+        [],
+        Object.keys(emojis).map((category) => emojis[category])
+    ) as Emoji[]
+
+    // text.match()
+
+    // baseEmojis.forEach((emoji) =>
+    //     emoji.keywords.forEach((keyword) => {
+    //         // console.log(new RegExp(`/:${keyword}:/`).test(text))
+    //         // text.replace(new RegExp(`/:${keyword}:/`), emoji.code)
+    //     })
+    // )
+    return text
 }
 
 function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => void }) {
@@ -57,42 +75,61 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
         }
     }, [])
 
+    const categoryIcons = [
+        <FaSmileWink size={25} />,
+        <FaDog size={25} />,
+        <FaPlane size={25} />,
+        <FaGamepad size={25} />,
+        <FaGem size={25} />,
+        <FaStop size={25} />,
+        <FaFlag size={25} />
+    ]
+
     return (
         <>
             <Overlay placement="top-end" ref={menuRef} target={buttonRef} show={open}>
-                <Popover className="UserMenu">
-                    <Popover.Header as="h3">Emojis</Popover.Header>
-                    <Popover.Body>
-                        <div className="EmojiPopup">
-                            {Object.keys(emojis.current).map((categoryName, index) => {
-                                const category = emojis.current[categoryName]
-                                return (
-                                    <div className="Section" key={index}>
-                                        <span className="title">
-                                            {categoryName} - {category.length}
-                                        </span>
-                                        <div className="Emojis">
-                                            {category.map((emoji, i) => {
-                                                return (
-                                                    <div
-                                                        className="Emoji"
-                                                        key={i}
-                                                        dangerouslySetInnerHTML={{
-                                                            __html:
-                                                                emoji.code
-                                                                    .split(" ")[0]
-                                                                    .replace("U+", "&#x") + ";"
-                                                        }}
-                                                    ></div>
-                                                )
-                                            })}
-                                        </div>
+                <div className="EmojiPopup">
+                    <div className="GroupList">
+                        {Object.keys(emojis.current).map((category, index) => (
+                            <OverlayTrigger
+                                placement="left"
+                                overlay={<Tooltip>{category}</Tooltip>}
+                                key={index}
+                            >
+                                <div className="Group">{categoryIcons[index]}</div>
+                            </OverlayTrigger>
+                        ))}
+                    </div>
+                    <div className="EmojiList">
+                        {Object.keys(emojis.current).map((categoryName, index) => {
+                            const category = emojis.current[categoryName]
+                            return (
+                                <div className="Section" key={index}>
+                                    <span className="title">
+                                        {categoryName} - {category.length}
+                                    </span>
+                                    <div className="Emojis">
+                                        {category.map((emoji, i) => {
+                                            return (
+                                                <div
+                                                    className="Emoji"
+                                                    key={i}
+                                                    dangerouslySetInnerHTML={{
+                                                        __html:
+                                                            emoji.code
+                                                                .split(" ")[0]
+                                                                .replace("U+", "&#x") + ";"
+                                                    }}
+                                                    onClick={() => props.onSelect(emoji)}
+                                                ></div>
+                                            )
+                                        })}
                                     </div>
-                                )
-                            })}
-                        </div>
-                    </Popover.Body>
-                </Popover>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
             </Overlay>
             <span
                 ref={buttonRef}
@@ -111,4 +148,4 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
     )
 }
 
-export { Emoji, useEmojis, EmojiPopup }
+export { Emoji, useEmojis, filterEmojis, EmojiPopup }

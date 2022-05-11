@@ -1,0 +1,47 @@
+.UserBar {
+    display: flex;
+    flex: 0;
+    flex-basis: 200px;
+    flex-direction: column;
+    height: 100%;
+    width: 200px;
+    margin: 5px;
+    overflow-y: scroll;
+    padding: 3px;
+    .Title {
+        padding-top: 15px;
+        padding-bottom: 5px;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #b8b2b2;
+    }
+    .user {
+        width: inherit;
+        margin-bottom: 5px;
+        background-color: #464646;
+        border-radius: 10px;
+        padding: 3px;
+        width: 100%;
+        cursor: pointer;
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .username {
+            width: 100px;
+            overflow: hidden;
+            display: inline;
+            text-overflow: ellipsis;
+        }
+        &:hover {
+            filter: brightness(90%);
+        }
+        &:active {
+            filter: brightness(85%);
+        }
+    }
+}

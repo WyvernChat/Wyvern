@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react"
 import { createGlobalState } from "react-hooks-global-state"
-import { socket } from "."
+import { Socket } from "socket.io-client"
 import { AlertProvider } from "./components/Alerts"
 import { AuthProvider } from "./components/Auth"
 import { Router } from "./components/Router"
@@ -23,7 +23,7 @@ const initialGlobalState: GlobalState = {
 
 const { useGlobalState } = createGlobalState(initialGlobalState)
 
-export function App() {
+export function App(props: { socket: Socket }) {
     const [token] = useGlobalState("token")
     const [, setUser] = useGlobalState("user")
 
@@ -42,7 +42,7 @@ export function App() {
 
     return (
         <AuthProvider>
-            <SocketIO socket={socket}>
+            <SocketIO socket={props.socket}>
                 <AlertProvider>
                     <ContentMenuProvider>
                         <Router />

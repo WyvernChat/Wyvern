@@ -1,5 +1,5 @@
 import axios from "axios"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button, Modal, OverlayTrigger, Stack, Tooltip } from "react-bootstrap"
 import { FaPlusCircle } from "react-icons/fa"
 import { useNavigate, useParams } from "react-router-dom"
@@ -25,7 +25,7 @@ export function Sidebar() {
                     }
                 >
                     <button
-                        className="SidebarButton WyvernButton"
+                        className="SidebarButton WyvernButton outlined"
                         onClick={() => navigate("/channels/@me")}
                     >
                         <img
@@ -52,7 +52,7 @@ export function Sidebar() {
                             }
                         >
                             <button
-                                className={`SidebarButton ServerIcon ${
+                                className={`SidebarButton ServerIcon outlined ${
                                     guildId === guild ? "active" : ""
                                 }`}
                                 onClick={() =>
@@ -72,7 +72,7 @@ export function Sidebar() {
                     }
                 >
                     <button
-                        className="SidebarButton JoinButton"
+                        className="SidebarButton JoinButton outlined"
                         onClick={() => setGuildModalOpen(true)}
                     >
                         <FaPlusCircle />
@@ -100,7 +100,7 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
             },
             {
                 headers: {
-                    authorization: localStorage.getItem("token")
+                    authorization: token
                 }
             }
         )
@@ -206,7 +206,7 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
                                         {},
                                         {
                                             headers: {
-                                                authorization: localStorage.getItem("token")
+                                                authorization: token
                                             }
                                         }
                                     )
@@ -263,17 +263,21 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
 
 function GuildName(props: { id: string }) {
     const [name, setName] = useState("404")
-    axios.get("/api/guilds/" + props.id).then((guild) => {
-        setName(guild.data.name)
-    })
+    useEffect(() => {
+        axios.get("/api/guilds/" + props.id).then((guild) => {
+            setName(guild.data.name)
+        })
+    }, [])
     return <span>{name}</span>
 }
 
 function GuildIcon(props: { id: string }) {
     const [name, setName] = useState("404")
-    axios.get("/api/guilds/" + props.id).then((guild) => {
-        setName(guild.data.name)
-    })
+    useEffect(() => {
+        axios.get("/api/guilds/" + props.id).then((guild) => {
+            setName(guild.data.name)
+        })
+    }, [])
     return (
         <span>
             {name

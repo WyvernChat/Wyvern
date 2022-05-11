@@ -11,6 +11,7 @@ import { EmojiPopup } from "../ui/EmojiPopup"
 import { ChatMessage } from "./Message"
 
 export function Chat(props: { guildId: string; channelId: string }) {
+    const [token] = useGlobalState("token")
     const [user] = useGlobalState("user")
     const [messages, setMessages] = useState<Message[]>([])
     const [currentMessage, setCurrentMessage] = useState("")
@@ -73,7 +74,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
             axios
                 .get(`/api/channels/${props.guildId}/${props.channelId}`, {
                     headers: {
-                        authorization: localStorage.getItem("token")
+                        authorization: token
                     }
                 })
                 .then((response) => {
@@ -94,7 +95,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                 channel: props.channelId
             })
         }
-    }, [user, props.channelId])
+    }, [user, props.channelId, token])
 
     const keyListener = (event: KeyboardEvent) => {
         if (
@@ -117,6 +118,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                         messageInputRef.current.selectionEnd
                     ]
                     messageInputRef.current.setRangeText(event.key, start, end, "select")
+                    setCurrentMessage(messageInputRef.current.value)
                 }
                 messageInputRef.current.focus()
             }
@@ -173,7 +175,11 @@ export function Chat(props: { guildId: string; channelId: string }) {
                     <ChatMessage
                         key={index}
                         message={message}
-                        prevAuthor={messages[index - 1]?.author}
+                        showAvatar={
+                            messages[index - 1]
+                                ? message.author !== messages[index - 1]?.author
+                                : true
+                        }
                     />
                 ))}
             </div>
@@ -211,7 +217,21 @@ export function Chat(props: { guildId: string; channelId: string }) {
                         }}
                     />
                     <div className="buttons">
-                        <EmojiPopup onSelect={() => {}}>
+                        <EmojiPopup
+                            onSelect={(emoji) => {
+                                const [start, end] = [
+                                    messageInputRef.current.selectionStart,
+                                    messageInputRef.current.selectionEnd
+                                ]
+                                messageInputRef.current.setRangeText(
+                                    `:${emoji.keywords[0]}:`,
+                                    start,
+                                    end,
+                                    "end"
+                                )
+                                setCurrentMessage(messageInputRef.current.value)
+                            }}
+                        >
                             <button>
                                 <FaSmileWink size={25} />
                             </button>

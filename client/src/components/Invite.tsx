@@ -15,7 +15,7 @@ export function Invite() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (localStorage.getItem("token")) {
+        if (token) {
             axios.get(`/api/guilds/invites/${inviteCode}`).then((response) => {
                 setGuild(response.data)
             })
@@ -27,7 +27,7 @@ export function Invite() {
                 search: searchParams.toString()
             })
         }
-    }, [])
+    }, [token])
     return (
         <div className="Login-Card">
             <div className="text-center">
@@ -60,7 +60,7 @@ export function Invite() {
                                         {},
                                         {
                                             headers: {
-                                                authorization: localStorage.getItem("token")
+                                                authorization: token
                                             }
                                         }
                                     )

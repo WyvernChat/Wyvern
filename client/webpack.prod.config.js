@@ -13,14 +13,14 @@ module.exports = /** @type {import("webpack").Configuration} */ ({
         library: "Bundle",
         publicPath: "/"
     },
-    mode: "production",
+    mode: "development",
     devServer: {
-        allowedHosts: ["wyvern.tkdkid1000.net"],
+        allowedHosts: ["wyvern-api.tkdkid1000.net"],
         bonjour: true,
         compress: true,
-        proxy: {
-            "/": "https://wyvern.tkdkid1000.net"
-        },
+        // proxy: {
+        //     "/": "https://wyvern-api.tkdkid1000.net"
+        // },
         port: 3001,
         host: "localhost",
         headers: {
@@ -80,7 +80,7 @@ module.exports = /** @type {import("webpack").Configuration} */ ({
             ]
         }),
         new HtmlWebpackPlugin({
-            template: "index.html",
+            template: "index.prod.html",
             inject: true,
             favicon: "img/favicon.png"
         })

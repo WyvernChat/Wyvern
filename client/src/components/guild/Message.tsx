@@ -5,17 +5,16 @@ import { Dropdown, FormControl, Overlay, Popover } from "react-bootstrap"
 import { useGlobalState } from "../../App"
 import { Message, User } from "../../globals"
 import { getCachedUser } from "../../usermanagement"
-import { ContextMenu, ContextMenuButton } from "../ui/ContextMenu"
+import { filterEmojis } from "../ui/EmojiPopup"
 import { useMarkdown } from "../ui/Markdown"
 
 export const ChatMessage = memo(function ChatMessage(props: {
     message: Message
-    prevAuthor: string
+    showAvatar: boolean
 }) {
     const [user] = useGlobalState("user")
     const [userCache, setUserCache] = useGlobalState("userCache")
     const [author, setAuthor] = useState<User>(undefined)
-    const [prevAuthor, setPrevAuthor] = useState<User>(undefined)
     const [embeds, setEmbeds] = useState<string[]>([])
     const markdown = useMarkdown(props.message.content)
 
@@ -24,12 +23,6 @@ export const ChatMessage = memo(function ChatMessage(props: {
             setUserCache(newCache)
             setAuthor(cachedUser)
         })
-        if (props.prevAuthor) {
-            getCachedUser(props.prevAuthor, userCache).then(({ cachedUser, newCache }) => {
-                setUserCache(newCache)
-                setPrevAuthor(cachedUser)
-            })
-        }
     }, [])
 
     const embedCallback = useCallback(
@@ -48,56 +41,67 @@ export const ChatMessage = memo(function ChatMessage(props: {
 
     return (
         <div className="message">
-            {author?.id !== prevAuthor?.id && (
-                <span>
+            {props.showAvatar && (
+                <>
                     <UserMenu userId={author?.id}>
                         <img src="/img/logos/WyvernLogoGrayscale-512x512.png" className="avatar" />
-                        <strong
-                            style={{
-                                color: author?.id === user.id ? "red" : ""
-                            }}
-                            tabIndex={0}
-                            className="user"
-                        >
-                            {author?.username}
-                        </strong>
                     </UserMenu>
-                    &nbsp;
-                    <span className="date">{formatDate(new Date(props.message.sent))}</span>
-                </span>
-            )}
-            <ContextMenu
-                buttons={
-                    <ContextMenuButton
-                        onClick={() => {
-                            navigator.clipboard.writeText(props.message.content)
-                        }}
-                    >
-                        Copy Text
-                    </ContextMenuButton>
-                }
-            >
-                <div className="messagewrapper">
-                    <div className="hoverdate">
-                        {author?.id === prevAuthor?.id
-                            ? formateTime(new Date(props.message.sent))
-                            : ""}
+                    <div>
+                        <UserMenu userId={author?.id}>
+                            <span
+                                style={{
+                                    color: author?.id === user.id ? "red" : ""
+                                }}
+                                tabIndex={0}
+                                className="user outlined"
+                            >
+                                {author?.username}
+                            </span>
+                        </UserMenu>
+                        <span className="date">{formatDate(new Date(props.message.sent))}</span>
+                        <div className="messagewrapper">
+                            {!props.showAvatar && (
+                                <div className="hoverdate">
+                                    {formatTime(new Date(props.message.sent))}
+                                </div>
+                            )}
+                            <div className="contentwrapper">
+                                <div
+                                    // ref={(ref) => {
+                                    //     if (ref) {
+                                    //         embedCallback(ref)
+                                    //     }
+                                    // }}
+                                    className="content"
+                                    dangerouslySetInnerHTML={{
+                                        __html: markdown
+                                    }}
+                                />
+                            </div>
+                        </div>
                     </div>
+                </>
+            )}
+            {!props.showAvatar && (
+                <div className="messagewrapper">
+                    {!props.showAvatar && (
+                        <div className="hoverdate">{formatTime(new Date(props.message.sent))}</div>
+                    )}
                     <div className="contentwrapper">
                         <div
-                            ref={(ref) => {
-                                if (ref) {
-                                    embedCallback(ref)
-                                }
-                            }}
+                            // ref={(ref) => {
+                            //     if (ref) {
+                            //         embedCallback(ref)
+                            //     }
+                            // }}
                             className="content"
                             dangerouslySetInnerHTML={{
-                                __html: markdown
+                                __html: filterEmojis(markdown)
                             }}
                         />
                     </div>
                 </div>
-            </ContextMenu>
+            )}
             <div className="embedwrapper">
                 {embeds.map((embed, index) => (
                     <MessageEmbed key={index} url={embed} />
@@ -158,6 +162,7 @@ function UserMenu(props: { userId: string; children: ReactNode }) {
     const [open, setOpen] = useState(false)
     const [user, setUser] = useState<User>(undefined)
     const [userCache, setUserCache] = useGlobalState("userCache")
+    const [tabFocused, setTabFocused] = useState(false)
 
     const menuRef = useRef<HTMLDivElement>(null)
     const buttonRef = useRef<HTMLDivElement>(null)
@@ -231,7 +236,7 @@ function UserMenu(props: { userId: string; children: ReactNode }) {
                     setOpen(true)
                 }}
                 onKeyDown={(event) => {
-                    if (event.key === "Enter" || "Space") {
+                    if (event.key === "Enter") {
                         setOpen(true)
                     }
                 }}
@@ -262,6 +267,6 @@ function formatDate(date: Date) {
     )
 }
 
-function formateTime(date: Date) {
+function formatTime(date: Date) {
     return date.toLocaleString("en-US", { hour: "numeric", hour12: true, minute: "numeric" })
 }

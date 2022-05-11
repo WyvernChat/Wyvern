@@ -8,16 +8,21 @@ import { io } from "socket.io-client"
 import { App } from "./App"
 import "./scss/main.scss"
 
-const serverUrl = "http://localhost:3000"
+export function Development() {
+    const serverUrl = "http://localhost:3000"
+    console.log("Loading development server at " + serverUrl)
 
-axios.defaults.validateStatus = (status) => status >= 200 && status < 500
-axios.defaults.baseURL = serverUrl
+    axios.defaults.validateStatus = (status) => status >= 200 && status < 500
+    axios.defaults.baseURL = serverUrl
 
-const socket = io(serverUrl)
+    const socket = io(serverUrl)
 
-dayjs.extend(isYesterday)
-dayjs.extend(isToday)
+    dayjs.extend(isYesterday)
+    dayjs.extend(isToday)
 
-createRoot(document.getElementById("app")).render(createElement(App))
-
-export { socket }
+    createRoot(document.getElementById("app")).render(
+        createElement(App, {
+            socket: socket
+        })
+    )
+}
