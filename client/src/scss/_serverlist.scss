@@ -74,6 +74,8 @@
         padding: 10px;
         border-bottom: solid #000 0.5px;
         width: inherit;
+        height: 50px;
+        cursor: pointer;
         .name {
             width: 150px;
             display: inline-block;
@@ -113,15 +115,36 @@
         padding: 10px;
         height: 100%;
         width: inherit;
+        flex: 1;
         .ChannelLink {
             color: #8f8e8e;
             border-radius: 5px;
             padding: 5px;
             margin-bottom: 3px;
             cursor: pointer;
+
+            .type {
+                display: inline-block;
+                vertical-align: middle;
+            }
             .name {
                 font-size: medium;
                 padding-left: 5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 120px;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .settings {
+                float: right;
+                &:hover {
+                    color: white;
+                }
+                &:active {
+                    transform: translateY(1px);
+                }
             }
             &:hover {
                 background-color: darken($color: $gray, $amount: 2);

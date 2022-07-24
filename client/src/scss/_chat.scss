@@ -5,11 +5,39 @@
     height: 100%;
     width: 100%;
     align-content: flex-start;
+    .ChannelHeader {
+        width: 100%;
+        height: 50px;
+        border-bottom: solid #000 0.5px;
+        padding: 10px;
+        vertical-align: middle;
+        background-color: $gray;
+        .text {
+            svg {
+                color: #8f8e8e;
+            }
+            font-size: 16px;
+            line-height: 20px;
+            font-weight: 500;
+        }
+        .separator {
+            display: inline;
+            border-left: 1.5px solid $gray;
+            margin-left: 10px;
+            margin-right: 10px;
+            height: 100%;
+        }
+        .description {
+            color: #8f8e8e;
+            font-size: 14px;
+        }
+    }
     .Messages {
         height: 100%;
         width: 100%;
         overflow-y: scroll;
         display: flex;
+        flex: 1;
         flex-direction: column;
 
         &::-webkit-scrollbar {
@@ -66,7 +94,7 @@
             }
             .contentwrapper {
                 display: inline-block;
-                inline-size: 800px;
+                inline-size: 700px;
                 .content {
                     overflow-wrap: break-word;
                 }

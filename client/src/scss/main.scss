@@ -2,6 +2,10 @@
 @import "~bootstrap/scss/bootstrap";
 @import "~bootswatch/dist/darkly/bootswatch";
 
+* {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 @import "variables";
 @import "chat";
 @import "general";
@@ -9,3 +13,4 @@
 @import "ui";
 @import "userbar";
 @import "utils";
+@import "settings";

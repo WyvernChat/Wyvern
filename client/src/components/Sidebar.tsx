@@ -18,11 +18,11 @@ export function Sidebar() {
             <div className="ServerList">
                 <OverlayTrigger
                     placement="right"
-                    overlay={
+                    overlay={() => (
                         <Tooltip>
                             <b>Home</b>
                         </Tooltip>
-                    }
+                    )}
                 >
                     <button
                         className="SidebarButton WyvernButton outlined"

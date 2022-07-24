@@ -12,7 +12,7 @@ const server = createServer(app)
 app.use(express.json())
 app.use(
     cors({
-        origin: "*",
+        origin: ["http://localhost:3001", "https://wyvern.tkdkid1000.net"],
         methods: ["GET", "POST", "PUT", "DELETE"]
     })
 )

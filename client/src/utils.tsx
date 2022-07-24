@@ -49,4 +49,14 @@ const BoundingRect = (props: { children: (size: [number, number]) => ReactNode }
     return <div ref={ref}>{props.children(size)}</div>
 }
 
-export { useMounted, useForceUpdate, useHidden, randomRange, BoundingRect }
+function useLocalStorage<T>(key: string, initialValue: T) {
+    const state = useState<T>(JSON.parse(localStorage.getItem(key)) || initialValue)
+
+    useEffect(() => {
+        localStorage.setItem(key, JSON.stringify(state[0]))
+    }, [state[0]])
+
+    return state
+}
+
+export { useMounted, useForceUpdate, useHidden, randomRange, BoundingRect, useLocalStorage }

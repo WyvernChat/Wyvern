@@ -15,7 +15,9 @@ export function Development() {
     axios.defaults.validateStatus = (status) => status >= 200 && status < 500
     axios.defaults.baseURL = serverUrl
 
-    const socket = io(serverUrl)
+    const socket = io(serverUrl, {
+        autoConnect: false
+    })
 
     dayjs.extend(isYesterday)
     dayjs.extend(isToday)

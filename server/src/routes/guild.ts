@@ -63,7 +63,7 @@ export default function (app: express.Application) {
         const guild = database.data.guilds.find((g) => g.id === req.params.guildId)
         const user = database.data.users.find((u) => u.token === req.headers.authorization)
         if (user) {
-            if (guild && guild.members.includes(user.id)) {
+            if (guild && guild.members.includes(user.id) && guild.owner === user.id) {
                 const channel = {
                     name: req.body.name || "undefined",
                     description: "",

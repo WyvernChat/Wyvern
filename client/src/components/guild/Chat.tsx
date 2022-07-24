@@ -1,10 +1,10 @@
 import axios from "axios"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { FaSmileWink } from "react-icons/fa"
+import { FaHashtag, FaSmileWink } from "react-icons/fa"
+import InfiniteScroller from "react-infinite-scroller"
 import { useNavigate } from "react-router-dom"
 import { useGlobalState } from "../../App"
 import { Message, TextChannel } from "../../globals"
-import { useForceUpdate } from "../../utils"
 import { useAlert } from "../Alerts"
 import { SocketIO, useSocket } from "../SocketIO"
 import { EmojiPopup } from "../ui/EmojiPopup"
@@ -19,8 +19,8 @@ export function Chat(props: { guildId: string; channelId: string }) {
     const messageInputRef = useRef<HTMLTextAreaElement>(null)
     const messagesRef = useRef<HTMLDivElement>(null)
     const [inputHeight, setInputHeight] = useState(0)
+    const messagesLoading = useRef(false)
     const socket = useSocket()
-    const forceUpdate = useForceUpdate()
     const navigate = useNavigate()
     const alert = useAlert()
 
@@ -28,9 +28,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
         const messageScroll =
             messagesRef.current.scrollTop + 100 >
             messagesRef.current.scrollHeight - messagesRef.current.clientHeight
-        messages.push(message)
-        setMessages(messages)
-        forceUpdate()
+        setMessages((prevMessages) => [...prevMessages, message])
         if (messagesRef) {
             if (messageScroll) {
                 setTimeout(() => {
@@ -45,9 +43,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
 
     const initalChatMessages = useCallback(
         (inital: { messages: Message[]; channel: string }) => {
-            inital.messages.forEach((message) => messages.push(message))
-            setMessages(messages)
-            forceUpdate()
+            setMessages(() => [...inital.messages])
             setTimeout(() => {
                 messagesRef.current.scroll({
                     top: messagesRef.current.scrollHeight,
@@ -88,8 +84,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
             })
         }
         return () => {
-            messages.length = 0
-            setMessages(messages)
+            setMessages([])
             // socket.off("initial chat messages", initalChatMessages)
             socket.emit("leave chat channel", {
                 channel: props.channelId
@@ -159,10 +154,33 @@ export function Chat(props: { guildId: string; channelId: string }) {
         }
     }, [currentMessage])
 
+    // useEffect(() => {
+    //     if (messages) {
+    //         // setLoadScroll(0)
+    //         messagesRef.current.scroll({
+    //             top: loadScroll
+    //         })
+    //     }
+    // }, [loadScroll, messages])
+
     return (
         <div className="Chat" key={props.guildId}>
             <SocketIO.Listener event="chat message" on={newChatMessage} />
             <SocketIO.Listener event="initial chat messages" on={initalChatMessages} />
+            <SocketIO.Listener
+                event="retrieve channel messages"
+                on={(data) => {
+                    messagesLoading.current = false
+                    setMessages([...data.messages, ...messages])
+                }}
+            />
+            <div className="ChannelHeader">
+                <span className="text">
+                    <FaHashtag /> {channel?.name}
+                </span>
+                <div className="separator"></div>
+                <span className="description">{channel?.description}</span>
+            </div>
             <div ref={messagesRef} className="Messages">
                 <div className="beginning">
                     <div className="content">
@@ -171,17 +189,35 @@ export function Chat(props: { guildId: string; channelId: string }) {
                         <hr />
                     </div>
                 </div>
-                {messages.map((message: Message, index: number) => (
-                    <ChatMessage
-                        key={index}
-                        message={message}
-                        showAvatar={
-                            messages[index - 1]
-                                ? message.author !== messages[index - 1]?.author
-                                : true
+                <InfiniteScroller
+                    pageStart={0}
+                    loadMore={() => {
+                        if (channel && messages && messages[0] && !messagesLoading.current) {
+                            messagesLoading.current = true
+                            socket.emit("retrieve channel messages", {
+                                channel: channel.id,
+                                guild: props.guildId,
+                                previous: messages[0].id
+                            })
                         }
-                    />
-                ))}
+                    }}
+                    hasMore={true || false}
+                    loader={<div key={0}>Loading</div>}
+                    useWindow={false}
+                    isReverse={true}
+                >
+                    {messages.map((message: Message, index: number) => (
+                        <ChatMessage
+                            key={index}
+                            message={message}
+                            showAvatar={
+                                messages[index - 1]
+                                    ? message.author !== messages[index - 1]?.author
+                                    : true
+                            }
+                        />
+                    ))}
+                </InfiniteScroller>
             </div>
             <div
                 className="MessageInput"

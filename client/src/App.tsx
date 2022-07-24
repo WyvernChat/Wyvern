@@ -25,7 +25,7 @@ const { useGlobalState } = createGlobalState(initialGlobalState)
 
 export function App(props: { socket: Socket }) {
     const [token] = useGlobalState("token")
-    const [, setUser] = useGlobalState("user")
+    const [user, setUser] = useGlobalState("user")
 
     const updateUser = useCallback(async () => {
         setUser(await getUserData(token))
@@ -39,6 +39,15 @@ export function App(props: { socket: Socket }) {
         localStorage.setItem("token", token)
         updateUser()
     }, [token])
+
+    useEffect(() => {
+        if (user) {
+            props.socket.auth = {
+                token: token
+            }
+            props.socket.connect()
+        }
+    }, [user])
 
     return (
         <AuthProvider>

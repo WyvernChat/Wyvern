@@ -1,12 +1,14 @@
 import axios from "axios"
 import React, { useEffect, useRef, useState } from "react"
-import { Button, Modal } from "react-bootstrap"
+import { Button, Modal, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { FaAngleDown, FaCog, FaHashtag, FaMicrophone, FaWindowClose } from "react-icons/fa"
 import { useNavigate, useParams } from "react-router-dom"
 import { useGlobalState } from "../../App"
 import { Channel, Guild } from "../../globals"
 import { useAlert } from "../Alerts"
+import { SocketIO } from "../SocketIO"
 import { ContextMenu, ContextMenuButton } from "../ui/ContextMenu"
+import { ChannelEditor } from "./ChannelEditor"
 
 export function Channels(props: { guildId: string }) {
     const [token] = useGlobalState("token")
@@ -14,6 +16,7 @@ export function Channels(props: { guildId: string }) {
     const [guild, setGuild] = useState<Guild>(undefined)
     const [invites, setInvites] = useState<string[]>(undefined)
     const [channels, setChannels] = useState<Channel[]>([])
+    const [forceState, forceUpdate] = useState(0)
     const [menuOpen, setMenuOpen] = useState(false)
     const [userCardHovered, setUserCardHovered] = useState(false)
     const [channelCreate, setChannelCreate] = useState(false)
@@ -44,8 +47,21 @@ export function Channels(props: { guildId: string }) {
             }
         })
     }, [props.guildId, token])
+    useEffect(() => {
+        axios.get(`/api/channels/${props.guildId}/channels`).then((response) => {
+            if (response.status === 200) {
+                setChannels(response.data.channels)
+            }
+        })
+    }, [forceState])
     return (
         <div className="GuildBar">
+            <SocketIO.Listener
+                event="update channel"
+                on={(data) => {
+                    console.log(data)
+                }}
+            />
             <div
                 className={`GuildMenu ${menuOpen ? "active" : ""}`}
                 ref={actionRef}
@@ -195,30 +211,53 @@ function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: st
 function ChannelLink(props: { guild: string; channel: Channel }) {
     const navigate = useNavigate()
     const { channelId } = useParams()
+    const [editor, setEditor] = useState(false)
 
     return (
-        <ContextMenu
-            buttons={
-                <>
-                    <ContextMenuButton onClick={() => {}}>Edit Channel</ContextMenuButton>
-                    <ContextMenuButton onClick={() => {}} color="blue">
-                        Share
-                    </ContextMenuButton>
-                    <ContextMenuButton onClick={() => {}} color="red">
-                        Delete Channel
-                    </ContextMenuButton>
-                </>
-            }
-        >
-            <div
-                className={`ChannelLink ${channelId === props.channel.id ? "active" : ""}`}
-                onClick={() => navigate(`/channels/${props.guild}/${props.channel.id}`)}
+        <>
+            <ContextMenu
+                buttons={
+                    <>
+                        <ContextMenuButton onClick={() => {}}>Edit Channel</ContextMenuButton>
+                        <ContextMenuButton onClick={() => {}} color="blue">
+                            Share
+                        </ContextMenuButton>
+                        <ContextMenuButton onClick={() => {}} color="red">
+                            Delete Channel
+                        </ContextMenuButton>
+                    </>
+                }
             >
-                <span>
-                    {props.channel.type === "TEXT" ? <FaHashtag /> : <FaMicrophone />}
-                    <span className="name">{props.channel.name}</span>
-                </span>
-            </div>
-        </ContextMenu>
+                <div
+                    className={`ChannelLink ${channelId === props.channel.id ? "active" : ""}`}
+                    onClick={() => navigate(`/channels/${props.guild}/${props.channel.id}`)}
+                >
+                    <span
+                        style={{
+                            verticalAlign: "middle"
+                        }}
+                    >
+                        <span className="type">
+                            {props.channel.type === "TEXT" ? <FaHashtag /> : <FaMicrophone />}
+                        </span>
+                        <span className="name">{props.channel.name}</span>
+                        <OverlayTrigger
+                            placement="top"
+                            overlay={(props) => <Tooltip {...props}>Edit Channel</Tooltip>}
+                        >
+                            <span className="settings" onClick={() => setEditor(true)}>
+                                <FaCog />
+                            </span>
+                        </OverlayTrigger>
+                    </span>
+                </div>
+            </ContextMenu>
+            <ChannelEditor
+                guildId={props.guild}
+                channelId={props.channel.id}
+                open={editor}
+                onHide={() => setEditor(false)}
+            />
+        </>
     )
 }

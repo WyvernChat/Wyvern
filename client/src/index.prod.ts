@@ -9,13 +9,13 @@ import { App } from "./App"
 import "./scss/main.scss"
 
 export function Production() {
-    const serverUrl = "https://wyvern-api.tkdkid1000.net"
+    const serverUrl = "https://wyvern.tkdkid1000.net"
     console.log("Loading production server at " + serverUrl)
 
     axios.defaults.validateStatus = (status) => status >= 200 && status < 500
     axios.defaults.baseURL = serverUrl
 
-    const socket = io(serverUrl)
+    const socket = io(serverUrl, { secure: true, autoConnect: false })
 
     dayjs.extend(isYesterday)
     dayjs.extend(isToday)

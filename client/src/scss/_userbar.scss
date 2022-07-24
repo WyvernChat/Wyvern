@@ -5,9 +5,22 @@
     flex-direction: column;
     height: 100%;
     width: 200px;
-    margin: 5px;
-    overflow-y: scroll;
-    padding: 3px;
+    .Users {
+        flex: 1;
+        margin: 5px;
+        margin-top: 0;
+        overflow-y: scroll;
+        padding: 3px;
+        padding-top: 0;
+    }
+    .TopBar {
+        width: 100%;
+        height: 50px;
+        border-bottom: solid #000 0.5px;
+        padding: 10px;
+        vertical-align: middle;
+        background-color: $gray;
+    }
     .Title {
         padding-top: 15px;
         padding-bottom: 5px;
@@ -24,6 +37,9 @@
         padding: 3px;
         width: 100%;
         cursor: pointer;
+        &.offline {
+            filter: opacity(50%);
+        }
         .avatar {
             width: 30px;
             height: 30px;

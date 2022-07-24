@@ -52,39 +52,58 @@
     padding: 10px;
     border-radius: 10px;
     height: 250px;
-    .EmojiList {
+    .EmojiContainer {
         overflow: scroll;
-        .Section {
-            width: 100%;
-            .title {
-                background-color: $gray-dark;
-                font-size: 12px;
-                text-transform: uppercase;
-                font-weight: bold;
-                &:not(:first-child) {
-                    margin-top: 5px;
-                }
-                &:not(:last-child) {
-                    margin-bottom: 5px;
-                }
-                color: #b8b2b2;
-            }
-            .Emojis {
+        display: flex;
+        flex-direction: column;
+        .Search {
+            background-color: $gray;
+            border-radius: 5px;
+            padding: 2px;
+            input {
+                background: transparent;
+                border: none;
+                outline: none;
                 width: 100%;
-                display: flex;
-                flex-wrap: wrap;
-                overflow: hidden;
-                .Emoji {
-                    font-size: 25px;
-                    width: 25px;
-                    height: 25px;
-                    margin-right: 5px;
+                color: #fff;
+            }
+        }
+        .EmojiList {
+            overflow: scroll;
+            .Section {
+                width: 100%;
+                .title {
+                    background-color: $gray-dark;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                    &:not(:first-child) {
+                        margin-top: 5px;
+                    }
+                    &:not(:last-child) {
+                        margin-bottom: 5px;
+                    }
+                    color: #b8b2b2;
+                }
+                .Emojis {
+                    width: 100%;
+                    display: flex;
+                    flex-wrap: wrap;
+                    overflow: hidden;
+                    .Emoji {
+                        font-size: 25px;
+                        width: 25px;
+                        height: 25px;
+                        margin-right: 5px;
+                        cursor: pointer;
+                    }
                 }
             }
         }
     }
     .GroupList {
         width: 50px;
+        margin-right: 10px;
         .Group {
             margin-top: 5px;
             margin-bottom: 5px;
