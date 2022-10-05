@@ -1,15 +1,14 @@
+import { Overlay } from "@restart/ui"
 import { Placement } from "@restart/ui/usePopper"
 import React, { ReactNode, useEffect, useRef, useState } from "react"
-import { Dropdown, FormControl, Overlay, Popover } from "react-bootstrap"
-import { useGlobalState } from "../../App"
 import { User } from "../../globals"
-import { getCachedUser } from "../../usermanagement"
+import { useUserCache } from "../../hooks/user"
 import { useLocalStorage } from "../../utils"
 
 export function UserMenu(props: { userId: string; placement: Placement; children: ReactNode }) {
     const [open, setOpen] = useState(false)
     const [user, setUser] = useState<User>(undefined)
-    const [userCache, setUserCache] = useGlobalState("userCache")
+    const [cachedUser] = useUserCache()
     const [notes, setNotes] = useLocalStorage<{ [user: string]: string }>("usernotes", {})
 
     const menuRef = useRef<HTMLDivElement>(null)
@@ -35,10 +34,7 @@ export function UserMenu(props: { userId: string; placement: Placement; children
         document.addEventListener("mousedown", closeMenu)
         document.addEventListener("keydown", closeMenuKey)
         if (props.userId) {
-            getCachedUser(props.userId, userCache).then(({ cachedUser, newCache }) => {
-                setUserCache(newCache)
-                setUser(cachedUser)
-            })
+            cachedUser(props.userId).then(setUser)
         }
         return () => {
             document.removeEventListener("mousedown", closeMenu)
@@ -57,32 +53,26 @@ export function UserMenu(props: { userId: string; placement: Placement; children
     return (
         <>
             <Overlay placement={props.placement} ref={menuRef} target={buttonRef} show={open}>
-                <Popover className="UserMenu">
-                    <Popover.Header as="h3">
-                        <span className="user">
-                            {user?.username}
-                            <span className="tag">#{user?.tag}</span>
-                        </span>
-                    </Popover.Header>
-                    <Popover.Body>
-                        <Dropdown show>
-                            <Dropdown.Header>About Me</Dropdown.Header>
-                            <Dropdown.ItemText>
-                                This is the demo bio. You need to add this feature.
-                            </Dropdown.ItemText>
-                            <Dropdown.Header>Note</Dropdown.Header>
-                            <Dropdown.ItemText>
-                                <FormControl
-                                    placeholder="Click to add a note"
-                                    value={notes[props.userId] || ""}
-                                    onChange={(event) =>
-                                        setNotes({ ...notes, [props.userId]: event.target.value })
-                                    }
-                                />
-                            </Dropdown.ItemText>
-                        </Dropdown>
-                    </Popover.Body>
-                </Popover>
+                {() => (
+                    <div className="UserMenu">
+                        <h3>
+                            <span className="user">
+                                {user?.username}
+                                <span className="tag">#{user?.tag}</span>
+                            </span>
+                        </h3>
+                        <div>
+                            This is the demo bio. You need to add this feature.
+                            <input
+                                placeholder="Click to add a note"
+                                value={notes[props.userId] || ""}
+                                onChange={(event) =>
+                                    setNotes({ ...notes, [props.userId]: event.target.value })
+                                }
+                            />
+                        </div>
+                    </div>
+                )}
             </Overlay>
             <span
                 ref={buttonRef}

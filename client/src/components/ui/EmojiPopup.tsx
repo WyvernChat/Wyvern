@@ -1,7 +1,8 @@
+import { Button, Overlay } from "@restart/ui"
 import React, { ReactNode, useEffect, useRef, useState } from "react"
-import { Overlay, OverlayTrigger, Popover, Tooltip } from "react-bootstrap"
 import { FaDog, FaFlag, FaGamepad, FaGem, FaPlane, FaSmileWink, FaStop } from "react-icons/fa"
 import emojis from "./emojis.json"
+import { Tooltip } from "./Tooltip"
 
 interface Emoji {
     no: number
@@ -19,10 +20,7 @@ const useEmojis = () => {
 }
 
 const filterEmojis = (text: string) => {
-    const baseEmojis = [].concat.apply(
-        [],
-        Object.keys(emojis).map((category) => emojis[category])
-    ) as Emoji[]
+    const baseEmojis = Object.keys(emojis).map((category) => emojis[category])
 
     // text.match()
 
@@ -81,112 +79,104 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
     }, [open])
 
     const categoryIcons = [
-        <FaSmileWink size={25} />,
-        <FaDog size={25} />,
-        <FaPlane size={25} />,
-        <FaGamepad size={25} />,
-        <FaGem size={25} />,
-        <FaStop size={25} />,
-        <FaFlag size={25} />
+        <FaSmileWink key="FaSmileWink" size={25} />,
+        <FaDog key="FaDog" size={25} />,
+        <FaPlane key="FaPlane" size={25} />,
+        <FaGamepad key="FaGamepad" size={25} />,
+        <FaGem key="FaGem" size={25} />,
+        <FaStop key="FaStop" size={25} />,
+        <FaFlag key="FaFlag" size={25} />
     ]
 
     return (
         <>
             <Overlay placement="top-end" ref={menuRef} target={buttonRef} show={open}>
-                <div className="EmojiPopup">
-                    <div className="GroupList">
-                        {Object.keys(emojis.current).map((category, index) => (
-                            <OverlayTrigger
-                                placement="left"
-                                overlay={<Tooltip>{category}</Tooltip>}
-                                key={index}
-                            >
-                                <div className="Group">{categoryIcons[index]}</div>
-                            </OverlayTrigger>
-                        ))}
-                    </div>
-                    <div className="EmojiContainer">
-                        <div className="Search">
-                            <input
-                                placeholder="Search for emojis"
-                                value={search}
-                                onChange={(event) => setSearch(event.target.value)}
-                            />
+                {(props) => (
+                    <div className="EmojiPopup">
+                        <div className="GroupList">
+                            {Object.keys(emojis.current).map((category, index) => (
+                                <Tooltip placement="left" text={<b>{category}</b>} key={index}>
+                                    <div className="Group">{categoryIcons[index]}</div>
+                                </Tooltip>
+                            ))}
                         </div>
-                        <div className="EmojiList">
-                            {Object.keys(emojis.current).map((categoryName, index) => {
-                                const category = emojis.current[categoryName]
-                                return (
-                                    <div className="Section" key={index}>
-                                        <span className="title">
-                                            {categoryName} - {category.length}
-                                        </span>
-                                        <div className="Emojis">
-                                            {category.map((emoji, i) => {
-                                                return search.length < 1 ? (
-                                                    <div
-                                                        className="Emoji"
-                                                        key={i}
-                                                        dangerouslySetInnerHTML={{
-                                                            __html:
-                                                                emoji.code
-                                                                    .split(" ")[0]
-                                                                    .replace("U+", "&#x") + ";"
-                                                        }}
-                                                        onClick={() => props.onSelect(emoji)}
-                                                    ></div>
-                                                ) : (
-                                                    emoji.keywords.some((kw) =>
-                                                        kw.includes(search)
-                                                    ) && (
-                                                        <OverlayTrigger
-                                                            key={emoji.no}
-                                                            placement="right"
-                                                            overlay={() => (
-                                                                <Popover>
-                                                                    <b>{emoji.no}</b>
-                                                                </Popover>
-                                                            )}
-                                                        >
-                                                            <div
-                                                                className="Emoji"
-                                                                key={i}
-                                                                dangerouslySetInnerHTML={{
-                                                                    __html:
-                                                                        emoji.code
-                                                                            .split(" ")[0]
-                                                                            .replace("U+", "&#x") +
-                                                                        ";"
-                                                                }}
-                                                                onClick={() =>
-                                                                    props.onSelect(emoji)
-                                                                }
-                                                            ></div>
-                                                        </OverlayTrigger>
+                        <div className="EmojiContainer">
+                            <div className="Search">
+                                <input
+                                    placeholder="Search for emojis"
+                                    value={search}
+                                    onChange={(event) => setSearch(event.target.value)}
+                                />
+                            </div>
+                            <div className="EmojiList">
+                                {Object.keys(emojis.current).map((categoryName, index) => {
+                                    const category = emojis.current[categoryName]
+                                    return (
+                                        <div className="Section" key={index}>
+                                            <span className="title">
+                                                {categoryName} - {category.length}
+                                            </span>
+                                            <div className="Emojis">
+                                                {category.map((emoji, i) => {
+                                                    return search.length < 1 ? (
+                                                        <div
+                                                            className="Emoji"
+                                                            key={i}
+                                                            dangerouslySetInnerHTML={{
+                                                                __html:
+                                                                    emoji.code
+                                                                        .split(" ")[0]
+                                                                        .replace("U+", "&#x") + ";"
+                                                            }}
+                                                            onClick={() => props.onSelect(emoji)}
+                                                        ></div>
+                                                    ) : (
+                                                        emoji.keywords.some((kw) =>
+                                                            kw.includes(search)
+                                                        ) && (
+                                                            <Tooltip
+                                                                key={emoji.no}
+                                                                placement="right"
+                                                                text={<b>{emoji.no}</b>}
+                                                            >
+                                                                <div
+                                                                    className="Emoji"
+                                                                    key={i}
+                                                                    dangerouslySetInnerHTML={{
+                                                                        __html:
+                                                                            emoji.code
+                                                                                .split(" ")[0]
+                                                                                .replace(
+                                                                                    "U+",
+                                                                                    "&#x"
+                                                                                ) + ";"
+                                                                    }}
+                                                                    onClick={() =>
+                                                                        props.onSelect(emoji)
+                                                                    }
+                                                                ></div>
+                                                            </Tooltip>
+                                                        )
                                                     )
-                                                )
-                                            })}
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
-                                )
-                            })}
+                                    )
+                                })}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </Overlay>
-            <span
+            <Button
+                as="span"
                 ref={buttonRef}
                 onClick={() => {
                     setOpen(true)
                 }}
-                onKeyDown={(event) => {
-                    if (event.key === "Enter" || "Space") {
-                        setOpen(true)
-                    }
-                }}
             >
                 {props.children}
-            </span>
+            </Button>
         </>
     )
 }

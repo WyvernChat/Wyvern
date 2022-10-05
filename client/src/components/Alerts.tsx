@@ -9,7 +9,6 @@ import React, {
     useRef,
     useState
 } from "react"
-import { Alert } from "react-bootstrap"
 import { randomRange } from "../utils"
 
 interface AlertConfig {
@@ -38,17 +37,18 @@ function AlertList() {
     return (
         <div className="AlertProvider">
             <div className="Alerts">
-                {alerts.map((alert, index) => (
-                    <Alert
-                        key={index}
-                        variant={alert.type}
-                        dismissible
-                        onClose={() => {
-                            setAlerts(alerts.filter((a) => a.id !== alert.id))
-                        }}
-                    >
-                        {alert.text}
-                    </Alert>
+                {alerts.map((alert) => (
+                    // <Alert
+                    //     key={index}
+                    //     variant={alert.type}
+                    //     dismissible
+                    //     onClose={() => {
+                    //         setAlerts(alerts.filter((a) => a.id !== alert.id))
+                    //     }}
+                    // >
+                    //     {alert.text}
+                    // </Alert>
+                    <div key={alert.id}></div>
                 ))}
             </div>
         </div>

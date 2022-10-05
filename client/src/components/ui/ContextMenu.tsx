@@ -6,7 +6,6 @@ import React, {
     ReactNode,
     SetStateAction,
     useContext,
-    useEffect,
     useRef,
     useState
 } from "react"
@@ -32,71 +31,37 @@ export function ContentMenuProvider(props: { children: ReactNode }) {
     const [open, setOpen] = useState(false)
     const [position, setPosition] = useState<[number, number]>([0, 0])
 
-    const openMenu = (event: MouseEvent, menu: ContextMenuConfig) => {
-        if (menu.ref.current.contains(event.target as Node)) {
-            event.preventDefault()
-            setMenus((menus) => {
-                menus.find((m) => m.id === menu.id).open = true
-                setPosition([event.clientX, event.clientY])
-                return menus
-            })
-            setOpen(true)
-        }
-    }
-    const hide = (event: MouseEvent, menu: ContextMenuConfig) => {
-        if (!menu.ref.current.contains(event.target as Node)) {
-            event.preventDefault()
-            setMenus((menus) => {
-                menus.find((m) => m.id === menu.id).open = false
-                return menus
-            })
-            setOpen(false)
-        }
-    }
-    const hideKey = (event: KeyboardEvent, menu: ContextMenuConfig) => {
-        if (event.key === "Escape" && menu) {
-            event.preventDefault()
-            setMenus((menus) => {
-                menus.find((m) => m.id === menu.id).open = false
-                return menus
-            })
-            setOpen(false)
-        }
-    }
-
-    useEffect(() => {
-        menus.forEach((menu) => {
-            document.addEventListener("contextmenu", (event: MouseEvent) => {
-                openMenu(event, menu)
-            })
-            document.addEventListener("contextmenu", (event: MouseEvent) => {
-                hide(event, menu)
-            })
-            document.addEventListener("click", (event: MouseEvent) => {
-                hide(event, menu)
-            })
-            document.addEventListener("keydown", (event: KeyboardEvent) => {
-                hideKey(event, menu)
-            })
-        })
-        console.log(menus.length)
-        return () => {
-            menus.forEach((menu) => {
-                document.removeEventListener("contextmenu", (event: MouseEvent) => {
-                    openMenu(event, menu)
-                })
-                document.removeEventListener("contextmenu", (event: MouseEvent) => {
-                    hide(event, menu)
-                })
-                document.removeEventListener("click", (event: MouseEvent) => {
-                    hide(event, menu)
-                })
-                document.removeEventListener("keydown", (event: KeyboardEvent) => {
-                    hideKey(event, menu)
-                })
-            })
-        }
-    }, [menus])
+    // useEffect(() => {
+    //     const openMenu = (event: MouseEvent) => {
+    //         const menu = (event.target as Element).closest(".ContextMenuClass") as HTMLElement
+    //         const contextMenu = menus.find((m) => m.id === parseInt(menu.dataset.contextmenu))
+    //         event.preventDefault()
+    //         setMenus((menus) => {
+    //             menus.find((m) => m.id === contextMenu.id).open = true
+    //             setPosition([event.clientX, event.clientY])
+    //             return menus
+    //         })
+    //         setOpen(true)
+    //     }
+    //     const hide = () => {
+    //         setOpen(false)
+    //         setMenus((menus) => menus.map((m) => ({ ...m, open: false })))
+    //     }
+    //     const hideKey = (event: KeyboardEvent) => {
+    //         if (event.key === "Escape") {
+    //             setMenus((menus) => menus.map((m) => ({ ...m, open: false })))
+    //             setOpen(false)
+    //         }
+    //     }
+    //     document.addEventListener("contextmenu", openMenu)
+    //     document.addEventListener("click", hide)
+    //     document.addEventListener("keydown", hideKey)
+    //     return () => {
+    //         document.removeEventListener("contextmenu", openMenu)
+    //         document.removeEventListener("click", hide)
+    //         document.removeEventListener("keydown", hideKey)
+    //     }
+    // }, [menus])
 
     return (
         <ContextMenuContext.Provider
@@ -133,27 +98,31 @@ export function ContextMenu(props: { children: ReactNode; buttons: ReactNode }) 
     const [position, setPosition] = context[2]
     const [id, setId] = useState(0)
 
-    useEffect(() => {
-        setMenus((menus) => {
-            setId(menus.length + 1)
-            menus.push({
-                ref: menuRef,
-                buttons: props.buttons,
-                open: false,
-                id: id
-            })
-            return menus
-        })
-        return () => {
-            setMenus((menus) => {
-                setId(menus.length + 1)
-                menus.filter((m) => m.id !== id)
-                return menus
-            })
-        }
-    }, [props.buttons, menuRef])
+    // useEffect(() => {
+    //     setMenus((menus) => {
+    //         setId(menus.length + 1)
+    //         menus.push({
+    //             ref: menuRef,
+    //             buttons: props.buttons,
+    //             open: false,
+    //             id: id
+    //         })
+    //         return menus
+    //     })
+    //     return () => {
+    //         setMenus((menus) => {
+    //             setId(menus.length + 1)
+    //             menus = menus.filter((m) => m.id !== id)
+    //             return menus
+    //         })
+    //     }
+    // }, [props.buttons, menuRef, setMenus, id])
 
-    return <div ref={menuRef}>{props.children}</div>
+    return (
+        <div className="ContextMenuClass" ref={menuRef}>
+            {props.children}
+        </div>
+    )
 }
 
 export function ContextMenuButton(props: {

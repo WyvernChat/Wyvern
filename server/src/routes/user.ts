@@ -1,9 +1,12 @@
 import express from "express"
-import { database } from "../server"
+import { GuildModel } from "../models/guild"
+import { UserModel } from "../models/user"
 
 export default function (app: express.Application) {
-    app.get("/api/user", (req, res) => {
-        const user = database.data.users.find((u) => u.token === req.headers.authorization)
+    app.get("/api/user", async (req, res) => {
+        const user = await UserModel.findOne({
+            token: req.headers.authorization
+        })
         if (user) {
             res.status(200).json({
                 user: {
@@ -19,24 +22,10 @@ export default function (app: express.Application) {
             })
         }
     })
-    app.get("/api/user/:id/data", (req, res) => {
-        const user = database.data.users.find((u) => u.id === req.params.id)
-        if (user) {
-            res.status(200).json({
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    tag: user.tag
-                }
-            })
-        } else {
-            res.status(404).json({
-                error: "User not Found"
-            })
-        }
-    })
-    app.get("/api/user/guilds", (req, res) => {
-        const user = database.data.users.find((u) => u.token === req.headers.authorization)
+    app.get("/api/user/guilds", async (req, res) => {
+        const user = await UserModel.findOne({
+            token: req.headers.authorization
+        })
         if (user) {
             res.status(200).json({
                 guilds: user.guilds
@@ -47,13 +36,20 @@ export default function (app: express.Application) {
             })
         }
     })
-    app.put("/api/user/guilds", (req, res) => {
-        const user = database.data.users.find((u) => u.token === req.headers.authorization)
+    app.put("/api/user/guilds", async (req, res) => {
+        const user = await UserModel.findOne({
+            token: req.headers.authorization
+        })
         if (user) {
-            const guild = database.data.guilds.find((g) => g.id === req.body.guildId)
+            const guild = await GuildModel.findOne({
+                id: req.body.guildId
+            })
             if (guild) {
-                user.guilds.push(guild.id)
-                database.data.users.find((u) => u.id === user.id).guilds = user.guilds
+                user.updateOne({
+                    $push: {
+                        guilds: guild.id
+                    }
+                })
                 res.status(200).json({
                     success: "Guild joined",
                     guildID: guild.id
@@ -66,6 +62,24 @@ export default function (app: express.Application) {
         } else {
             res.status(401).json({
                 error: "Permission denied"
+            })
+        }
+    })
+    app.get("/api/user/:id", async (req, res) => {
+        const user = await UserModel.findOne({
+            id: req.params.id
+        })
+        if (user) {
+            res.status(200).json({
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    tag: user.tag
+                }
+            })
+        } else {
+            res.status(404).json({
+                error: "User not Found"
             })
         }
     })

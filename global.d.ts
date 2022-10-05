@@ -8,16 +8,22 @@ export interface User {
     guilds: string[]
 }
 
+export interface Member {
+    id: string
+    nickname: string
+}
+
 export interface Guild {
     id: string
     name: string
     owner: string
     members: string[]
     invites: string[]
-    channels: Channel[]
+    channels: string[]
 }
 
 export interface Channel {
+    guild: string
     name: string
     description: string
     type: ChannelType

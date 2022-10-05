@@ -1,13 +1,7 @@
 import axios from "axios"
-import { User } from "./globals"
-
-async function getUserData(token: string | undefined) {
-    const user = await getUser(token)
-    if (user) {
-        user.guilds = await getGuilds(token)
-    }
-    return user
-}
+import { useCallback } from "react"
+import { useGlobalState } from "../App"
+import { User } from "../globals"
 
 async function getUser(token: string | undefined): Promise<User | undefined> {
     if (token) {
@@ -26,12 +20,30 @@ async function getUser(token: string | undefined): Promise<User | undefined> {
     }
 }
 
+const useUserCache = () => {
+    const [users, setUsers] = useGlobalState("users")
+    const cachedUser = useCallback(
+        async (id: string) => {
+            let user = users.find((u) => u.id === id)
+            if (user) return user
+            const response = await axios.get(`/api/user/${id}`)
+            if (response.status === 200) {
+                user = response.data.user
+                setUsers([...users, user])
+            }
+            return user
+        },
+        [users]
+    )
+    return [cachedUser]
+}
+
 async function getCachedUser(id: string, userCache: User[]) {
     let user: User
     if (userCache.find((u) => u.id === id)) {
         user = userCache.find((u) => u.id === id)
     } else {
-        const response = await axios.get(`/api/user/${id}/data`)
+        const response = await axios.get(`/api/user/${id}`)
         if (response.status === 200) {
             user = response.data.user
             userCache.push(response.data.user)
@@ -43,21 +55,4 @@ async function getCachedUser(id: string, userCache: User[]) {
     }
 }
 
-async function getGuilds(token: string | undefined): Promise<string[] | undefined> {
-    if (token) {
-        const response = await axios.get(`/api/user/guilds`, {
-            headers: {
-                authorization: token
-            }
-        })
-        if (response.status === 200) {
-            return response.data.guilds
-        } else {
-            return undefined
-        }
-    } else {
-        return undefined
-    }
-}
-
-export { getUserData, getUser, getCachedUser, getGuilds }
+export { getUser, useUserCache, getCachedUser }

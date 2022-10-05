@@ -9,22 +9,15 @@ function SocketIO(props: { socket: Socket; children: ReactNode }) {
     )
 }
 
-SocketIO.Listener = (props: { event: string; on: (...args: any[]) => void }) => {
+const useSocket = () => useContext(SocketIOContext)
+const useSocketListener = <Args,>(eventName: string, handler: (...args: Args[]) => void) => {
     const socket = useSocket()
-    const event = (data: any) => {
-        props.on(data)
-    }
     useEffect(() => {
-        // console.log("listener added for " + props.event)
-        socket.on(props.event, event)
+        socket.on(eventName, handler)
         return () => {
-            // console.log("listener removed for " + props.event)
-            socket.off(props.event, event)
+            socket.off(eventName, handler)
         }
     }, [])
-    return <></>
 }
 
-const useSocket = () => useContext(SocketIOContext)
-
-export { SocketIO, useSocket }
+export { SocketIO, useSocket, useSocketListener }

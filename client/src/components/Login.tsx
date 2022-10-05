@@ -1,9 +1,9 @@
 import axios from "axios"
 import React, { useState } from "react"
-import { Button, Stack } from "react-bootstrap"
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom"
 import { useAlert } from "./Alerts"
 import { useAuth } from "./Auth"
+import { Button } from "./ui/Button"
 
 export function Login() {
     const [email, setEmail] = useState("")
@@ -54,7 +54,7 @@ export function Login() {
                         Login with your email and password.
                     </span>
                 </div>
-                <Stack gap={4}>
+                <div className="VStack-4">
                     <div className="Input-Form">
                         <div>Email</div>
                         <input
@@ -76,7 +76,6 @@ export function Login() {
                     <div className="Input-Form">
                         <Button
                             type="submit"
-                            variant="primary"
                             style={{
                                 width: "100%"
                             }}
@@ -84,10 +83,10 @@ export function Login() {
                             Login
                         </Button>
                         <div>
-                            Don't have an account? <Link to="/register">Register</Link>
+                            Don&apos;t have an account? <Link to="/register">Register</Link>
                         </div>
                     </div>
-                </Stack>
+                </div>
             </form>
         </div>
     ) : (

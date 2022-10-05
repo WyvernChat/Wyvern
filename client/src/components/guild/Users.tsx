@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react"
 import { useGlobalState } from "../../App"
 import { User } from "../../globals"
-import { getCachedUser } from "../../usermanagement"
-import { SocketIO, useSocket } from "../SocketIO"
+import { getCachedUser } from "../../hooks/user"
+import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
+import { useSocket, useSocketListener } from "../SocketIO"
 import { UserMenu } from "../ui/UserMenu"
 
 export function Users(props: { guildId: string }) {
@@ -15,34 +16,37 @@ export function Users(props: { guildId: string }) {
                 guildId: props.guildId
             })
         }, 60000)
-    }, [])
+    }, [socket, props.guildId])
 
     useEffect(() => {
         socket.emit("fetch guild users", {
             guildId: props.guildId
         })
-    }, [props.guildId])
+    }, [socket, props.guildId])
+
+    useSocketListener<{ members: [{ user: string; online: boolean }] }>(
+        "send guild users",
+        ({ members }) => setUsers(members)
+    )
+
+    const onlineUsers = users.filter((u) => u.online)
+    const offlineUsers = users.filter((u) => !u.online)
 
     return (
         <div className="UserBar">
-            <SocketIO.Listener event="send guild users" on={(data) => setUsers(data.members)} />
             <div className="TopBar"></div>
             <div className="Users">
-                <div className="Title">Online - {users.filter((u) => u.online).length}</div>
+                <div className="Title">Online - {onlineUsers.length}</div>
                 <div>
-                    {users
-                        .filter((u) => u.online)
-                        .map((u, index) => (
-                            <ActiveUser key={index} userId={u.user} online />
-                        ))}
+                    {onlineUsers.map((u, index) => (
+                        <ActiveUser key={index} userId={u.user} online />
+                    ))}
                 </div>
-                <div className="Title">Offline - {users.filter((u) => !u.online).length}</div>
+                <div className="Title">Offline - {offlineUsers.length}</div>
                 <div>
-                    {users
-                        .filter((u) => !u.online)
-                        .map((u, index) => (
-                            <ActiveUser key={index} userId={u.user} />
-                        ))}
+                    {offlineUsers.map((u, index) => (
+                        <ActiveUser key={index} userId={u.user} />
+                    ))}
                 </div>
             </div>
         </div>
@@ -50,13 +54,13 @@ export function Users(props: { guildId: string }) {
 }
 
 function ActiveUser(props: { userId: string; online?: boolean }) {
-    const [userCache, setUserCache] = useGlobalState("userCache")
+    const [users, setUsers] = useGlobalState("users")
     const [user, setUser] = useState<User>(undefined)
 
     useEffect(() => {
         if (props.userId) {
-            getCachedUser(props.userId, userCache).then(({ cachedUser, newCache }) => {
-                setUserCache(newCache)
+            getCachedUser(props.userId, users).then(({ cachedUser, newCache }) => {
+                setUsers(newCache)
                 setUser(cachedUser)
             })
         }
@@ -65,7 +69,7 @@ function ActiveUser(props: { userId: string; online?: boolean }) {
     return (
         <UserMenu userId={props.userId} placement="left">
             <div className={`user ${props.online ? "" : "offline"}`}>
-                <img src="/img/logos/WyvernLogoGrayscale-512x512.png" className="avatar" />
+                <img src={logoUrl} className="avatar" />
                 <span className="username">{user?.username}</span>
             </div>
         </UserMenu>

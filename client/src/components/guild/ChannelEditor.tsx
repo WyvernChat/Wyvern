@@ -29,7 +29,7 @@ export function ChannelEditor(props: {
                     setChannel(response.data.channel)
                 })
         }
-    }, [user, props.channelId, token])
+    }, [user, props.channelId, token, props.guildId])
     useEffect(() => {
         window.addEventListener("keyup", (event) => {
             if (event.key === "Escape") {

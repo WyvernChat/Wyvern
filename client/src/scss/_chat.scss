@@ -1,11 +1,14 @@
 .Chat {
     display: flex;
-    flex: 1;
+    // flex: 1;
     flex-direction: column;
     height: 100%;
     width: 100%;
     align-content: flex-start;
     .ChannelHeader {
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
         width: 100%;
         height: 50px;
         border-bottom: solid #000 0.5px;
@@ -13,8 +16,11 @@
         vertical-align: middle;
         background-color: $gray;
         .text {
+            display: inline-flex;
+            align-items: center;
             svg {
-                color: #8f8e8e;
+                color: $gray-light;
+                margin-right: 5px;
             }
             font-size: 16px;
             line-height: 20px;
@@ -28,13 +34,15 @@
             height: 100%;
         }
         .description {
-            color: #8f8e8e;
+            color: $gray-light;
             font-size: 14px;
         }
     }
     .Messages {
+        box-sizing: border-box;
+        padding-bottom: 20px;
         height: 100%;
-        width: 100%;
+        max-width: 100%;
         overflow-y: scroll;
         display: flex;
         flex: 1;
@@ -78,25 +86,24 @@
             padding: 5px 10px;
             .messagewrapper {
                 display: flex;
-                align-items: baseline;
+                align-items: center;
                 flex-direction: row;
             }
             .hoverdate {
-                width: 50px;
+                min-width: 50px;
                 font-size: 10px;
                 color: gray;
                 visibility: hidden;
             }
-            &:hover {
-                .hoverdate {
-                    visibility: visible;
-                }
+            &:hover .hoverdate {
+                visibility: visible;
             }
             .contentwrapper {
-                display: inline-block;
-                inline-size: 700px;
+                display: block;
                 .content {
+                    display: block;
                     overflow-wrap: break-word;
+                    word-break: break-all;
                 }
             }
             .avatar {
@@ -179,41 +186,39 @@
         }
     }
     .MessageInput {
-        // position: absolute;
-        // bottom: 0;
-        // left: 0;
-        height: 70px;
-        width: 100%;
-        padding: 10px 10px 20px 10px;
-        margin-top: auto;
+        padding: 0px 10px 20px 10px;
         .Input {
             display: flex;
             background-color: $gray;
-            height: 100%;
-            width: 100%;
             border-radius: 8px;
             padding: 5px;
             textarea {
-                display: inline;
+                font-size: 16px;
+                display: flex;
                 resize: none;
                 outline: none;
                 border: none;
                 width: 100%;
-                height: 100%;
                 background-color: transparent;
                 color: #ffffff;
             }
             .buttons {
-                height: 100%;
                 position: relative;
+                display: flex;
+                align-items: center;
                 button {
-                    color: #8f8e8e;
+                    color: $gray-light;
                     background-color: transparent;
                     border: none;
+                    cursor: pointer;
                     &:hover {
                         color: #ffffff;
-                        transform: scale(1.1);
+                        scale: 1.1;
                     }
+                }
+                .emoji-button {
+                    display: flex;
+                    align-items: center;
                 }
                 .length-indicator {
                     position: absolute;

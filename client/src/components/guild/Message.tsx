@@ -3,7 +3,8 @@ import dayjs from "dayjs"
 import React, { memo, useCallback, useEffect, useState } from "react"
 import { useGlobalState } from "../../App"
 import { Message, User } from "../../globals"
-import { getCachedUser } from "../../usermanagement"
+import { useUserCache } from "../../hooks/user"
+import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import { filterEmojis } from "../ui/EmojiPopup"
 import { useMarkdown } from "../ui/Markdown"
 import { UserMenu } from "../ui/UserMenu"
@@ -13,16 +14,14 @@ export const ChatMessage = memo(function ChatMessage(props: {
     showAvatar: boolean
 }) {
     const [user] = useGlobalState("user")
-    const [userCache, setUserCache] = useGlobalState("userCache")
+    // const [userCache, setUserCache] = useGlobalState("userCache")
+    const [cachedUser] = useUserCache()
     const [author, setAuthor] = useState<User>(undefined)
     const [embeds, setEmbeds] = useState<string[]>([])
     const markdown = useMarkdown(props.message.content)
 
     useEffect(() => {
-        getCachedUser(props.message.author, userCache).then(({ cachedUser, newCache }) => {
-            setUserCache(newCache)
-            setAuthor(cachedUser)
-        })
+        cachedUser(props.message.author).then(setAuthor)
     }, [])
 
     const embedCallback = useCallback(
@@ -44,7 +43,7 @@ export const ChatMessage = memo(function ChatMessage(props: {
             {props.showAvatar && (
                 <>
                     <UserMenu userId={author?.id} placement="right">
-                        <img src="/img/logos/WyvernLogoGrayscale-512x512.png" className="avatar" />
+                        <img src={logoUrl} className="avatar" />
                     </UserMenu>
                     <div>
                         <UserMenu userId={author?.id} placement="right">
@@ -102,11 +101,13 @@ export const ChatMessage = memo(function ChatMessage(props: {
                     </div>
                 </div>
             )}
-            <div className="embedwrapper">
-                {embeds.map((embed, index) => (
-                    <MessageEmbed key={index} url={embed} />
-                ))}
-            </div>
+            {embeds.length > 0 && (
+                <div className="embedwrapper">
+                    {embeds.map((embed, index) => (
+                        <MessageEmbed key={index} url={embed} />
+                    ))}
+                </div>
+            )}
         </div>
     )
 })
@@ -137,18 +138,18 @@ function MessageEmbed(props: { url: string }) {
         return (
             <div className="embed">
                 <div className="author">
-                    <a href={videoData?.author_url} target="_blank" rel="noopener">
+                    <a href={videoData?.author_url} target="_blank" rel="noreferrer">
                         {videoData?.author_name}
                     </a>
                 </div>
                 <div className="title">
-                    <a href={props.url} target="_blank" rel="noopener">
+                    <a href={props.url} target="_blank" rel="noreferrer">
                         {videoData?.title}
                     </a>
                 </div>
                 <div className="yt-video">
                     <iframe src={`https://www.youtube.com/embed/${video}`}>
-                        So like the iframe didn't work
+                        So like the iframe didn&apos;t work
                     </iframe>
                 </div>
             </div>

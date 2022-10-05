@@ -1,77 +1,84 @@
+import { Modal } from "@restart/ui"
 import axios from "axios"
-import React, { useEffect, useRef, useState } from "react"
-import { Button, Modal, OverlayTrigger, Tooltip } from "react-bootstrap"
-import { FaAngleDown, FaCog, FaHashtag, FaMicrophone, FaWindowClose } from "react-icons/fa"
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import {
+    FaAngleDown,
+    FaCog,
+    FaHashtag,
+    FaHeadphones,
+    FaMicrophone,
+    FaWindowClose
+} from "react-icons/fa"
 import { useNavigate, useParams } from "react-router-dom"
 import { useGlobalState } from "../../App"
-import { Channel, Guild } from "../../globals"
+import { Channel } from "../../globals"
+import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import { useAlert } from "../Alerts"
-import { SocketIO } from "../SocketIO"
+import { useSocketListener } from "../SocketIO"
+import { Button } from "../ui/Button"
 import { ContextMenu, ContextMenuButton } from "../ui/ContextMenu"
-import { ChannelEditor } from "./ChannelEditor"
+import { Tooltip } from "../ui/Tooltip"
 
 export function Channels(props: { guildId: string }) {
     const [token] = useGlobalState("token")
     const [user] = useGlobalState("user")
-    const [guild, setGuild] = useState<Guild>(undefined)
-    const [invites, setInvites] = useState<string[]>(undefined)
+    const [guilds] = useGlobalState("guilds")
     const [channels, setChannels] = useState<Channel[]>([])
-    const [forceState, forceUpdate] = useState(0)
     const [menuOpen, setMenuOpen] = useState(false)
-    const [userCardHovered, setUserCardHovered] = useState(false)
     const [channelCreate, setChannelCreate] = useState(false)
     const actionRef = useRef<HTMLDivElement>(null)
     const menuRef = useRef<HTMLDivElement>(null)
     const alert = useAlert()
 
+    const guild = guilds.find((g) => g.id === props.guildId)
+
     useEffect(() => {
-        axios.get(`/api/guilds/${props.guildId}`).then((response) => {
-            if (response.status === 200) {
-                setGuild(response.data)
-            }
-        })
-        axios
-            .get(`/api/guilds/${props.guildId}/invites`, {
-                headers: {
-                    authorization: token
-                }
-            })
-            .then((res) => {
-                if (res.status === 200) {
-                    setInvites(res.data.invites)
-                }
-            })
         axios.get(`/api/channels/${props.guildId}/channels`).then((response) => {
             if (response.status === 200) {
+                console.log(response.data.channels)
                 setChannels(response.data.channels)
             }
         })
     }, [props.guildId, token])
-    useEffect(() => {
-        axios.get(`/api/channels/${props.guildId}/channels`).then((response) => {
-            if (response.status === 200) {
-                setChannels(response.data.channels)
-            }
-        })
-    }, [forceState])
+
+    const updateChannel = useCallback((data: unknown) => {
+        // console.log(
+        //     channels.map((c) =>
+        //         c.id === data.channelId
+        //             ? {
+        //                   ...c,
+        //                   name: data.changes.name,
+        //                   description: data.changes.description
+        //                   //   slowmode: data.changes.slowmode
+        //               }
+        //             : { ...c }
+        //     )
+        // )
+        // setChannels(
+        //     channels.map((c) =>
+        //         c.id === data.channelId
+        //             ? {
+        //                   ...c,
+        //                   name: data.changes.name,
+        //                   description: data.changes.description
+        //                   //   slowmode: data.changes.slowmode
+        //               }
+        //             : { ...c }
+        //     )
+        // )
+    }, [])
+    useSocketListener("update channel", updateChannel)
+
     return (
         <div className="GuildBar">
-            <SocketIO.Listener
-                event="update channel"
-                on={(data) => {
-                    console.log(data)
-                }}
-            />
             <div
                 className={`GuildMenu ${menuOpen ? "active" : ""}`}
                 ref={actionRef}
                 onClick={() => setMenuOpen(!menuOpen)}
             >
-                <div>
-                    <span className="name">{guild?.name}</span>
-                    <span className="icon FadeTransition">
-                        {menuOpen ? <FaWindowClose /> : <FaAngleDown />}
-                    </span>
+                <div className="name">{guild?.name}</div>
+                <div className="icon FadeTransition">
+                    {menuOpen ? <FaWindowClose /> : <FaAngleDown />}
                 </div>
             </div>
             <div ref={menuRef} className={`Menu ${menuOpen ? "show" : "hide"}`}>
@@ -82,7 +89,7 @@ export function Channels(props: { guildId: string }) {
                                 text: "Copied invite!",
                                 type: "success"
                             })
-                            navigator.clipboard.writeText(invites[0])
+                            navigator.clipboard.writeText(guild.invites[0])
                         }}
                         color="blue"
                     >
@@ -105,51 +112,35 @@ export function Channels(props: { guildId: string }) {
                     <ChannelLink key={index} guild={props.guildId} channel={channel} />
                 ))}
             </div>
-            <div
-                className="User-Card"
-                onMouseEnter={() => setUserCardHovered(true)}
-                onMouseLeave={() => setUserCardHovered(false)}
-            >
-                <img src="/img/logos/WyvernLogoGrayscale-512x512.png" className="avatar" />
-                <div className="user">
-                    <div className="username">{user?.username}</div>
-                    <div
-                        style={{
-                            position: "relative"
-                        }}
-                    >
-                        <div
-                            className={`tag SlideTransition ${userCardHovered ? "out" : ""}`}
-                            style={{
-                                position: "absolute",
-                                top: "-3px"
-                            }}
-                        >
-                            #{user?.tag}
-                        </div>
-                        <div
-                            className={`SlideTransition ${!userCardHovered ? "out" : ""}`}
-                            style={{
-                                position: "absolute",
-                                width: "inherit",
-                                top: "-3px"
-                            }}
-                        >
-                            <span
-                                className="status"
-                                style={{
-                                    width: "100px"
-                                }}
-                            >
+            <div className="User-Card">
+                <div className="first">
+                    <img src={logoUrl} className="avatar" />
+                    <div className="user">
+                        <div className="username">{user?.username}</div>
+                        <div className="hover-container">
+                            <div className={`uc-tag`}>#{user?.tag}</div>
+                            <div className={`uc-status`}>
                                 This is the demo status. You need to add this feature.
-                            </span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div className="buttons">
-                    <span>
-                        <FaCog />
-                    </span>
+                    <Tooltip text={<span>Mute</span>} placement="top">
+                        <button>
+                            <FaMicrophone size={16} />
+                        </button>
+                    </Tooltip>
+                    <Tooltip text={<span>Deafen</span>} placement="top">
+                        <button>
+                            <FaHeadphones size={16} />
+                        </button>
+                    </Tooltip>
+                    <Tooltip text={<span>User Settings</span>} placement="top">
+                        <button>
+                            <FaCog size={16} />
+                        </button>
+                    </Tooltip>
                 </div>
             </div>
             <CreateChannelMenu
@@ -166,44 +157,46 @@ function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: st
     const [channelName, setChannelName] = useState("")
     return (
         <Modal show={props.open} onHide={props.hide} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Create Text Channel</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div className="Input-Form">
-                    <div>Channel Name</div>
-                    <input
-                        type="text"
-                        placeholder="general"
-                        value={channelName}
-                        onChange={(e) =>
-                            setChannelName(e.target.value.toLowerCase().replace(" ", "-"))
-                        }
-                    />
+            <>
+                <div>
+                    <h2>Create Text Channel</h2>
                 </div>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button
-                    variant="primary"
-                    disabled={channelName.length < 1}
-                    onClick={() => {
-                        axios.post(
-                            `/api/guilds/${props.guildId}/createChannel`,
-                            {
-                                name: channelName
-                            },
-                            {
-                                headers: {
-                                    authorization: token
-                                }
+                <div>
+                    <div className="Input-Form">
+                        <div>Channel Name</div>
+                        <input
+                            type="text"
+                            placeholder="general"
+                            value={channelName}
+                            onChange={(e) =>
+                                setChannelName(e.target.value.toLowerCase().replace(" ", "-"))
                             }
-                        )
-                        props.hide()
-                    }}
-                >
-                    Create Channel
-                </Button>
-            </Modal.Footer>
+                        />
+                    </div>
+                </div>
+                <div>
+                    <Button
+                        variant="primary"
+                        disabled={channelName.length < 1}
+                        onClick={() => {
+                            axios.post(
+                                `/api/guilds/${props.guildId}/channels`,
+                                {
+                                    name: channelName
+                                },
+                                {
+                                    headers: {
+                                        authorization: token
+                                    }
+                                }
+                            )
+                            props.hide()
+                        }}
+                    >
+                        Create Channel
+                    </Button>
+                </div>
+            </>
         </Modal>
     )
 }
@@ -218,13 +211,13 @@ function ChannelLink(props: { guild: string; channel: Channel }) {
             <ContextMenu
                 buttons={
                     <>
-                        <ContextMenuButton onClick={() => {}}>Edit Channel</ContextMenuButton>
+                        {/* <ContextMenuButton onClick={() => {}}>Edit Channel</ContextMenuButton>
                         <ContextMenuButton onClick={() => {}} color="blue">
                             Share
                         </ContextMenuButton>
                         <ContextMenuButton onClick={() => {}} color="red">
                             Delete Channel
-                        </ContextMenuButton>
+                        </ContextMenuButton> */}
                     </>
                 }
             >
@@ -232,32 +225,27 @@ function ChannelLink(props: { guild: string; channel: Channel }) {
                     className={`ChannelLink ${channelId === props.channel.id ? "active" : ""}`}
                     onClick={() => navigate(`/channels/${props.guild}/${props.channel.id}`)}
                 >
-                    <span
-                        style={{
-                            verticalAlign: "middle"
-                        }}
-                    >
+                    <div className="first">
                         <span className="type">
                             {props.channel.type === "TEXT" ? <FaHashtag /> : <FaMicrophone />}
                         </span>
                         <span className="name">{props.channel.name}</span>
-                        <OverlayTrigger
-                            placement="top"
-                            overlay={(props) => <Tooltip {...props}>Edit Channel</Tooltip>}
-                        >
+                    </div>
+                    <div>
+                        <Tooltip placement="top" text={<b>Edit Channel</b>}>
                             <span className="settings" onClick={() => setEditor(true)}>
                                 <FaCog />
                             </span>
-                        </OverlayTrigger>
-                    </span>
+                        </Tooltip>
+                    </div>
                 </div>
             </ContextMenu>
-            <ChannelEditor
+            {/* <ChannelEditor
                 guildId={props.guild}
                 channelId={props.channel.id}
                 open={editor}
                 onHide={() => setEditor(false)}
-            />
+            /> */}
         </>
     )
 }

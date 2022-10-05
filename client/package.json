@@ -4,20 +4,19 @@
     "description": "Wyvern Chat Client",
     "main": "index.js",
     "scripts": {
-        "build": "webpack",
-        "serve": "webpack serve",
-        "watch": "webpack --watch",
-        "production": "webpack --config webpack.prod.config.js",
-        "start": "webpack serve --config webpack.prod.config.js"
+        "build": "vite build",
+        "dev": "vite serve",
+        "preview": "vite preview"
     },
     "author": "TKDKid1000",
     "license": "MIT",
+    "type": "module",
     "dependencies": {
         "@mui/material": "^5.0.6",
         "@popperjs/core": "^2.11.4",
         "@restart/ui": "^1.2.0",
         "@types/react": "^17.0.43",
-        "@types/react-dom": "^17.0.14",
+        "@types/react-transition-group": "^4.4.5",
         "bootstrap": "^5.1.3",
         "bootswatch": "^5.1.3",
         "copy-webpack-plugin": "^9.0.1",
@@ -30,14 +29,15 @@
         "luxon": "^2.3.1",
         "marked": "^4.0.4",
         "nodemon": "^2.0.14",
+        "peerjs": "^1.4.7",
         "prettier": "^2.5.1",
         "react": "^18.0.0",
-        "react-bootstrap": "^2.0.2",
         "react-dom": "^18.0.0",
         "react-hooks-global-state": "^1.0.2",
         "react-icons": "^4.3.1",
         "react-infinite-scroller": "^1.2.6",
         "react-router-dom": "^6.2.1",
+        "react-transition-group": "^4.4.5",
         "sass": "^1.43.4",
         "sass-loader": "^12.3.0",
         "socket.io-client": "^4.3.2",
@@ -48,13 +48,23 @@
         "webpack-dev-server": "^4.7.4"
     },
     "devDependencies": {
+        "@types/connect-history-api-fallback": "^1.3.5",
         "@types/dompurify": "^2.3.3",
         "@types/luxon": "^2.3.1",
         "@types/marked": "^4.0.1",
+        "@types/react-dom": "^18.0.6",
         "@types/react-infinite-scroller": "^1.2.3",
         "@types/react-window": "^1.8.5",
+        "@typescript-eslint/eslint-plugin": "^5.38.1",
+        "@typescript-eslint/parser": "^5.38.1",
+        "@vitejs/plugin-react": "^2.1.0",
+        "connect-history-api-fallback": "^2.0.0",
+        "eslint": "^8.24.0",
+        "eslint-plugin-react": "^7.31.8",
+        "eslint-plugin-react-hooks": "^4.6.0",
         "jimp": "^0.16.1",
         "monaco-editor": "^0.33.0",
-        "serve": "^13.0.2"
+        "vite": "^3.1.4",
+        "vite-plugin-html": "^3.2.0"
     }
 }

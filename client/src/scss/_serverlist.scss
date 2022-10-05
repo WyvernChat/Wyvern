@@ -7,6 +7,10 @@
     width: 70px;
     background-color: $gray-dark;
     padding: 10px;
+    a {
+        text-decoration: none;
+        cursor: default;
+    }
     .SidebarButton {
         width: 50px;
         height: 50px;
@@ -38,19 +42,22 @@
             transform: translateY(2px);
         }
     }
-    .WyvernButton {
+    .WyvernSidebarButton {
         transition: background-color 0.3s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         &:hover,
         &.active {
             background-color: $purple;
         }
     }
-    .ServerIcon {
-        @extend .WyvernButton;
+    .ServerSidebarIcon {
+        @extend .WyvernSidebarButton;
         color: white;
     }
-    .JoinButton {
-        @extend .WyvernButton;
+    .JoinSidebarButton {
+        @extend .WyvernSidebarButton;
         color: $green;
         &:hover {
             color: white;
@@ -63,12 +70,16 @@
     display: flex;
     position: relative;
     flex: 0;
-    flex-basis: 200px;
     flex-direction: column;
     background-color: $gray;
     height: 100%;
-    width: 200px;
+    min-width: 240px;
     .GuildMenu {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         font-size: 15px;
         font-weight: bold;
         padding: 10px;
@@ -77,14 +88,10 @@
         height: 50px;
         cursor: pointer;
         .name {
-            width: 150px;
             display: inline-block;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-        .icon {
-            float: right;
         }
         &:hover {
             background-color: $gray-dark2;
@@ -113,32 +120,38 @@
     }
     .ChannelsList {
         padding: 10px;
-        height: 100%;
-        width: inherit;
         flex: 1;
         .ChannelLink {
-            color: #8f8e8e;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: $gray-light;
             border-radius: 5px;
-            padding: 5px;
+            padding: 8px;
             margin-bottom: 3px;
             cursor: pointer;
 
-            .type {
-                display: inline-block;
-                vertical-align: middle;
-            }
-            .name {
-                font-size: medium;
-                padding-left: 5px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 120px;
-                display: inline-block;
-                vertical-align: middle;
+            .first {
+                display: flex;
+                flex-direction: row;
+                .type {
+                    display: flex;
+                    align-self: center;
+                }
+                .name {
+                    display: flex;
+                    align-items: center;
+                    font-size: medium;
+                    padding-left: 5px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 100px;
+                }
             }
             .settings {
-                float: right;
+                display: flex;
+                align-items: center;
                 &:hover {
                     color: white;
                 }
@@ -161,18 +174,58 @@
         }
     }
     .User-Card {
+        $user-card-width: 90px;
+        box-sizing: border-box;
         background-color: $gray-dark2;
         padding: 5px;
-        width: inherit;
         display: flex;
+        justify-content: space-between;
+        .first {
+            display: flex;
+            flex-direction: row;
+        }
         .avatar {
             width: 35px;
             height: 35px;
             margin-right: 5px;
             border-radius: 50%;
         }
+        .hover-container {
+            position: relative;
+            height: 2ch;
+        }
+        .uc-status {
+            position: absolute;
+            transition: all 0.2s ease-in-out;
+            scale: 1 1;
+            font-size: 12px;
+            color: #a6a6a6;
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow-x: hidden;
+            white-space: nowrap;
+            width: $user-card-width;
+        }
+        &:hover .uc-status {
+            translate: 0px -20px;
+            scale: 1 0;
+        }
+        .uc-tag {
+            position: absolute;
+            transition: all 0.2s ease-in-out;
+            scale: 1 1;
+            font-size: 12px;
+            color: #a6a6a6;
+        }
+        &:not(:hover) .uc-tag {
+            translate: 0px 20px;
+            scale: 1 0;
+        }
         .user {
-            width: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: $user-card-width;
             .username {
                 font-size: 14px;
                 font-weight: bold;
@@ -181,24 +234,23 @@
                 overflow-x: hidden;
                 white-space: nowrap;
             }
-            .tag {
-                font-size: 12px;
-                color: #a6a6a6;
-            }
-            .status {
-                font-size: 12px;
-                color: #a6a6a6;
-                display: inline-block;
-                text-overflow: ellipsis;
-                overflow-x: hidden;
-                white-space: nowrap;
-            }
         }
         .buttons {
-            margin-left: auto;
-            span {
-                display: inline-block;
-                vertical-align: middle;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            button {
+                padding: 8px;
+                border-radius: 5px;
+                color: $gray-light;
+                display: flex;
+                background-color: $gray-dark2;
+                outline: none;
+                border: none;
+                cursor: pointer;
+                &:hover {
+                    filter: brightness(150%);
+                }
             }
         }
     }

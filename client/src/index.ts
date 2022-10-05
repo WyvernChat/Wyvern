@@ -8,23 +8,20 @@ import { io } from "socket.io-client"
 import { App } from "./App"
 import "./scss/main.scss"
 
-export function Development() {
-    const serverUrl = "http://localhost:3000"
-    console.log("Loading development server at " + serverUrl)
+const serverUri = __API_URI__
+const production = __APP_ENV__ === "PRODUCTION"
+const secure = production ? "s" : ""
 
-    axios.defaults.validateStatus = (status) => status >= 200 && status < 500
-    axios.defaults.baseURL = serverUrl
+axios.defaults.validateStatus = (status) => status >= 200 && status < 500
+axios.defaults.baseURL = `http${secure}://` + serverUri
 
-    const socket = io(serverUrl, {
-        autoConnect: false
+const socket = io(`http${secure}://` + serverUri, { secure: production })
+
+dayjs.extend(isYesterday)
+dayjs.extend(isToday)
+
+createRoot(document.getElementById("app")).render(
+    createElement(App, {
+        socket
     })
-
-    dayjs.extend(isYesterday)
-    dayjs.extend(isToday)
-
-    createRoot(document.getElementById("app")).render(
-        createElement(App, {
-            socket: socket
-        })
-    )
-}
+)

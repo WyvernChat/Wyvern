@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react"
+import React, { useEffect } from "react"
 import { createGlobalState } from "react-hooks-global-state"
 import { Socket } from "socket.io-client"
 import { AlertProvider } from "./components/Alerts"
@@ -6,19 +6,22 @@ import { AuthProvider } from "./components/Auth"
 import { Router } from "./components/Router"
 import { SocketIO } from "./components/SocketIO"
 import { ContentMenuProvider } from "./components/ui/ContextMenu"
-import { User } from "./globals"
-import { getUserData } from "./usermanagement"
+import { Guild, User } from "./globals"
+import { useGuilds } from "./hooks/guild"
+import { getUser } from "./hooks/user"
 
 interface GlobalState {
     token: string
     user: User
-    userCache: User[]
+    users: User[]
+    guilds: Guild[]
 }
 
 const initialGlobalState: GlobalState = {
     token: localStorage.getItem("token") || "",
     user: undefined,
-    userCache: []
+    users: [],
+    guilds: []
 }
 
 const { useGlobalState } = createGlobalState(initialGlobalState)
@@ -26,26 +29,18 @@ const { useGlobalState } = createGlobalState(initialGlobalState)
 export function App(props: { socket: Socket }) {
     const [token] = useGlobalState("token")
     const [user, setUser] = useGlobalState("user")
-
-    const updateUser = useCallback(async () => {
-        setUser(await getUserData(token))
-    }, [token])
+    useGuilds(token)
 
     useEffect(() => {
-        updateUser()
-    }, [])
-
-    useEffect(() => {
+        getUser(token).then(setUser)
         localStorage.setItem("token", token)
-        updateUser()
     }, [token])
 
     useEffect(() => {
         if (user) {
-            props.socket.auth = {
-                token: token
-            }
-            props.socket.connect()
+            props.socket.emit("IDENTIFY", {
+                token
+            })
         }
     }, [user])
 

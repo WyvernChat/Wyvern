@@ -1,30 +1,25 @@
-import crypto from "crypto"
+import { randomBytes } from "crypto"
 import express from "express"
-import { User } from "../globals"
-import { database } from "../server"
+import { UserModel } from "../models/user"
 
 export default function (app: express.Application) {
-    // app.get("/register", (req, res) => {
-    //     res.render("register")
-    // })
-    app.post("/api/auth/register", (req, res) => {
+    app.post("/api/auth/register", async (req, res) => {
         if (req.body.email && req.body.password && req.body.username) {
             if (
-                !database.data.users.find(
-                    (u) => u.email.toLowerCase() === String(req.body.email).toLowerCase()
-                )
+                !(await UserModel.exists({
+                    email: req.body.email
+                }))
             ) {
                 if (/^\w{3,64}@.{4,255}/gi.test(req.body.email)) {
-                    const user: User = {
-                        id: crypto.randomBytes(32).toString("hex"),
+                    const user = await UserModel.create({
+                        id: randomBytes(32).toString("hex"),
                         email: String(req.body.email).toLowerCase(),
                         password: req.body.password,
                         username: req.body.username,
                         tag: Math.floor(1000 + Math.random() * 9000),
-                        token: crypto.randomBytes(32).toString("hex"),
+                        token: randomBytes(32).toString("hex"),
                         guilds: []
-                    }
-                    database.data.users.push(user)
+                    })
                     res.status(201).json({
                         success: "User successfully created",
                         id: user.id
@@ -45,43 +40,19 @@ export default function (app: express.Application) {
             })
         }
     })
-    app.get("/api/auth/isEmailAvailable/:email", (req, res) => {
-        if (
-            database.data.users.find(
-                (u) => u.email.toLowerCase() === String(req.params.email).toLowerCase()
-            )
-        ) {
-            res.status(200).json({
-                success: "Email is not available",
-                available: false
-            })
-        } else {
-            res.status(200).json({
-                success: "Email is available",
-                available: true
-            })
-        }
-    })
-    // app.get("/login", (req, res) => {
-    //     res.render("login")
-    // })
-    app.post("/api/auth/login", (req, res) => {
-        console.log(req)
+    app.post("/api/auth/login", async (req, res) => {
         if (req.body.email && req.body.password) {
-            const user = database.data.users.find((u) => u.email === req.body.email)
+            const user = await UserModel.findOne({
+                email: req.body.email,
+                password: req.body.password
+            })
             if (user) {
-                if (user.password === req.body.password) {
-                    res.status(200).json({
-                        token: user.token
-                    })
-                } else {
-                    res.status(401).json({
-                        error: "Password is incorrect"
-                    })
-                }
+                res.status(200).json({
+                    token: user.token
+                })
             } else {
                 res.status(404).json({
-                    error: "User could not be found"
+                    error: "Invalid username or password"
                 })
             }
         } else {
@@ -90,7 +61,4 @@ export default function (app: express.Application) {
             })
         }
     })
-    // app.get("/logout", (req, res) => {
-    //     res.render("logout")
-    // })
 }

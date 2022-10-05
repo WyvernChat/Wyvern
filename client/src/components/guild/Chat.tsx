@@ -1,12 +1,20 @@
-import axios from "axios"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { FaHashtag, FaSmileWink } from "react-icons/fa"
+import {
+    FaAngry,
+    FaGrin,
+    FaGrinHearts,
+    FaHashtag,
+    FaSadCry,
+    FaSmile,
+    FaSmileWink
+} from "react-icons/fa"
 import InfiniteScroller from "react-infinite-scroller"
 import { useNavigate } from "react-router-dom"
 import { useGlobalState } from "../../App"
-import { Message, TextChannel } from "../../globals"
+import { Message } from "../../globals"
+import { useChannel } from "../../hooks/channel"
 import { useAlert } from "../Alerts"
-import { SocketIO, useSocket } from "../SocketIO"
+import { useSocket, useSocketListener } from "../SocketIO"
 import { EmojiPopup } from "../ui/EmojiPopup"
 import { ChatMessage } from "./Message"
 
@@ -15,10 +23,9 @@ export function Chat(props: { guildId: string; channelId: string }) {
     const [user] = useGlobalState("user")
     const [messages, setMessages] = useState<Message[]>([])
     const [currentMessage, setCurrentMessage] = useState("")
-    const [channel, setChannel] = useState<TextChannel>(undefined)
+    const [channel] = useChannel(props.channelId, props.guildId)
     const messageInputRef = useRef<HTMLTextAreaElement>(null)
     const messagesRef = useRef<HTMLDivElement>(null)
-    const [inputHeight, setInputHeight] = useState(0)
     const messagesLoading = useRef(false)
     const socket = useSocket()
     const navigate = useNavigate()
@@ -41,18 +48,15 @@ export function Chat(props: { guildId: string; channelId: string }) {
         }
     }, [])
 
-    const initalChatMessages = useCallback(
-        (inital: { messages: Message[]; channel: string }) => {
-            setMessages(() => [...inital.messages])
-            setTimeout(() => {
-                messagesRef.current.scroll({
-                    top: messagesRef.current.scrollHeight,
-                    behavior: "auto"
-                })
-            }, 10)
-        },
-        [props.channelId]
-    )
+    const initialChatMessages = useCallback((initial: { messages: Message[]; channel: string }) => {
+        setMessages(() => [...initial.messages])
+        setTimeout(() => {
+            messagesRef.current.scroll({
+                top: messagesRef.current.scrollHeight,
+                behavior: "auto"
+            })
+        }, 10)
+    }, [])
 
     //
 
@@ -67,15 +71,6 @@ export function Chat(props: { guildId: string; channelId: string }) {
             })
         }
         if (user && props.channelId) {
-            axios
-                .get(`/api/channels/${props.guildId}/${props.channelId}`, {
-                    headers: {
-                        authorization: token
-                    }
-                })
-                .then((response) => {
-                    setChannel(response.data.channel)
-                })
             // socket.on("initial chat messages", initalChatMessages)
             socket.emit("join chat channel", {
                 channel: props.channelId,
@@ -90,7 +85,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                 channel: props.channelId
             })
         }
-    }, [user, props.channelId, token])
+    }, [user, props.channelId, token, props.guildId, socket, alert, navigate])
 
     const keyListener = (event: KeyboardEvent) => {
         if (
@@ -120,7 +115,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
         }
     }
 
-    const pasteListener = (event: ClipboardEvent) => {
+    const pasteListener = () => {
         // console.log(document.activeElement)
         // if (document.activeElement.tagName !== "body") return
         // const paste = event.clipboardData.getData("text")
@@ -141,19 +136,6 @@ export function Chat(props: { guildId: string; channelId: string }) {
         }
     }, [])
 
-    useEffect(() => {
-        if (currentMessage.split("\n").length - 1 < 10) {
-            const messageScroll =
-                messagesRef.current.scrollTop + 100 >
-                messagesRef.current.scrollHeight - messagesRef.current.clientHeight
-            setInputHeight(currentMessage.split("\n").length - 1)
-            if (messageScroll) {
-                messagesRef.current.scrollTop =
-                    messagesRef.current.scrollHeight - messagesRef.current.clientHeight
-            }
-        }
-    }, [currentMessage])
-
     // useEffect(() => {
     //     if (messages) {
     //         // setLoadScroll(0)
@@ -162,18 +144,15 @@ export function Chat(props: { guildId: string; channelId: string }) {
     //         })
     //     }
     // }, [loadScroll, messages])
+    useSocketListener("chat message", newChatMessage)
+    useSocketListener("initial chat messages", initialChatMessages)
+    useSocketListener<{ messages: Message[] }>("retrieve channel messages", (data) => {
+        messagesLoading.current = false
+        setMessages([...data.messages, ...messages])
+    })
 
     return (
         <div className="Chat" key={props.guildId}>
-            <SocketIO.Listener event="chat message" on={newChatMessage} />
-            <SocketIO.Listener event="initial chat messages" on={initalChatMessages} />
-            <SocketIO.Listener
-                event="retrieve channel messages"
-                on={(data) => {
-                    messagesLoading.current = false
-                    setMessages([...data.messages, ...messages])
-                }}
-            />
             <div className="ChannelHeader">
                 <span className="text">
                     <FaHashtag /> {channel?.name}
@@ -201,14 +180,15 @@ export function Chat(props: { guildId: string; channelId: string }) {
                             })
                         }
                     }}
+                    loader={<div>Loading</div>}
                     hasMore={true || false}
-                    loader={<div key={0}>Loading</div>}
                     useWindow={false}
-                    isReverse={true}
+                    isReverse
+                    initialLoad={false}
                 >
                     {messages.map((message: Message, index: number) => (
                         <ChatMessage
-                            key={index}
+                            key={message.id}
                             message={message}
                             showAvatar={
                                 messages[index - 1]
@@ -219,18 +199,25 @@ export function Chat(props: { guildId: string; channelId: string }) {
                     ))}
                 </InfiniteScroller>
             </div>
-            <div
-                className="MessageInput"
-                style={{
-                    height: 70 + 35 * inputHeight + "px"
-                }}
-            >
+            <div className="MessageInput">
                 <div className="Input">
                     <textarea
                         placeholder={`Message #${channel?.name}`}
                         ref={messageInputRef}
                         value={currentMessage}
-                        onChange={(event) => setCurrentMessage(event.target.value)}
+                        style={{
+                            height: "2ch",
+                            overflowY:
+                                messageInputRef.current?.scrollHeight > 255 ? "scroll" : "hidden"
+                        }}
+                        onChange={(event) => {
+                            setCurrentMessage(event.target.value)
+                            messageInputRef.current.style.height = "0px"
+                            const { scrollHeight } = messageInputRef.current
+                            messageInputRef.current.style.height = `${
+                                scrollHeight > 255 ? 255 : scrollHeight
+                            }px`
+                        }}
                         onKeyDown={(event) => {
                             if (event.key === "Enter" && !event.shiftKey) {
                                 event.preventDefault()
@@ -244,6 +231,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                                         channel: props.channelId,
                                         guild: props.guildId
                                     })
+                                    messageInputRef.current.style.height = "2ch"
                                     setCurrentMessage("")
                                     messagesRef.current.scrollTop =
                                         messagesRef.current.scrollHeight -
@@ -268,9 +256,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                                 setCurrentMessage(messageInputRef.current.value)
                             }}
                         >
-                            <button>
-                                <FaSmileWink size={25} />
-                            </button>
+                            <EmojiCarousel />
                         </EmojiPopup>
                         <div
                             className="length-indicator"
@@ -284,5 +270,26 @@ export function Chat(props: { guildId: string; channelId: string }) {
                 </div>
             </div>
         </div>
+    )
+}
+
+const EmojiCarousel = () => {
+    const emojis = useRef([
+        <FaSmile key="FaSmile" size={25} />,
+        <FaSmileWink key="FaSmileWink" size={25} />,
+        <FaGrin key="FaGrin" size={25} />,
+        <FaSadCry key="FaSadCry" size={25} />,
+        <FaAngry key="FaAngry" size={25} />,
+        <FaGrinHearts key="FaGrinHearts" size={25} />
+    ])
+    const [emoji, setEmoji] = useState(0)
+
+    return (
+        <button
+            className="emoji-button"
+            onMouseEnter={() => setEmoji(Math.floor(Math.random() * emojis.current.length))}
+        >
+            {emojis.current[emoji]}
+        </button>
     )
 }

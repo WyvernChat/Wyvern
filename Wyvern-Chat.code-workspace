@@ -12,10 +12,22 @@
     ],
     "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[prisma]": {
+            "editor.defaultFormatter": "Prisma.prisma"
+        },
         "editor.formatOnSaveMode": "file",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
+        },
+        "files.exclude": {
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true,
+            "**/Thumbs.db": true,
+            "**/node_modules": true
         }
     },
     "launch": {
@@ -26,7 +38,7 @@
                 "runtimeArgs": ["run-script", "serve", "-w", "server"],
                 "runtimeExecutable": "npm",
                 "skipFiles": ["<node_internals>/**"],
-                "type": "pwa-node"
+                "type": "node"
             },
             {
                 "name": "client: serve",
@@ -34,7 +46,7 @@
                 "runtimeArgs": ["run-script", "serve", "-w", "client"],
                 "runtimeExecutable": "npm",
                 "skipFiles": ["<node_internals>/**"],
-                "type": "pwa-node"
+                "type": "node"
             },
             {
                 "name": "server: build",
@@ -42,7 +54,7 @@
                 "runtimeArgs": ["run-script", "build", "-w", "server"],
                 "runtimeExecutable": "npm",
                 "skipFiles": ["<node_internals>/**"],
-                "type": "pwa-node"
+                "type": "node"
             },
             {
                 "name": "client: build",
@@ -50,7 +62,7 @@
                 "runtimeArgs": ["run-script", "build", "-w", "client"],
                 "runtimeExecutable": "npm",
                 "skipFiles": ["<node_internals>/**"],
-                "type": "pwa-node"
+                "type": "node"
             },
             {
                 "name": "server: watch",
@@ -58,7 +70,7 @@
                 "runtimeArgs": ["run-script", "watch", "-w", "server"],
                 "runtimeExecutable": "npm",
                 "skipFiles": ["<node_internals>/**"],
-                "type": "pwa-node"
+                "type": "node"
             },
             {
                 "name": "client: watch",
@@ -66,7 +78,7 @@
                 "runtimeArgs": ["run-script", "watch", "-w", "client"],
                 "runtimeExecutable": "npm",
                 "skipFiles": ["<node_internals>/**"],
-                "type": "pwa-node"
+                "type": "node"
             },
             {
                 "name": "server: start",
@@ -74,7 +86,7 @@
                 "runtimeArgs": ["run-script", "start", "-w", "server"],
                 "runtimeExecutable": "npm",
                 "skipFiles": ["<node_internals>/**"],
-                "type": "pwa-node"
+                "type": "node"
             },
             {
                 "name": "client: start",
@@ -82,7 +94,7 @@
                 "runtimeArgs": ["run-script", "start", "-w", "client"],
                 "runtimeExecutable": "npm",
                 "skipFiles": ["<node_internals>/**"],
-                "type": "pwa-node"
+                "type": "node"
             }
         ],
         "compounds": [

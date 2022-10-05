@@ -7,7 +7,7 @@
         "build": "tsc",
         "serve": "nodemon",
         "watch": "tsc --watch",
-        "start": "node build/index.js"
+        "start": "NODE_ENV=production node build/index.js"
     },
     "author": "TKDKid1000",
     "license": "MIT",

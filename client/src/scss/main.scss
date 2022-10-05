@@ -1,9 +1,12 @@
-@import "~bootswatch/dist/darkly/variables";
-@import "~bootstrap/scss/bootstrap";
-@import "~bootswatch/dist/darkly/bootswatch";
+@import "bootswatch/dist/darkly/variables";
+// @import "bootstrap/scss/bootstrap";
 
 * {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+    color: white;
 }
 
 @import "variables";
@@ -14,3 +17,4 @@
 @import "userbar";
 @import "utils";
 @import "settings";
+@import "transitions";
