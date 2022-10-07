@@ -1,6 +1,7 @@
-import { randomBytes } from "crypto"
+import cuid from "cuid"
 import express from "express"
 import { UserModel } from "../models/user"
+import { sha256 } from "../utils"
 
 export default function (app: express.Application) {
     app.post("/api/auth/register", async (req, res) => {
@@ -12,12 +13,12 @@ export default function (app: express.Application) {
             ) {
                 if (/^\w{3,64}@.{4,255}/gi.test(req.body.email)) {
                     const user = await UserModel.create({
-                        id: randomBytes(32).toString("hex"),
+                        id: cuid(),
                         email: String(req.body.email).toLowerCase(),
-                        password: req.body.password,
+                        password: sha256(req.body.password),
                         username: req.body.username,
                         tag: Math.floor(1000 + Math.random() * 9000),
-                        token: randomBytes(32).toString("hex"),
+                        token: cuid(),
                         guilds: []
                     })
                     res.status(201).json({
@@ -44,7 +45,7 @@ export default function (app: express.Application) {
         if (req.body.email && req.body.password) {
             const user = await UserModel.findOne({
                 email: req.body.email,
-                password: req.body.password
+                password: sha256(req.body.password)
             })
             if (user) {
                 res.status(200).json({

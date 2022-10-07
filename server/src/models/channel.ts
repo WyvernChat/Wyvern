@@ -11,6 +11,7 @@ const MessageSchema = new Schema<Message>({
 const TextChannelSchema = new Schema<TextChannel>(
     {
         id: { type: String, required: true },
+        guild: { type: String, required: true },
         name: { type: String, required: true },
         description: { type: String, required: false },
         slowmode: { type: Number, required: false },

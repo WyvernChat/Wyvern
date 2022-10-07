@@ -32,7 +32,8 @@ export default function (app: express.Application) {
 
     app.get("/api/channels/:guildId/:channelId", async (req, res) => {
         const channel = await TextChannelModel.findOne({
-            id: req.params.channelId
+            id: req.params.channelId,
+            guild: req.params.guildId
         })
         const user = await UserModel.findOne({
             token: req.headers.authorization,
@@ -44,7 +45,8 @@ export default function (app: express.Application) {
                     name: channel.name,
                     description: channel.description,
                     type: channel.type,
-                    id: channel.id
+                    id: channel.id,
+                    guild: channel.guild
                 }
             })
         } else {

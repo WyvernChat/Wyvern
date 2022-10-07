@@ -1,6 +1,8 @@
 import React, { useEffect } from "react"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { useGlobalState } from "../App"
+import { useChannels } from "../hooks/channel"
+import { useGuilds } from "../hooks/guild"
 import { useAuth } from "./Auth"
 import { Guild } from "./guild/Guild"
 import { Home } from "./Home"
@@ -18,7 +20,10 @@ export function Router() {
         if (token.length > 0) {
             login(token)
         }
-    }, [])
+    }, [login, token])
+
+    useGuilds(token)
+    useChannels(token)
 
     return (
         <BrowserRouter>

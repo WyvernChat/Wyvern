@@ -23,7 +23,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
     const [user] = useGlobalState("user")
     const [messages, setMessages] = useState<Message[]>([])
     const [currentMessage, setCurrentMessage] = useState("")
-    const [channel] = useChannel(props.channelId, props.guildId)
+    const channel = useChannel(props.channelId, props.guildId)
     const messageInputRef = useRef<HTMLTextAreaElement>(null)
     const messagesRef = useRef<HTMLDivElement>(null)
     const messagesLoading = useRef(false)
@@ -225,7 +225,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                                     currentMessage.trim().length > 0 &&
                                     currentMessage.trim().length < 2000
                                 ) {
-                                    socket.emit("chat message", {
+                                    socket.emit("MESSAGE_CREATE", {
                                         author: user.id,
                                         message: currentMessage,
                                         channel: props.channelId,

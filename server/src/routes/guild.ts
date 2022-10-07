@@ -1,5 +1,6 @@
-import { randomBytes } from "crypto"
+import cuid from "cuid"
 import express from "express"
+import { createGuild } from "../functions/guild"
 import { TextChannelModel } from "../models/channel"
 import { GuildModel } from "../models/guild"
 import { UserModel } from "../models/user"
@@ -11,35 +12,11 @@ export default function (app: express.Application) {
         })
         if (user) {
             if (req.body.guildName) {
-                const guild = await GuildModel.create({
-                    id: randomBytes(16).toString("hex"),
-                    name: req.body.guildName,
+                const guild = await createGuild({
                     owner: user.id,
-                    channels: [],
-                    members: [user.id],
-                    invites: [randomBytes(10).toString("hex")]
+                    name: req.body.guildName
                 })
-                const channel = await TextChannelModel.create({
-                    guild: guild.id,
-                    name: "general",
-                    description: "",
-                    type: "TEXT",
-                    id: randomBytes(16).toString("hex")
-                })
-                await guild.updateOne({
-                    $push: {
-                        channels: channel.id
-                    }
-                })
-                await user.updateOne({
-                    $push: {
-                        guilds: guild.id
-                    }
-                })
-                res.status(201).json({
-                    id: guild.id,
-                    invite: guild.invites[0]
-                })
+                res.status(201).json(guild)
             } else {
                 res.status(400).json({
                     error: "Guild name not specified"
@@ -90,7 +67,7 @@ export default function (app: express.Application) {
                     type: "TEXT",
                     slowmode: 0,
                     messages: [],
-                    id: randomBytes(16).toString("hex")
+                    id: cuid()
                 })
                 await guild.updateOne({
                     $push: {

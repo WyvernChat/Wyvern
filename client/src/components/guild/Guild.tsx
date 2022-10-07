@@ -1,41 +1,21 @@
-import axios from "axios"
 import React, { useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { useGlobalState } from "../../App"
+import { useGuild } from "../../hooks/guild"
 import { Root } from "../Root"
-import { useSocket } from "../SocketIO"
 import { Channels } from "./Channels"
 import { Chat } from "./Chat"
 import { Users } from "./Users"
 
 export function Guild() {
-    const [user] = useGlobalState("user")
     const { guildId, channelId } = useParams()
     const navigate = useNavigate()
-    const socket = useSocket()
+    const guild = useGuild(guildId)
 
     useEffect(() => {
         if (!channelId) {
-            axios.get(`/api/channels/${guildId}/channels`).then((response) => {
-                if (response.status === 200) {
-                    navigate(`/channels/${guildId}/${response.data.channels[0].id}`)
-                }
-            })
+            navigate(`/channels/${guildId}/${guild.channels[0]}`)
         }
-    }, [channelId])
-    useEffect(() => {
-        if (user && guildId) {
-            socket.emit("join guild room", {
-                guild: guildId,
-                user: user?.id
-            })
-        }
-        return () => {
-            socket.emit("leave guild room", {
-                guild: guildId
-            })
-        }
-    }, [user, guildId])
+    }, [channelId, guild, guildId, navigate])
     return (
         <Root>
             <Channels guildId={guildId} />

@@ -1,6 +1,6 @@
 import { Modal } from "@restart/ui"
 import axios from "axios"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import {
     FaAngleDown,
     FaCog,
@@ -11,10 +11,9 @@ import {
 } from "react-icons/fa"
 import { useNavigate, useParams } from "react-router-dom"
 import { useGlobalState } from "../../App"
-import { Channel } from "../../globals"
+import { useChannel } from "../../hooks/channel"
 import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import { useAlert } from "../Alerts"
-import { useSocketListener } from "../SocketIO"
 import { Button } from "../ui/Button"
 import { ContextMenu, ContextMenuButton } from "../ui/ContextMenu"
 import { Tooltip } from "../ui/Tooltip"
@@ -23,7 +22,6 @@ export function Channels(props: { guildId: string }) {
     const [token] = useGlobalState("token")
     const [user] = useGlobalState("user")
     const [guilds] = useGlobalState("guilds")
-    const [channels, setChannels] = useState<Channel[]>([])
     const [menuOpen, setMenuOpen] = useState(false)
     const [channelCreate, setChannelCreate] = useState(false)
     const actionRef = useRef<HTMLDivElement>(null)
@@ -31,43 +29,6 @@ export function Channels(props: { guildId: string }) {
     const alert = useAlert()
 
     const guild = guilds.find((g) => g.id === props.guildId)
-
-    useEffect(() => {
-        axios.get(`/api/channels/${props.guildId}/channels`).then((response) => {
-            if (response.status === 200) {
-                console.log(response.data.channels)
-                setChannels(response.data.channels)
-            }
-        })
-    }, [props.guildId, token])
-
-    const updateChannel = useCallback((data: unknown) => {
-        // console.log(
-        //     channels.map((c) =>
-        //         c.id === data.channelId
-        //             ? {
-        //                   ...c,
-        //                   name: data.changes.name,
-        //                   description: data.changes.description
-        //                   //   slowmode: data.changes.slowmode
-        //               }
-        //             : { ...c }
-        //     )
-        // )
-        // setChannels(
-        //     channels.map((c) =>
-        //         c.id === data.channelId
-        //             ? {
-        //                   ...c,
-        //                   name: data.changes.name,
-        //                   description: data.changes.description
-        //                   //   slowmode: data.changes.slowmode
-        //               }
-        //             : { ...c }
-        //     )
-        // )
-    }, [])
-    useSocketListener("update channel", updateChannel)
 
     return (
         <div className="GuildBar">
@@ -108,8 +69,8 @@ export function Channels(props: { guildId: string }) {
                 </div>
             </div>
             <div className="ChannelsList">
-                {channels.map((channel, index) => (
-                    <ChannelLink key={index} guild={props.guildId} channel={channel} />
+                {guild?.channels.map((channelId, index) => (
+                    <ChannelLink key={index} guildId={props.guildId} channelId={channelId} />
                 ))}
             </div>
             <div className="User-Card">
@@ -201,10 +162,12 @@ function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: st
     )
 }
 
-function ChannelLink(props: { guild: string; channel: Channel }) {
+function ChannelLink(props: { guildId: string; channelId: string }) {
     const navigate = useNavigate()
-    const { channelId } = useParams()
+    const params = useParams()
     const [editor, setEditor] = useState(false)
+
+    const channel = useChannel(props.channelId)
 
     return (
         <>
@@ -222,14 +185,14 @@ function ChannelLink(props: { guild: string; channel: Channel }) {
                 }
             >
                 <div
-                    className={`ChannelLink ${channelId === props.channel.id ? "active" : ""}`}
-                    onClick={() => navigate(`/channels/${props.guild}/${props.channel.id}`)}
+                    className={`ChannelLink ${params.channelId === channel?.id ? "active" : ""}`}
+                    onClick={() => navigate(`/channels/${props.guildId}/${channel?.id}`)}
                 >
                     <div className="first">
                         <span className="type">
-                            {props.channel.type === "TEXT" ? <FaHashtag /> : <FaMicrophone />}
+                            {channel?.type === "TEXT" ? <FaHashtag /> : <FaMicrophone />}
                         </span>
-                        <span className="name">{props.channel.name}</span>
+                        <span className="name">{channel?.name}</span>
                     </div>
                     <div>
                         <Tooltip placement="top" text={<b>Edit Channel</b>}>
