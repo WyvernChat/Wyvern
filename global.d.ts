@@ -42,4 +42,5 @@ export interface Message {
     content: string
     sent: number
     author: string
+    channel: string
 }

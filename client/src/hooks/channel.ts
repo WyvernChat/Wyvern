@@ -3,10 +3,16 @@ import { useCallback, useEffect } from "react"
 import { useGlobalState } from "../App"
 import { Channel } from "../globals"
 
-const useChannel = (channelId: string) => {
-    const [channels] = useGlobalState("channels")
-    const channel = channels.find((c) => c.id === channelId)
-    return channel
+const useChannel = <T extends Channel>(channelId: string): [T, (channel: T) => void] => {
+    const [channels, setChannels] = useGlobalState("channels")
+    const channel = <T>channels.find((c) => c.id === channelId)
+    const setChannel = useCallback(
+        (channel: Channel) => {
+            setChannels(channels.map((c) => (c.id === channel.id ? { ...channel } : { ...c })))
+        },
+        [channels, setChannels]
+    )
+    return [channel, setChannel]
 }
 
 const useChannels = (token: string) => {
@@ -17,7 +23,7 @@ const useChannels = (token: string) => {
             let newChannels: Channel[] = await Promise.all(
                 guild.channels?.map((channelId: string) =>
                     axios
-                        .get(`/api/channels/${guild.id}/${channelId}`, {
+                        .get(`/api/channels/${channelId}`, {
                             headers: {
                                 authorization: token
                             }

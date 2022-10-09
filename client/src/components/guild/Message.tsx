@@ -18,25 +18,22 @@ export const ChatMessage = memo(function ChatMessage(props: {
     const [cachedUser] = useUserCache()
     const [author, setAuthor] = useState<User>(undefined)
     const [embeds, setEmbeds] = useState<string[]>([])
-    const markdown = useMarkdown(props.message.content)
+    const markdown = useMarkdown(props.message.content || "")
 
     useEffect(() => {
         cachedUser(props.message.author).then(setAuthor)
-    }, [])
+    }, [cachedUser, props.message.author])
 
-    const embedCallback = useCallback(
-        (element: HTMLDivElement) => {
-            setEmbeds((embeds) => {
-                element.querySelectorAll("a").forEach((item) => {
-                    if (embeds.indexOf(item.href) === -1) {
-                        embeds.push(item.href)
-                    }
-                })
-                return embeds
+    const embedCallback = useCallback((element: HTMLDivElement) => {
+        setEmbeds((embeds) => {
+            element.querySelectorAll("a").forEach((item) => {
+                if (embeds.indexOf(item.href) === -1) {
+                    embeds.push(item.href)
+                }
             })
-        },
-        [props.message]
-    )
+            return embeds
+        })
+    }, [])
 
     return (
         <div className="message">
@@ -72,10 +69,12 @@ export const ChatMessage = memo(function ChatMessage(props: {
                                     //     }
                                     // }}
                                     className="content"
-                                    dangerouslySetInnerHTML={{
-                                        __html: markdown
-                                    }}
-                                />
+                                    // dangerouslySetInnerHTML={{
+                                    //     __html: markdown
+                                    // }}
+                                >
+                                    {props.message.content}
+                                </div>
                             </div>
                         </div>
                     </div>

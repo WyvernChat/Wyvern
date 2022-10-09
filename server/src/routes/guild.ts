@@ -52,6 +52,29 @@ export default function (app: express.Application) {
         }
     })
 
+    app.get("/api/guilds/:guildId/channels", async (req, res) => {
+        const guild = await GuildModel.findOne({
+            id: req.params.guildId
+        })
+        if (guild) {
+            const channelData = await TextChannelModel.find({
+                guild: req.params.guildId
+            })
+            res.status(200).json({
+                channels: channelData.map((c) => ({
+                    name: c.name,
+                    description: c.description,
+                    type: c.type,
+                    id: c.id
+                }))
+            })
+        } else {
+            res.status(404).json({
+                error: "Guild not found"
+            })
+        }
+    })
+
     app.post("/api/guilds/:guildId/channels", async (req, res) => {
         const guild = await GuildModel.findOne({
             id: req.params.guildId

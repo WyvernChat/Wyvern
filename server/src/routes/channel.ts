@@ -1,43 +1,19 @@
 import express from "express"
 import { TextChannelModel } from "../models/channel"
-import { GuildModel } from "../models/guild"
 import { UserModel } from "../models/user"
 
 export default function (app: express.Application) {
     // app.get("/channels/:channelId", (req, res) => {
     //     res.render("channel", {})
     // })
-    app.get("/api/channels/:guildId/channels", async (req, res) => {
-        const guild = await GuildModel.findOne({
-            id: req.params.guildId
-        })
-        if (guild) {
-            const channelData = await TextChannelModel.find({
-                guild: req.params.guildId
-            })
-            res.status(200).json({
-                channels: channelData.map((c) => ({
-                    name: c.name,
-                    description: c.description,
-                    type: c.type,
-                    id: c.id
-                }))
-            })
-        } else {
-            res.status(404).json({
-                error: "Channel not found"
-            })
-        }
-    })
 
-    app.get("/api/channels/:guildId/:channelId", async (req, res) => {
+    app.get("/api/channels/:channelId", async (req, res) => {
         const channel = await TextChannelModel.findOne({
-            id: req.params.channelId,
-            guild: req.params.guildId
+            id: req.params.channelId
         })
         const user = await UserModel.findOne({
             token: req.headers.authorization,
-            guilds: req.params.guildId
+            guilds: channel.guild
         })
         if (channel && user) {
             res.status(200).json({
@@ -56,19 +32,30 @@ export default function (app: express.Application) {
         }
     })
 
-    app.get("/api/channels/:guildId/:channelId/messages", async (req, res) => {
+    app.get("/api/channels/:channelId/messages", async (req, res) => {
         const channel = await TextChannelModel.findOne({
             id: req.params.channelId
         })
         const user = await UserModel.findOne({
             token: req.headers.authorization,
-            guilds: req.params.guildId
+            guilds: channel.guild
         })
         if (channel && user) {
-            res.status(200).json({
-                channel: channel.id,
-                messages: channel.messages
-            })
+            const limit = Math.min(parseInt(req.query.limit as string) || 50, 100)
+            const beforeId = req.query.before as string
+            const beforeIndex = channel.messages.findIndex((m) => m.id === beforeId)
+
+            if (beforeIndex !== -1) {
+                const beforeMessages = channel.messages.slice(0, beforeIndex)
+                // console.log(beforeIndex, beforeId)
+                // console.log(
+                //     beforeMessages.map((m) => m.id),
+                //     channel.messages.map((m) => m.id)
+                // )
+                res.status(200).json(beforeMessages.slice(-limit))
+            } else {
+                res.status(200).json(channel.messages.slice(-limit))
+            }
         } else {
             res.status(401).json({
                 error: "Permission denied"

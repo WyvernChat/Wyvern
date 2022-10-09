@@ -10,19 +10,19 @@ export function Users(props: { guildId: string }) {
     const [users, setUsers] = useState<{ user: string; online: boolean }[]>([])
     const socket = useSocket()
 
-    useEffect(() => {
-        setInterval(() => {
-            socket.emit("fetch guild users", {
-                guildId: props.guildId
-            })
-        }, 60000)
-    }, [socket, props.guildId])
+    // useEffect(() => {
+    //     setInterval(() => {
+    //         socket.emit("fetch guild users", {
+    //             guildId: props.guildId
+    //         })
+    //     }, 60000)
+    // }, [socket, props.guildId])
 
-    useEffect(() => {
-        socket.emit("fetch guild users", {
-            guildId: props.guildId
-        })
-    }, [socket, props.guildId])
+    // useEffect(() => {
+    //     socket.emit("fetch guild users", {
+    //         guildId: props.guildId
+    //     })
+    // }, [socket, props.guildId])
 
     useSocketListener<{ members: [{ user: string; online: boolean }] }>(
         "send guild users",

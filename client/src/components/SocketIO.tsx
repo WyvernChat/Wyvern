@@ -4,10 +4,12 @@ import { Socket } from "socket.io-client"
 const SocketIOContext = createContext<Socket>(undefined)
 
 function SocketIO(props: { socket: Socket; children: ReactNode }) {
+    const debug = (event: string, data: unknown) => console.log(`Event ${event} called with`, data)
     useEffect(() => {
-        props.socket.onAny((event, data) => {
-            console.log(`Event ${event} called with`, data)
-        })
+        props.socket.onAny(debug)
+        return () => {
+            props.socket.offAny(debug)
+        }
     }, [props.socket])
     return (
         <SocketIOContext.Provider value={props.socket}>{props.children}</SocketIOContext.Provider>

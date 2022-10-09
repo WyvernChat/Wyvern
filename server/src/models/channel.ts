@@ -5,7 +5,8 @@ const MessageSchema = new Schema<Message>({
     id: { type: String, required: true },
     content: { type: String, required: true },
     sent: { type: Number, required: true },
-    author: { type: String, required: true }
+    author: { type: String, required: true },
+    channel: { type: String, required: true }
 })
 
 const TextChannelSchema = new Schema<TextChannel>(

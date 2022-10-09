@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import axios from "axios"
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import {
     FaAngry,
     FaGrin,
@@ -8,84 +9,32 @@ import {
     FaSmile,
     FaSmileWink
 } from "react-icons/fa"
-import InfiniteScroller from "react-infinite-scroller"
-import { useNavigate } from "react-router-dom"
 import { useGlobalState } from "../../App"
 import { Message } from "../../globals"
 import { useChannel } from "../../hooks/channel"
-import { useAlert } from "../Alerts"
-import { useSocket, useSocketListener } from "../SocketIO"
+import { useMessages } from "../../hooks/message"
+import { useSocket } from "../SocketIO"
 import { EmojiPopup } from "../ui/EmojiPopup"
 import { ChatMessage } from "./Message"
 
 export function Chat(props: { guildId: string; channelId: string }) {
     const [token] = useGlobalState("token")
-    const [user] = useGlobalState("user")
-    const [messages, setMessages] = useState<Message[]>([])
     const [currentMessage, setCurrentMessage] = useState("")
-    const channel = useChannel(props.channelId, props.guildId)
+    const [channel] = useChannel(props.channelId)
+    const [messages, setMessages] = useMessages(props.channelId, {})
+    const [loadingMessages, setLoadingMessages] = useState(true)
     const messageInputRef = useRef<HTMLTextAreaElement>(null)
     const messagesRef = useRef<HTMLDivElement>(null)
-    const messagesLoading = useRef(false)
     const socket = useSocket()
-    const navigate = useNavigate()
-    const alert = useAlert()
-
-    const newChatMessage = useCallback((message: Message) => {
-        const messageScroll =
-            messagesRef.current.scrollTop + 100 >
-            messagesRef.current.scrollHeight - messagesRef.current.clientHeight
-        setMessages((prevMessages) => [...prevMessages, message])
-        if (messagesRef) {
-            if (messageScroll) {
-                setTimeout(() => {
-                    messagesRef.current.scroll({
-                        top: messagesRef.current.scrollHeight,
-                        behavior: "auto"
-                    })
-                }, 10)
-            }
-        }
-    }, [])
-
-    const initialChatMessages = useCallback((initial: { messages: Message[]; channel: string }) => {
-        setMessages(() => [...initial.messages])
-        setTimeout(() => {
-            messagesRef.current.scroll({
-                top: messagesRef.current.scrollHeight,
-                behavior: "auto"
-            })
-        }, 10)
-    }, [])
-
-    //
 
     useEffect(() => {
-        if (!props.channelId) {
-            socket.on("kick from chat", () => {
-                alert({
-                    text: "You aren't a member of this server!",
-                    type: "warning"
-                })
-                navigate("/channels/@me")
-            })
+        if (messagesRef.current && messages.length <= 50) {
+            setTimeout(() => {
+                messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+                setLoadingMessages(false)
+            }, 1)
         }
-        if (user && props.channelId) {
-            // socket.on("initial chat messages", initalChatMessages)
-            socket.emit("join chat channel", {
-                channel: props.channelId,
-                guild: props.guildId,
-                user: user?.id
-            })
-        }
-        return () => {
-            setMessages([])
-            // socket.off("initial chat messages", initalChatMessages)
-            socket.emit("leave chat channel", {
-                channel: props.channelId
-            })
-        }
-    }, [user, props.channelId, token, props.guildId, socket, alert, navigate])
+    }, [messagesRef, props.channelId, messages])
 
     const keyListener = (event: KeyboardEvent) => {
         if (
@@ -136,20 +85,17 @@ export function Chat(props: { guildId: string; channelId: string }) {
         }
     }, [])
 
-    // useEffect(() => {
-    //     if (messages) {
-    //         // setLoadScroll(0)
-    //         messagesRef.current.scroll({
-    //             top: loadScroll
-    //         })
-    //     }
-    // }, [loadScroll, messages])
-    useSocketListener("chat message", newChatMessage)
-    useSocketListener("initial chat messages", initialChatMessages)
-    useSocketListener<{ messages: Message[] }>("retrieve channel messages", (data) => {
-        messagesLoading.current = false
-        setMessages([...data.messages, ...messages])
-    })
+    useLayoutEffect(() => {
+        if (!messagesRef) return
+        const messageScroll =
+            messagesRef.current.scrollTop + 200 >
+            messagesRef.current.scrollHeight - messagesRef.current.offsetHeight
+        if (messageScroll) {
+            setTimeout(() => {
+                messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+            }, 1)
+        }
+    }, [messages])
 
     return (
         <div className="Chat" key={props.guildId}>
@@ -160,7 +106,31 @@ export function Chat(props: { guildId: string; channelId: string }) {
                 <div className="separator"></div>
                 <span className="description">{channel?.description}</span>
             </div>
-            <div ref={messagesRef} className="Messages">
+            <div
+                ref={messagesRef}
+                className="Messages"
+                onScroll={() => {
+                    if (!loadingMessages && messagesRef.current.scrollTop < 255) {
+                        setLoadingMessages(true)
+                        axios
+                            .get(`/api/channels/${props.channelId}/messages`, {
+                                params: {
+                                    before: messages[0].id
+                                },
+                                headers: {
+                                    authorization: token
+                                }
+                            })
+                            .then((res) => res.data)
+                            .then((msgs) => {
+                                if (msgs.length > 0) {
+                                    setLoadingMessages(false)
+                                    setMessages((prevMessages) => [...msgs, ...prevMessages])
+                                }
+                            })
+                    }
+                }}
+            >
                 <div className="beginning">
                     <div className="content">
                         <h3>Welcome to #{channel?.name}</h3>
@@ -168,7 +138,18 @@ export function Chat(props: { guildId: string; channelId: string }) {
                         <hr />
                     </div>
                 </div>
-                <InfiniteScroller
+                {messages.map((message: Message, index: number) => (
+                    <ChatMessage
+                        key={message.id}
+                        message={message}
+                        showAvatar={
+                            messages[index - 1]
+                                ? message.author !== messages[index - 1]?.author
+                                : true
+                        }
+                    />
+                ))}
+                {/* <InfiniteScroller
                     pageStart={0}
                     loadMore={() => {
                         if (channel && messages && messages[0] && !messagesLoading.current) {
@@ -186,18 +167,8 @@ export function Chat(props: { guildId: string; channelId: string }) {
                     isReverse
                     initialLoad={false}
                 >
-                    {messages.map((message: Message, index: number) => (
-                        <ChatMessage
-                            key={message.id}
-                            message={message}
-                            showAvatar={
-                                messages[index - 1]
-                                    ? message.author !== messages[index - 1]?.author
-                                    : true
-                            }
-                        />
-                    ))}
-                </InfiniteScroller>
+                    
+                </InfiniteScroller> */}
             </div>
             <div className="MessageInput">
                 <div className="Input">
@@ -226,16 +197,11 @@ export function Chat(props: { guildId: string; channelId: string }) {
                                     currentMessage.trim().length < 2000
                                 ) {
                                     socket.emit("MESSAGE_CREATE", {
-                                        author: user.id,
-                                        message: currentMessage,
-                                        channel: props.channelId,
-                                        guild: props.guildId
+                                        content: currentMessage,
+                                        channelId: props.channelId
                                     })
                                     messageInputRef.current.style.height = "2ch"
                                     setCurrentMessage("")
-                                    messagesRef.current.scrollTop =
-                                        messagesRef.current.scrollHeight -
-                                        messagesRef.current.clientHeight
                                 }
                             }
                         }}

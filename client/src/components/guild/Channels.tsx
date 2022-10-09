@@ -19,7 +19,6 @@ import { ContextMenu, ContextMenuButton } from "../ui/ContextMenu"
 import { Tooltip } from "../ui/Tooltip"
 
 export function Channels(props: { guildId: string }) {
-    const [token] = useGlobalState("token")
     const [user] = useGlobalState("user")
     const [guilds] = useGlobalState("guilds")
     const [menuOpen, setMenuOpen] = useState(false)
@@ -167,7 +166,7 @@ function ChannelLink(props: { guildId: string; channelId: string }) {
     const params = useParams()
     const [editor, setEditor] = useState(false)
 
-    const channel = useChannel(props.channelId)
+    const [channel] = useChannel(props.channelId)
 
     return (
         <>
