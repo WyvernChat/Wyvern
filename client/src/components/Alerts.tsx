@@ -59,9 +59,9 @@ const useAlert = () => {
     const alertRef = useRef<[AlertConfig[], Dispatch<SetStateAction<AlertConfig[]>>]>(null)
     alertRef.current = useContext(AlertContext)
     const alertFunction = useCallback((alert: AlertConfig) => {
-        const [alerts, setAlerts] = alertRef.current
+        const [, setAlerts] = alertRef.current
         alert.id = randomRange(10000, 99999)
-        setAlerts(alerts.concat(alert))
+        setAlerts((prevAlerts) => [...prevAlerts, alert])
     }, [])
     return alertFunction
 }

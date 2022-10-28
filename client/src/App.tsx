@@ -7,6 +7,7 @@ import { Router } from "./components/Router"
 import { SocketIO } from "./components/SocketIO"
 import { ContentMenuProvider } from "./components/ui/ContextMenu"
 import { Channel, Guild, User } from "./globals"
+import { useOffline } from "./hooks/offline"
 import { getUser } from "./hooks/user"
 
 interface GlobalState {
@@ -30,19 +31,22 @@ const { useGlobalState } = createGlobalState(initialGlobalState)
 export function App(props: { socket: Socket }) {
     const [token] = useGlobalState("token")
     const [user, setUser] = useGlobalState("user")
+    const offline = useOffline()
 
     useEffect(() => {
+        if (offline) return
         getUser(token).then(setUser)
         localStorage.setItem("token", token)
-    }, [setUser, token])
+    }, [setUser, token, offline])
 
     useEffect(() => {
-        if (user) {
-            props.socket.emit("IDENTIFY", {
-                token
-            })
-        }
-    }, [props.socket, token, user])
+        if (!user || offline) return
+        props.socket.emit("IDENTIFY", {
+            token
+        })
+    }, [props.socket, token, user, offline])
+
+    if (offline) return <div>Offline</div>
 
     return (
         <AuthProvider>

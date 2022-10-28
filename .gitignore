@@ -6,3 +6,4 @@ install.sh
 server/database.json
 server/build
 client/build
+voice

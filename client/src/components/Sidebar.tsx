@@ -2,47 +2,52 @@ import { Modal } from "@restart/ui"
 import axios from "axios"
 import React, { useState } from "react"
 import { FaPlusCircle } from "react-icons/fa"
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { useGlobalState } from "../App"
 import { Guild } from "../globals"
 import logoUrl from "../img/wyvern.svg"
 import { useAlert } from "./Alerts"
 import { Button } from "./ui/Button"
+import LinkButton from "./ui/LinkButton"
 import { Tooltip } from "./ui/Tooltip"
 
-export function Sidebar() {
+type SidebarProps = {
+    hide: boolean
+}
+
+const Sidebar = ({ hide }: SidebarProps) => {
     const [guilds] = useGlobalState("guilds")
     const [isGuildModalOpen, setGuildModalOpen] = useState(false)
     const { guildId } = useParams()
 
     return (
         <>
-            <div className="ServerList">
-                <Link to="/channels/@me">
-                    <Tooltip placement="right" text={<b>Home</b>}>
-                        <button className="SidebarButton WyvernSidebarButton outlined">
-                            <img
-                                src={logoUrl}
-                                style={{
-                                    width: "75%",
-                                    height: "75%"
-                                }}
-                            />
-                        </button>
-                    </Tooltip>
-                </Link>
+            <div className={`ServerList ${hide ? "none" : ""}`}>
+                <Tooltip placement="right" text={<b>Home</b>}>
+                    <LinkButton
+                        to="/channels/@me"
+                        className="SidebarButton WyvernSidebarButton outlined"
+                    >
+                        <img
+                            src={logoUrl}
+                            style={{
+                                width: "75%",
+                                height: "75%"
+                            }}
+                        />
+                    </LinkButton>
+                </Tooltip>
                 <hr />
                 {guilds.map((guild: Guild) => (
                     <Tooltip key={guild.id} placement="right" text={<b>{guild.name}</b>}>
-                        <Link to={`/channels/${guild.id}`} key={guild.id}>
-                            <button
-                                className={`SidebarButton ServerSidebarIcon outlined ${
-                                    guildId === guild.id ? "active" : ""
-                                }`}
-                            >
-                                <GuildIcon guild={guild} />
-                            </button>
-                        </Link>
+                        <LinkButton
+                            to={`/channels/${guild.id}`}
+                            className={`SidebarButton ServerSidebarIcon outlined ${
+                                guildId === guild.id ? "active" : ""
+                            }`}
+                        >
+                            <GuildIcon guild={guild} />
+                        </LinkButton>
                     </Tooltip>
                 ))}
                 <Tooltip placement="right" text={<b>Add a Server</b>}>
@@ -248,3 +253,5 @@ function GuildIcon(props: { guild: Guild }) {
         </span>
     )
 }
+
+export default Sidebar

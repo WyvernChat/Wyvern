@@ -6,7 +6,12 @@ import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import { useSocket, useSocketListener } from "../SocketIO"
 import { UserMenu } from "../ui/UserMenu"
 
-export function Users(props: { guildId: string }) {
+type UsersProps = {
+    guildId: string
+    hide?: boolean
+}
+
+const Users = ({ guildId, hide }: UsersProps) => {
     const [users, setUsers] = useState<{ user: string; online: boolean }[]>([])
     const socket = useSocket()
 
@@ -33,7 +38,7 @@ export function Users(props: { guildId: string }) {
     const offlineUsers = users.filter((u) => !u.online)
 
     return (
-        <div className="UserBar">
+        <div className={`UserBar ${hide ? "none" : ""}`}>
             <div className="TopBar"></div>
             <div className="Users">
                 <div className="Title">Online - {onlineUsers.length}</div>
@@ -75,3 +80,5 @@ function ActiveUser(props: { userId: string; online?: boolean }) {
         </UserMenu>
     )
 }
+
+export default Users

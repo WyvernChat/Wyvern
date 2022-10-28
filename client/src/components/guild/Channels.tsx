@@ -12,25 +12,31 @@ import {
 import { useNavigate, useParams } from "react-router-dom"
 import { useGlobalState } from "../../App"
 import { useChannel } from "../../hooks/channel"
+import { useGuild } from "../../hooks/guild"
 import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import { useAlert } from "../Alerts"
 import { Button } from "../ui/Button"
 import { ContextMenu, ContextMenuButton } from "../ui/ContextMenu"
 import { Tooltip } from "../ui/Tooltip"
+import { MobileView } from "./Guild"
 
-export function Channels(props: { guildId: string }) {
+type ChannelsProps = {
+    guildId: string
+    hide?: boolean
+    setView?: (view: MobileView) => void
+}
+
+const Channels = ({ guildId, hide, setView }: ChannelsProps) => {
     const [user] = useGlobalState("user")
-    const [guilds] = useGlobalState("guilds")
+    const guild = useGuild(guildId)
     const [menuOpen, setMenuOpen] = useState(false)
     const [channelCreate, setChannelCreate] = useState(false)
     const actionRef = useRef<HTMLDivElement>(null)
     const menuRef = useRef<HTMLDivElement>(null)
     const alert = useAlert()
 
-    const guild = guilds.find((g) => g.id === props.guildId)
-
     return (
-        <div className="GuildBar">
+        <div className={`GuildBar ${hide ? "none" : ""}`}>
             <div
                 className={`GuildMenu ${menuOpen ? "active" : ""}`}
                 ref={actionRef}
@@ -69,7 +75,12 @@ export function Channels(props: { guildId: string }) {
             </div>
             <div className="ChannelsList">
                 {guild?.channels.map((channelId, index) => (
-                    <ChannelLink key={index} guildId={props.guildId} channelId={channelId} />
+                    <ChannelLink
+                        key={index}
+                        guildId={guildId}
+                        channelId={channelId}
+                        setView={setView}
+                    />
                 ))}
             </div>
             <div className="User-Card">
@@ -106,7 +117,7 @@ export function Channels(props: { guildId: string }) {
             <CreateChannelMenu
                 open={channelCreate}
                 hide={() => setChannelCreate(false)}
-                guildId={props.guildId}
+                guildId={guildId}
             />
         </div>
     )
@@ -161,12 +172,18 @@ function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: st
     )
 }
 
-function ChannelLink(props: { guildId: string; channelId: string }) {
+type ChannelLinkProps = {
+    guildId: string
+    channelId: string
+    setView: (view: MobileView) => void
+}
+
+function ChannelLink({ guildId, channelId, setView }: ChannelLinkProps) {
     const navigate = useNavigate()
     const params = useParams()
     const [editor, setEditor] = useState(false)
 
-    const [channel] = useChannel(props.channelId)
+    const [channel] = useChannel(channelId)
 
     return (
         <>
@@ -185,7 +202,10 @@ function ChannelLink(props: { guildId: string; channelId: string }) {
             >
                 <div
                     className={`ChannelLink ${params.channelId === channel?.id ? "active" : ""}`}
-                    onClick={() => navigate(`/channels/${props.guildId}/${channel?.id}`)}
+                    onClick={() => {
+                        setView("chat")
+                        navigate(`/channels/${guildId}/${channel?.id}`)
+                    }}
                 >
                     <div className="first">
                         <span className="type">
@@ -211,3 +231,5 @@ function ChannelLink(props: { guildId: string; channelId: string }) {
         </>
     )
 }
+
+export default Channels

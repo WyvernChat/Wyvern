@@ -2,6 +2,7 @@ import axios from "axios"
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import {
     FaAngry,
+    FaBars,
     FaGrin,
     FaGrinHearts,
     FaHashtag,
@@ -15,13 +16,20 @@ import { useChannel } from "../../hooks/channel"
 import { useMessages } from "../../hooks/message"
 import { useSocket } from "../SocketIO"
 import { EmojiPopup } from "../ui/EmojiPopup"
+import { MobileView } from "./Guild"
 import { ChatMessage } from "./Message"
 
-export function Chat(props: { guildId: string; channelId: string }) {
+type ChatProps = {
+    channelId: string
+    hide?: boolean
+    setView?: (view: MobileView) => void
+}
+
+const Chat = ({ channelId, hide, setView }: ChatProps) => {
     const [token] = useGlobalState("token")
     const [currentMessage, setCurrentMessage] = useState("")
-    const [channel] = useChannel(props.channelId)
-    const [messages, setMessages] = useMessages(props.channelId, {})
+    const [channel] = useChannel(channelId)
+    const [messages, setMessages] = useMessages(channelId, {})
     const [loadingMessages, setLoadingMessages] = useState(true)
     const messageInputRef = useRef<HTMLTextAreaElement>(null)
     const messagesRef = useRef<HTMLDivElement>(null)
@@ -34,7 +42,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                 setLoadingMessages(false)
             }, 1)
         }
-    }, [messagesRef, props.channelId, messages])
+    }, [messagesRef, channelId, messages])
 
     const keyListener = (event: KeyboardEvent) => {
         if (
@@ -98,8 +106,17 @@ export function Chat(props: { guildId: string; channelId: string }) {
     }, [messages])
 
     return (
-        <div className="Chat" key={props.guildId}>
+        <div className={`Chat ${hide ? "none" : ""}`}>
             <div className="ChannelHeader">
+                <span className="text" onClick={() => setView("channels")}>
+                    <FaBars
+                        className="md-none"
+                        style={{
+                            color: "white",
+                            padding: "0 10px"
+                        }}
+                    />
+                </span>
                 <span className="text">
                     <FaHashtag /> {channel?.name}
                 </span>
@@ -113,7 +130,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                     if (!loadingMessages && messagesRef.current.scrollTop < 255) {
                         setLoadingMessages(true)
                         axios
-                            .get(`/api/channels/${props.channelId}/messages`, {
+                            .get(`/api/channels/${channelId}/messages`, {
                                 params: {
                                     before: messages[0].id
                                 },
@@ -124,7 +141,9 @@ export function Chat(props: { guildId: string; channelId: string }) {
                             .then((res) => res.data)
                             .then((msgs) => {
                                 if (msgs.length > 0) {
-                                    setLoadingMessages(false)
+                                    setTimeout(() => {
+                                        setLoadingMessages(false)
+                                    }, 1000)
                                     setMessages((prevMessages) => [...msgs, ...prevMessages])
                                 }
                             })
@@ -198,7 +217,7 @@ export function Chat(props: { guildId: string; channelId: string }) {
                                 ) {
                                     socket.emit("MESSAGE_CREATE", {
                                         content: currentMessage,
-                                        channelId: props.channelId
+                                        channelId: channelId
                                     })
                                     messageInputRef.current.style.height = "2ch"
                                     setCurrentMessage("")
@@ -259,3 +278,5 @@ const EmojiCarousel = () => {
         </button>
     )
 }
+
+export default Chat

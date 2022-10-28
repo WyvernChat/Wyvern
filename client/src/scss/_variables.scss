@@ -3,7 +3,21 @@ $gray-dark2: #303030;
 $gray-dark3: #36393f;
 $gray: #404144;
 $green: #4ca55d;
+$green2: #6e9a76;
 $blue: #4eaece;
 $purple: #594dfb;
 $black1: #18191c;
 $gray-light: #8f8e8e;
+
+$grid-breakpoints: (
+    xs: 0,
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1400px
+);
+
+// component global variables
+$guildbar-width: 50px;
+$guildbar-padding: 10px;

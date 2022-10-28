@@ -5,6 +5,7 @@ body {
     overflow: hidden;
     height: 100%;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 .outlined:focus-visible {
@@ -80,6 +81,7 @@ body {
 
 .selectable {
     user-select: text;
+    -webkit-user-select: text;
 }
 
 @mixin zIndex($start, $end) {
@@ -92,10 +94,26 @@ body {
 
 @include zIndex(-1, 10);
 
+@mixin breakpoints($breakpoints) {
+    @each $bp, $size in $breakpoints {
+        .#{$bp}-none {
+            @media screen and (min-width: $size) {
+                display: none;
+            }
+        }
+    }
+}
+
+@include breakpoints($grid-breakpoints);
+
 .horizontal {
-    overflow: hidden;
+    overflow-x: hidden;
     width: 100vw;
     height: 100vh;
     display: flex;
     flex: 1;
+}
+
+.none {
+    display: none;
 }

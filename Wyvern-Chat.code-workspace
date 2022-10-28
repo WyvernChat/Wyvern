@@ -8,13 +8,13 @@
         },
         {
             "path": "client"
+        },
+        {
+            "path": "voice"
         }
     ],
     "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "[prisma]": {
-            "editor.defaultFormatter": "Prisma.prisma"
-        },
         "editor.formatOnSaveMode": "file",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {

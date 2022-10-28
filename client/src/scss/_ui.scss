@@ -158,6 +158,48 @@ hr {
 .WyvernButton {
 }
 
+input[type="checkbox"].Switch {
+    width: 0;
+    height: 0;
+    visibility: hidden;
+
+    &:checked:not(:active) + label {
+        background-color: $green;
+    }
+    &:checked + label::after {
+        left: calc(100% - 1px);
+        transform: translateX(-100%);
+    }
+}
+label.Switch {
+    cursor: pointer;
+    text-indent: -9999px;
+    width: 50px;
+    height: 25px;
+    background-color: $gray-light;
+    display: block;
+    border-radius: 25px;
+    position: relative;
+    transition: all 0.3s ease;
+    &::after {
+        content: "";
+        position: absolute;
+        top: 1px;
+        left: 1px;
+        width: 23px;
+        height: 23px;
+        background-color: white;
+        border-radius: 23px;
+        transition: all 0.3s ease;
+    }
+    &:active {
+        background-color: $green2;
+    }
+    &:active::after {
+        width: 30px;
+    }
+}
+
 @mixin stack($sizes) {
     @each $size in $sizes {
         .VStack-#{$size} {

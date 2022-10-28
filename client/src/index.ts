@@ -11,6 +11,7 @@ import "./scss/main.scss"
 const serverUri = __API_URI__
 const production = __APP_ENV__ === "PRODUCTION"
 const secure = production ? "s" : ""
+console.log("secure: ", secure)
 
 axios.defaults.validateStatus = (status) => status >= 200 && status < 500
 axios.defaults.baseURL = `http${secure}://` + serverUri
