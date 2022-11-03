@@ -7,6 +7,9 @@ export default defineConfig(({ command }) => ({
     server: {
         port: 3001
     },
+    preview: {
+        port: 3001
+    },
     appType: "spa",
     root: "src",
     publicDir: "../public",

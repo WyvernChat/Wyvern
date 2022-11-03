@@ -98,7 +98,12 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
         setModal(0)
     }
     return (
-        <Modal show={props.open} onHide={hide}>
+        <Modal
+            show={props.open}
+            onHide={hide}
+            className="Modal"
+            renderBackdrop={(props) => <div {...props} className="ModalBackground" />}
+        >
             <>
                 {modal === 0 && (
                     <div className="FadeTransition">

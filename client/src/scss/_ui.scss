@@ -1,3 +1,5 @@
+@import "modal";
+
 .UserMenu {
     .user {
         .tag {
@@ -172,6 +174,7 @@ input[type="checkbox"].Switch {
     }
 }
 label.Switch {
+    @extend .outlined;
     cursor: pointer;
     text-indent: -9999px;
     width: 50px;

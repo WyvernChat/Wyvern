@@ -127,7 +127,7 @@ function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: st
     const [token] = useGlobalState("token")
     const [channelName, setChannelName] = useState("")
     return (
-        <Modal show={props.open} onHide={props.hide} centered>
+        <Modal show={props.open} onHide={props.hide}>
             <>
                 <div>
                     <h2>Create Text Channel</h2>
