@@ -35,6 +35,7 @@ export default defineConfig(({ command }) => ({
         viteCompression(),
         VitePWA({
             registerType: "autoUpdate",
+            injectRegister: null,
             manifest: {
                 name: "Wyvern",
                 short_name: "Wyvern",

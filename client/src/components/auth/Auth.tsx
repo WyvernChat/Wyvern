@@ -6,7 +6,7 @@ import React, {
     useContext,
     useState
 } from "react"
-import { useGlobalState } from "../App"
+import { useGlobalState } from "../../App"
 
 interface Authentication {
     authenticated: boolean

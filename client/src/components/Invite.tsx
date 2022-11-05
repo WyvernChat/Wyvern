@@ -13,19 +13,10 @@ export function Invite() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (token) {
-            axios.get(`/api/guilds/invites/${inviteCode}`).then((response) => {
-                setGuild(response.data)
-            })
-        } else {
-            const searchParams = new URLSearchParams()
-            searchParams.set("redirect", window.location.href)
-            navigate({
-                pathname: "/login",
-                search: searchParams.toString()
-            })
-        }
-    }, [token])
+        axios.get(`/api/guilds/invites/${inviteCode}`).then((response) => {
+            setGuild(response.data)
+        })
+    }, [inviteCode])
     return (
         <div className="Login-Card">
             <div className="text-center">

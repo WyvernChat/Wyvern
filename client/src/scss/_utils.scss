@@ -84,6 +84,22 @@ body {
     -webkit-user-select: text;
 }
 
+.text-center {
+    text-align: center;
+}
+
+.fill-x {
+    width: 100%;
+}
+
+.fill-y {
+    height: 100%;
+}
+
+hr.separator {
+    margin: 40px 0px;
+}
+
 @mixin zIndex($start, $end) {
     @for $index from $start to $end {
         .zi-#{$index} {

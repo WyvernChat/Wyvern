@@ -2,7 +2,7 @@ import React from "react"
 import { FaArrowCircleRight, FaDoorOpen, FaDownload } from "react-icons/fa"
 import { Link, useNavigate } from "react-router-dom"
 import logoUrl from "../img/logos/WyvernLogo-96x96.png"
-import { useAuth } from "./Auth"
+import { useAuth } from "./auth/Auth"
 
 export function Index() {
     const navigate = useNavigate()

@@ -158,6 +158,29 @@ hr {
 }
 
 .WyvernButton {
+    font-size: 16px;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 10px;
+    background: $purple;
+    cursor: pointer;
+    transition: filter 200ms;
+    &:hover {
+        filter: brightness(80%);
+    }
+    &:active {
+        filter: brightness(70%);
+    }
+    &.fill {
+        width: 100%;
+    }
+    &.primary {
+        background: $purple;
+    }
+    &.secondary {
+        background: $gray-light;
+    }
 }
 
 input[type="checkbox"].Switch {
@@ -201,6 +224,58 @@ label.Switch {
     &:active::after {
         width: 30px;
     }
+}
+
+.Card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.Card-Body {
+    display: flex;
+    padding: 25px;
+    background-color: $gray-dark2;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    @media screen and (min-width: map.get($grid-breakpoints, "md")) {
+        width: 55%;
+        height: fit-content;
+    }
+}
+
+input.TextInput,
+textarea.TextInput {
+    font-size: 16px;
+    outline: none;
+    border: solid $gray-dark 1px;
+    border-radius: 3px;
+    background-color: $gray-dark3;
+    padding: 8px;
+    &:not(:last-child) {
+        margin-bottom: 12px;
+    }
+    color: #ffffff;
+    &:focus {
+        border: solid $blue 1px;
+    }
+}
+
+label.Label {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    &:not(:first-child) {
+        margin-top: 8px;
+    }
+    &:not(:last-child) {
+        margin-bottom: 8px;
+    }
+    color: #b8b2b2;
 }
 
 @mixin stack($sizes) {

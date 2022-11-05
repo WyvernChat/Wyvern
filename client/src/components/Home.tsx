@@ -1,6 +1,7 @@
 import React from "react"
 import { useLocalStorage } from "../utils"
 import Root from "./Root"
+import Button from "./ui/Button"
 import Switch from "./ui/Switch"
 
 export function Home() {
@@ -22,6 +23,17 @@ export function Home() {
                         }
                     }}
                 />
+                <Button
+                    onClick={() => {
+                        if (Notification.permission === "granted") {
+                            navigator.serviceWorker.getRegistration().then((req) => {
+                                req.showNotification("'tsup")
+                            })
+                        }
+                    }}
+                >
+                    Show Notification
+                </Button>
             </div>
         </Root>
     )

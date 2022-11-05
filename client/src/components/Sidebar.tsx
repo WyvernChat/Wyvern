@@ -7,7 +7,7 @@ import { useGlobalState } from "../App"
 import { Guild } from "../globals"
 import logoUrl from "../img/wyvern.svg"
 import { useAlert } from "./Alerts"
-import { Button } from "./ui/Button"
+import Button from "./ui/Button"
 import LinkButton from "./ui/LinkButton"
 import { Tooltip } from "./ui/Tooltip"
 

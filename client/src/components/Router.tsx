@@ -3,7 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { useGlobalState } from "../App"
 import { useChannels } from "../hooks/channel"
 import { useGuilds } from "../hooks/guild"
-import { useAuth } from "./Auth"
+import { useAuth } from "./auth/Auth"
+import RequireAuth from "./auth/RequireAuth"
 import Guild from "./guild/Guild"
 import { Home } from "./Home"
 import { Index } from "./Index"
@@ -30,13 +31,41 @@ export function Router() {
             <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="channels">
-                    <Route path="@me" element={<Home />} />
-                    <Route path=":guildId" element={<Guild />}>
-                        <Route path=":channelId" element={<Guild />} />
+                    <Route
+                        path="@me"
+                        element={
+                            <RequireAuth>
+                                <Home />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path=":guildId"
+                        element={
+                            <RequireAuth>
+                                <Guild />
+                            </RequireAuth>
+                        }
+                    >
+                        <Route
+                            path=":channelId"
+                            element={
+                                <RequireAuth>
+                                    <Guild />
+                                </RequireAuth>
+                            }
+                        />
                     </Route>
                 </Route>
                 <Route path="invite">
-                    <Route path=":inviteCode" element={<Invite />} />
+                    <Route
+                        path=":inviteCode"
+                        element={
+                            <RequireAuth>
+                                <Invite />
+                            </RequireAuth>
+                        }
+                    />
                 </Route>
                 <Route path="voice" element={<Voice />} />
                 <Route path="login" element={<Login />} />

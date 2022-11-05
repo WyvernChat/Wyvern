@@ -1,20 +1,22 @@
 import axios from "axios"
 import React, { useState } from "react"
-import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAlert } from "./Alerts"
-import { useAuth } from "./Auth"
-import { Button } from "./ui/Button"
+import { useAuth } from "./auth/Auth"
+import Button from "./ui/Button"
+import Card from "./ui/Card"
+import TextInput from "./ui/TextInput"
 
 export function Login() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [searchParams] = useSearchParams()
+    const { state } = useLocation()
     const navigate = useNavigate()
     const alert = useAlert()
-    const { authenticated, login } = useAuth()
+    const { login } = useAuth()
 
-    return !authenticated ? (
-        <div className="Login-Card">
+    return (
+        <Card>
             <form
                 onSubmit={async (event) => {
                     event.preventDefault()
@@ -29,69 +31,53 @@ export function Login() {
                             type: "danger"
                         })
                     } else if (result.status === 200) {
-                        login(result.data.token)
-                        if (searchParams.has("redirect")) {
-                            navigate(searchParams.get("redirect"))
-                        } else {
-                            navigate("/")
-                        }
-                        alert({
-                            text: "Logged in!",
-                            type: "success"
+                        login(result.data.token).then(() => {
+                            navigate(state?.path ?? "/")
+                            alert({
+                                text: "Logged in!",
+                                type: "success"
+                            })
                         })
                     }
                 }}
+                className="fill-x"
                 noValidate
                 autoComplete="off"
             >
                 <div className="text-center">
-                    <h4>Hey, welcome back!</h4>
+                    <h2>Hey, welcome back!</h2>
                     <span
                         style={{
                             color: "gray"
                         }}
                     >
-                        Login with your email and password.
+                        Log in with your email and password.
                     </span>
                 </div>
                 <div className="VStack-4">
-                    <div className="Input-Form">
-                        <div>Email</div>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
-                    <div className="Input-Form">
-                        <div>Password</div>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
-                    <div className="Input-Form">
-                        <Button
-                            type="submit"
-                            style={{
-                                width: "100%"
-                            }}
-                        >
-                            Login
-                        </Button>
-                        <div>
-                            Don&apos;t have an account? <Link to="/register">Register</Link>
-                        </div>
+                    <TextInput.Label>Email</TextInput.Label>
+                    <TextInput
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
+                    />
+                    <TextInput.Label>Password</TextInput.Label>
+                    <TextInput
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
+                    />
+
+                    <Button type="submit" fill>
+                        Log In
+                    </Button>
+                    <div>
+                        Don&apos;t have an account? <Link to="/register">Register</Link>
                     </div>
                 </div>
             </form>
-        </div>
-    ) : (
-        <Navigate
-            to={searchParams.has("redirect") ? searchParams.get("redirect") : "/channels/@me"}
-        />
+        </Card>
     )
 }
