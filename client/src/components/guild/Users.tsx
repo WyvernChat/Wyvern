@@ -4,7 +4,7 @@ import { User } from "../../globals"
 import { getCachedUser } from "../../hooks/user"
 import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import { useSocket, useSocketListener } from "../SocketIO"
-import { UserMenu } from "../ui/UserMenu"
+import UserMenu from "../ui/UserMenu"
 
 type UsersProps = {
     guildId: string

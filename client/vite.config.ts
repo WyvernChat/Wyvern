@@ -1,6 +1,5 @@
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-import viteCompression from "vite-plugin-compression"
 import { VitePWA } from "vite-plugin-pwa"
 
 export default defineConfig(({ command }) => ({
@@ -10,7 +9,6 @@ export default defineConfig(({ command }) => ({
     preview: {
         port: 3001
     },
-    appType: "spa",
     root: "src",
     publicDir: "../public",
     build: {
@@ -32,7 +30,7 @@ export default defineConfig(({ command }) => ({
         react({
             include: "**/*.{jsx,tsx}"
         }),
-        viteCompression(),
+        // viteCompression(),
         VitePWA({
             registerType: "autoUpdate",
             injectRegister: null,

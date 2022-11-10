@@ -18,9 +18,7 @@ export function Router() {
     const [token] = useGlobalState("token")
 
     useEffect(() => {
-        if (token.length > 0) {
-            login(token)
-        }
+        login(token)
     }, [login, token])
 
     useGuilds(token)

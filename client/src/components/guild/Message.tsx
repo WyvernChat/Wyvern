@@ -2,12 +2,12 @@ import axios from "axios"
 import dayjs from "dayjs"
 import React, { memo, useCallback, useEffect, useState } from "react"
 import { useGlobalState } from "../../App"
-import { Message, User } from "../../globals"
-import { useUserCache } from "../../hooks/user"
+import { Message } from "../../globals"
+import { useCachedUser } from "../../hooks/user"
 import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import { filterEmojis } from "../ui/EmojiPopup"
 import { useMarkdown } from "../ui/Markdown"
-import { UserMenu } from "../ui/UserMenu"
+import UserMenu from "../ui/UserMenu"
 
 export const ChatMessage = memo(function ChatMessage(props: {
     message: Message
@@ -15,14 +15,9 @@ export const ChatMessage = memo(function ChatMessage(props: {
 }) {
     const [user] = useGlobalState("user")
     // const [userCache, setUserCache] = useGlobalState("userCache")
-    const [cachedUser] = useUserCache()
-    const [author, setAuthor] = useState<User>(undefined)
+    const author = useCachedUser(props.message.author)
     const [embeds, setEmbeds] = useState<string[]>([])
     const markdown = useMarkdown(props.message.content || "")
-
-    useEffect(() => {
-        cachedUser(props.message.author).then(setAuthor)
-    }, [cachedUser, props.message.author])
 
     const embedCallback = useCallback((element: HTMLDivElement) => {
         setEmbeds((embeds) => {
@@ -39,11 +34,11 @@ export const ChatMessage = memo(function ChatMessage(props: {
         <div className="message">
             {props.showAvatar && (
                 <>
-                    <UserMenu userId={author?.id} placement="right">
+                    <UserMenu userId={author?.id} placement="right" offset={[0, 0]}>
                         <img src={logoUrl} className="avatar" />
                     </UserMenu>
                     <div>
-                        <UserMenu userId={author?.id} placement="right">
+                        <UserMenu userId={author?.id} placement="right" offset={[8, 0]}>
                             <span
                                 style={{
                                     color: author?.id === user.id ? "red" : ""

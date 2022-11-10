@@ -7,8 +7,10 @@ type RequireAuthProps = {
 }
 
 const RequireAuth = ({ children }: RequireAuthProps) => {
-    const { authenticated } = useAuth()
+    const { authenticated, loading } = useAuth()
     const location = useLocation()
+
+    if (loading) return <p>Loading</p>
 
     return authenticated ? (
         children

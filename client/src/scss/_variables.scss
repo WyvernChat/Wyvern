@@ -8,6 +8,7 @@ $blue: #4eaece;
 $purple: #594dfb;
 $black1: #18191c;
 $gray-light: #8f8e8e;
+$gray-light2: #c1c1c1;
 
 $grid-breakpoints: (
     xs: 0,
@@ -17,6 +18,8 @@ $grid-breakpoints: (
     xl: 1200px,
     xxl: 1400px
 );
+
+$wyvern-font: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 
 // component global variables
 $guildbar-width: 50px;

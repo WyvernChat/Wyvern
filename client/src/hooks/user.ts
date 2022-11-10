@@ -1,5 +1,5 @@
 import axios from "axios"
-import { useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useGlobalState } from "../App"
 import { User } from "../globals"
 
@@ -33,9 +33,20 @@ const useUserCache = () => {
             }
             return user
         },
-        [users]
+        [users, setUsers]
     )
     return [cachedUser]
+}
+
+const useCachedUser = (id: string) => {
+    const [cachedUser] = useUserCache()
+    const [user, setUser] = useState<User>(undefined)
+
+    useEffect(() => {
+        if (id) cachedUser(id).then(setUser)
+    }, [id, cachedUser])
+
+    return user
 }
 
 async function getCachedUser(id: string, userCache: User[]) {
@@ -55,4 +66,4 @@ async function getCachedUser(id: string, userCache: User[]) {
     }
 }
 
-export { getUser, useUserCache, getCachedUser }
+export { getUser, useUserCache, useCachedUser, getCachedUser }

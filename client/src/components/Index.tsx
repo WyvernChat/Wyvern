@@ -1,76 +1,48 @@
 import React from "react"
-import { FaArrowCircleRight, FaDoorOpen, FaDownload } from "react-icons/fa"
-import { Link, useNavigate } from "react-router-dom"
-import logoUrl from "../img/logos/WyvernLogo-96x96.png"
+import { Link } from "react-router-dom"
+import logoUrl from "../img/wyvern.svg"
+import classes from "../scss/homepage.module.scss"
 import { useAuth } from "./auth/Auth"
 
 export function Index() {
-    const navigate = useNavigate()
     const { authenticated } = useAuth()
-    const links = [
-        {
-            title: "Download",
-            url: "/download",
-            icon: <FaDownload />,
-            important: true,
-            predicate: () => {
-                return true
-            }
-        },
-        {
-            title: "Login",
-            url: "/login",
-            icon: <FaDoorOpen />,
-            important: false,
-            predicate: () => !authenticated
-        },
-        {
-            title: "Register",
-            url: "/register",
-            icon: <FaArrowCircleRight />,
-            important: false,
-            predicate: () => !authenticated
-        },
-        {
-            title: "Launch Wyvern",
-            url: "/channels/@me",
-            icon: <FaDoorOpen />,
-            important: false,
-            predicate: () => authenticated
-        }
-    ]
 
     return (
-        <div>
-            <nav>
-                <Link to="#">
-                    <img
-                        src={logoUrl}
-                        style={{
-                            maxWidth: 40,
-                            borderRadius: "50%"
-                        }}
-                    />
-                    Wyvern
-                </Link>
-                {links.map((item, index) => (
-                    <div
-                        key={index}
-                        style={{
-                            display: !item.predicate() ? "none" : ""
-                        }}
-                    >
-                        <Link
-                            style={{
-                                color: item.important ? "#584EFF" : ""
-                            }}
-                            to={item.url}
-                        >
-                            {item.icon}
-                            {item.title}
+        <div className={classes.homepage}>
+            <nav className={classes.nav}>
+                <div className={classes.btngroup}>
+                    <Link to="/" className={`${classes.brandlink} ${classes.navlink}`}>
+                        <img src={logoUrl} />
+                        Wyvern
+                    </Link>
+                </div>
+                <div
+                    className={classes.btngroup}
+                    style={{
+                        width: "50%"
+                    }}
+                >
+                    <Link to="/download" className={classes.navlink}>
+                        Download
+                    </Link>
+                    <Link to="/tos" className={classes.navlink}>
+                        Download
+                    </Link>
+                    <Link to="/docs" className={classes.navlink}>
+                        Support
+                    </Link>
+                </div>
+                <div className={classes.btngroup}>
+                    {authenticated ? (
+                        <Link to="/channels/@me" className={classes.navbtn}>
+                            Launch
                         </Link>
-                    </div>
-                ))}
+                    ) : (
+                        <Link to="/login" className={classes.navbtn}>
+                            Login
+                        </Link>
+                    )}
+                </div>
             </nav>
             <div>
                 <p>

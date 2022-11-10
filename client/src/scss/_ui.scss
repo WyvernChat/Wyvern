@@ -1,13 +1,5 @@
 @import "modal";
 
-.UserMenu {
-    .user {
-        .tag {
-            color: gray;
-        }
-    }
-}
-
 .ContextMenu {
     z-index: 2;
     font-size: 14px;
@@ -250,6 +242,7 @@ label.Switch {
 
 input.TextInput,
 textarea.TextInput {
+    box-sizing: border-box;
     font-size: 16px;
     outline: none;
     border: solid $gray-dark 1px;

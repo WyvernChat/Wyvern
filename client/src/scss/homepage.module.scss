@@ -1,0 +1,60 @@
+@import "variables";
+
+.homepage {
+    user-select: text;
+    display: flex;
+}
+
+.nav {
+    max-width: 1180px;
+    // padding: 0px 100px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-direction: row;
+    justify-self: center;
+    align-self: center;
+}
+
+.navlink {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.brandlink {
+    font-family: $wyvern-font;
+    // text-transform: uppercase;
+    img {
+        width: 30px;
+        height: auto;
+        border-radius: 50%;
+    }
+}
+
+.navbtn {
+    display: flex;
+    align-items: center;
+    color: $gray-dark;
+    text-decoration: none;
+    transition: all 200ms;
+    background: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    &:hover {
+        box-shadow: 0 8px 15px rgb(1 0 0 / 20%);
+        color: $purple;
+    }
+}
+
+.btngroup {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+}

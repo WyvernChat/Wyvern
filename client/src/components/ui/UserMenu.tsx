@@ -1,14 +1,23 @@
 import { Overlay } from "@restart/ui"
-import { Placement } from "@restart/ui/usePopper"
+import { Offset, Placement } from "@restart/ui/usePopper"
 import React, { ReactNode, useEffect, useRef, useState } from "react"
-import { User } from "../../globals"
-import { useUserCache } from "../../hooks/user"
+import { FaCamera, FaCommentAlt, FaPhoneAlt } from "react-icons/fa"
+import { useCachedUser } from "../../hooks/user"
+import classes from "../../scss/ui/usermenu.module.scss"
 import { useLocalStorage } from "../../utils"
+import TextInput from "./TextInput"
+import { FadeTransition } from "./Transitions"
 
-export function UserMenu(props: { userId: string; placement: Placement; children: ReactNode }) {
+type UserMenuProps = {
+    userId: string
+    placement: Placement
+    offset: Offset
+    children: ReactNode
+}
+
+const UserMenu = ({ userId, placement, offset, children }: UserMenuProps) => {
     const [open, setOpen] = useState(false)
-    const [user, setUser] = useState<User>(undefined)
-    const [cachedUser] = useUserCache()
+    const user = useCachedUser(userId)
     const [notes, setNotes] = useLocalStorage<{ [user: string]: string }>("usernotes", {})
 
     const menuRef = useRef<HTMLDivElement>(null)
@@ -33,14 +42,11 @@ export function UserMenu(props: { userId: string; placement: Placement; children
     useEffect(() => {
         document.addEventListener("mousedown", closeMenu)
         document.addEventListener("keydown", closeMenuKey)
-        if (props.userId) {
-            cachedUser(props.userId).then(setUser)
-        }
         return () => {
             document.removeEventListener("mousedown", closeMenu)
             document.removeEventListener("keydown", closeMenuKey)
         }
-    }, [props.userId])
+    }, [])
 
     useEffect(() => {
         return () => {
@@ -52,22 +58,56 @@ export function UserMenu(props: { userId: string; placement: Placement; children
 
     return (
         <>
-            <Overlay placement={props.placement} ref={menuRef} target={buttonRef} show={open}>
-                {() => (
-                    <div className="UserMenu">
-                        <h3>
-                            <span className="user">
+            <Overlay
+                transition={FadeTransition}
+                placement={placement}
+                ref={menuRef}
+                target={buttonRef}
+                offset={offset}
+                show={open}
+            >
+                {(props) => (
+                    <div className={classes.usermenu} {...props}>
+                        <div className={classes.picture}></div>
+                        <div className={classes.section}>
+                            <span className={classes.user}>
                                 {user?.username}
-                                <span className="tag">#{user?.tag}</span>
+                                <span className={classes.tag}>#{user?.tag}</span>
                             </span>
-                        </h3>
-                        <div>
-                            This is the demo bio. You need to add this feature.
-                            <input
+                            <div className={classes.separator}></div>
+                            <div className={classes.buttons}>
+                                <button className={classes.button}>
+                                    Message
+                                    <FaCommentAlt />
+                                </button>
+                                <button className={classes.button}>
+                                    Audio Call
+                                    <FaPhoneAlt />
+                                </button>
+                                <button className={classes.button}>
+                                    Video Call
+                                    <FaCamera />
+                                </button>
+                            </div>
+                        </div>
+                        <div className={classes.section}>
+                            <div className={classes.title}>About Me</div>
+                            <div className={classes.aboutme}>
+                                This is the demo bio. You need to add this feature.
+                            </div>
+                            <div className={classes.separator}></div>
+                            <div className={classes.title}>Note</div>
+                            <TextInput
                                 placeholder="Click to add a note"
-                                value={notes[props.userId] || ""}
+                                value={notes[userId] || ""}
+                                style={{
+                                    width: "100%"
+                                }}
                                 onChange={(event) =>
-                                    setNotes({ ...notes, [props.userId]: event.target.value })
+                                    setNotes({
+                                        ...notes,
+                                        [userId]: (event.target as HTMLInputElement).value
+                                    })
                                 }
                             />
                         </div>
@@ -78,6 +118,7 @@ export function UserMenu(props: { userId: string; placement: Placement; children
                 ref={buttonRef}
                 onClick={() => {
                     setOpen(true)
+                    console.log("open")
                 }}
                 onKeyDown={(event) => {
                     if (event.key === "Enter") {
@@ -85,8 +126,10 @@ export function UserMenu(props: { userId: string; placement: Placement; children
                     }
                 }}
             >
-                {props.children}
+                {children}
             </span>
         </>
     )
 }
+
+export default UserMenu
