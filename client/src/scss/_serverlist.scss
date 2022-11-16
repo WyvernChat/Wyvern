@@ -22,7 +22,7 @@
         &.active {
             border-radius: 20px;
         }
-        &.active::before {
+        &:not(.sorting).active::before {
             position: absolute;
             top: 0;
             left: -15px;

@@ -209,7 +209,8 @@ function ChannelLink({ guildId, channelId, setView }: ChannelLinkProps) {
                 >
                     <div className="first">
                         <span className="type">
-                            {channel?.type === "TEXT" ? <FaHashtag /> : <FaMicrophone />}
+                            {/* todo: when adding voice channels, use <FaMicrophone /> */}
+                            <FaHashtag />
                         </span>
                         <span className="name">{channel?.name}</span>
                     </div>

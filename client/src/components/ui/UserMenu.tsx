@@ -1,10 +1,11 @@
-import { Overlay } from "@restart/ui"
+import { Modal, Overlay } from "@restart/ui"
 import { Offset, Placement } from "@restart/ui/usePopper"
-import React, { ReactNode, useEffect, useRef, useState } from "react"
+import React, { cloneElement, ReactElement, useEffect, useRef, useState } from "react"
 import { FaCamera, FaCommentAlt, FaPhoneAlt } from "react-icons/fa"
 import { useCachedUser } from "../../hooks/user"
 import classes from "../../scss/ui/usermenu.module.scss"
 import { useLocalStorage } from "../../utils"
+import Button from "./Button"
 import TextInput from "./TextInput"
 import { FadeTransition } from "./Transitions"
 
@@ -12,7 +13,7 @@ type UserMenuProps = {
     userId: string
     placement: Placement
     offset: Offset
-    children: ReactNode
+    children: ReactElement
 }
 
 const UserMenu = ({ userId, placement, offset, children }: UserMenuProps) => {
@@ -56,6 +57,14 @@ const UserMenu = ({ userId, placement, offset, children }: UserMenuProps) => {
         }
     }, [])
 
+    const [modal, setModal] = useState(false)
+    const [verification, setVerification] = useState(0)
+
+    const openCallVerificationMenuThingyThatIsReallyLongAndTotallyAJokeSoThatIsWhyIAmMakingThisFunctionNameSoLongAsWellLolThisIsGonnaSuck =
+        () => {
+            setModal(true)
+        }
+
     return (
         <>
             <Overlay
@@ -84,7 +93,12 @@ const UserMenu = ({ userId, placement, offset, children }: UserMenuProps) => {
                                     Audio Call
                                     <FaPhoneAlt />
                                 </button>
-                                <button className={classes.button}>
+                                <button
+                                    className={classes.button}
+                                    onClick={openCallVerificationMenuThingyThatIsReallyLongAndTotallyAJokeSoThatIsWhyIAmMakingThisFunctionNameSoLongAsWellLolThisIsGonnaSuck.bind(
+                                        this
+                                    )}
+                                >
                                     Video Call
                                     <FaCamera />
                                 </button>
@@ -114,20 +128,118 @@ const UserMenu = ({ userId, placement, offset, children }: UserMenuProps) => {
                     </div>
                 )}
             </Overlay>
-            <span
-                ref={buttonRef}
-                onClick={() => {
+            {cloneElement(children, {
+                ref: buttonRef,
+                onClick() {
                     setOpen(true)
-                    console.log("open")
-                }}
-                onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                        setOpen(true)
-                    }
-                }}
+                },
+                onKeyDown(event: KeyboardEvent) {
+                    if (event.key === "Enter") setOpen(true)
+                }
+            })}
+            <Modal
+                show={modal}
+                onHide={() => setModal(false)}
+                className="Modal"
+                renderBackdrop={(props) => <div {...props} className="ModalBackground" />}
             >
-                {children}
-            </span>
+                <div className="FadeTransition">
+                    <div>
+                        <h2>
+                            {verification === 5 ? "Connected: Dwayne" : "Are you sure about that?"}
+                        </h2>
+                    </div>
+                    <div>
+                        <div className="VStack-3">
+                            {verification === 0 && (
+                                <>
+                                    <span>
+                                        You are about to <em>call</em> someone, I mean like, this
+                                        will ring on their device. They will <em>know it</em>. If
+                                        you do this, you might be blocked by them, nobody likes
+                                        getting calls. Do you? Didn&apos;t think so. Just turn back
+                                        now, before it is too late.
+                                    </span>
+                                    <Button variant="danger" onClick={() => setVerification(1)}>
+                                        Proceed (bad idea...)
+                                    </Button>
+                                </>
+                            )}
+                            {verification === 1 && (
+                                <>
+                                    <span>Please authorize with your ssn:</span>
+                                    <TextInput
+                                        placeholder="Social Security Number"
+                                        type="password"
+                                    />
+                                    <Button variant="danger" onClick={() => setVerification(2)}>
+                                        Verify (bad idea...)
+                                    </Button>
+                                </>
+                            )}
+                            {verification === 2 && (
+                                <>
+                                    <span>Please authorize with with touch id:</span>
+                                    <Button variant="danger" onClick={() => setVerification(3)}>
+                                        Authorize Touch ID on Mobile Device (bad idea...)
+                                    </Button>
+                                </>
+                            )}
+                            {verification === 3 && (
+                                <>
+                                    <span>Please authorize with with fade id:</span>
+                                    <Button variant="danger" onClick={() => setVerification(4)}>
+                                        Authorize Fade ID on Mobile Device (bad idea...)
+                                    </Button>
+                                </>
+                            )}
+                            {verification === 4 && (
+                                <>
+                                    <span>Please enter your mom&apos;s phone number:</span>
+                                    <TextInput type="tel" placeholder="Mom's phone number" />
+                                    <Button variant="danger" onClick={() => setVerification(5)}>
+                                        Verify (bad idea...)
+                                    </Button>
+                                </>
+                            )}
+                            {verification === 5 && (
+                                <>
+                                    <div>You asked for this...</div>
+                                    <div>
+                                        <img
+                                            src="https://media.tenor.com/kHcmsxlKHEAAAAAC/rock-one-eyebrow-raised-rock-staring.gif"
+                                            className={classes.dwayne}
+                                        />
+                                    </div>
+                                    <div>Unfortunately, you cannot hang up. Tis Dwayne.</div>
+                                </>
+                            )}
+                            {verification == 5 ? (
+                                <Button
+                                    variant="danger"
+                                    onClick={() => {
+                                        setModal(false)
+                                        setVerification(0)
+                                    }}
+                                    disabled
+                                >
+                                    Hang Up
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="success"
+                                    onClick={() => {
+                                        setModal(false)
+                                        setVerification(0)
+                                    }}
+                                >
+                                    Turn Back Now (click this)
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </>
     )
 }

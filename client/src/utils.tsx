@@ -59,4 +59,22 @@ function useLocalStorage<T>(key: string, initialValue: T) {
     return state
 }
 
-export { useMounted, useForceUpdate, useHidden, randomRange, BoundingRect, useLocalStorage }
+const useOnce = (): [boolean, () => void] => {
+    const [state, setState] = useState(false)
+
+    const triggerState = useCallback(() => {
+        if (!state) setState(true)
+    }, [state])
+
+    return [state, triggerState]
+}
+
+export {
+    useMounted,
+    useForceUpdate,
+    useHidden,
+    randomRange,
+    BoundingRect,
+    useLocalStorage,
+    useOnce
+}

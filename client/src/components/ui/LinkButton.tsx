@@ -1,4 +1,3 @@
-import { Button } from "@restart/ui"
 import React, { forwardRef, HTMLAttributes } from "react"
 import { LinkProps, useNavigate } from "react-router-dom"
 
@@ -10,7 +9,7 @@ const LinkButton = forwardRef<HTMLButtonElement, LinkButtonProps>(function LinkB
 ) {
     const navigate = useNavigate()
     return (
-        <Button
+        <button
             onClick={() => {
                 navigate(to, {
                     preventScrollReset,
@@ -22,7 +21,7 @@ const LinkButton = forwardRef<HTMLButtonElement, LinkButtonProps>(function LinkB
             ref={ref}
             type={type as "button" | "submit" | "reset"}
             {...rest}
-        ></Button>
+        ></button>
     )
 })
 

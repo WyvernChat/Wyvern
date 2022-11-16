@@ -8,7 +8,8 @@
         "moduleResolution": "Node",
         "resolveJsonModule": true,
         "jsx": "react",
-        "typeRoots": ["types", "../types"]
+        "typeRoots": ["types", "../types"],
+        "types": ["vite-plugin-pwa/client"]
     },
     "include": ["src"],
     "exclude": ["node_modules"]

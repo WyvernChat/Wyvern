@@ -34,12 +34,16 @@ export default defineConfig(({ command }) => ({
         VitePWA({
             registerType: "autoUpdate",
             injectRegister: null,
+            devOptions: {
+                enabled: true
+            },
             manifest: {
                 name: "Wyvern",
                 short_name: "Wyvern",
                 start_url: "/channels/@me",
-                display: "standalone",
+                display: "fullscreen",
                 background_color: "#303030",
+                theme_color: "#202225",
                 description: "Wyvern chat progressive web app",
                 icons: [
                     {

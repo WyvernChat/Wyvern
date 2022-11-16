@@ -7,9 +7,10 @@ type TooltipProps = {
     children: ReactElement
     text: ReactElement
     placement?: Placement
+    hide?: boolean
 }
 
-const Tooltip = ({ children, placement, text }: TooltipProps) => {
+const Tooltip = ({ children, placement, text, hide }: TooltipProps) => {
     const ref = useRef<HTMLElement>()
     const [hover, setHover] = useState(false)
     return (
@@ -20,7 +21,7 @@ const Tooltip = ({ children, placement, text }: TooltipProps) => {
                 onMouseLeave: () => setHover(false)
             })}
             <RestartOverlay
-                show={hover}
+                show={!hide && hover}
                 placement={placement}
                 target={ref.current}
                 transition={FadeTransition}

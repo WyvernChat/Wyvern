@@ -1,11 +1,14 @@
 import { Modal } from "@restart/ui"
 import axios from "axios"
-import React, { useState } from "react"
+import React, { CSSProperties, useEffect, useRef, useState } from "react"
 import { FaPlusCircle } from "react-icons/fa"
 import { useParams } from "react-router-dom"
+import { ReactSortable } from "react-sortablejs"
 import { useGlobalState } from "../App"
 import { Guild } from "../globals"
 import logoUrl from "../img/wyvern.svg"
+import SortableItem from "../SortableItem"
+import { useOnce } from "../utils"
 import { useAlert } from "./Alerts"
 import Button from "./ui/Button"
 import LinkButton from "./ui/LinkButton"
@@ -16,9 +19,24 @@ type SidebarProps = {
 }
 
 const Sidebar = ({ hide }: SidebarProps) => {
-    const [guilds] = useGlobalState("guilds")
+    const [guilds, setGuilds] = useGlobalState("guilds")
     const [isGuildModalOpen, setGuildModalOpen] = useState(false)
     const { guildId } = useParams()
+    const [once, setOnce] = useOnce()
+
+    useEffect(() => {
+        const sortKey: string[] = JSON.parse(localStorage.getItem("guilds.sort") || "")
+        if (!sortKey || guilds.length < 1) return
+        if (once) {
+            localStorage.setItem("guilds.sort", JSON.stringify([...guilds].map((g) => g.id)))
+        } else {
+            console.log(guilds, sortKey)
+            setGuilds((guilds) =>
+                [...guilds].sort((a, b) => sortKey.indexOf(a.id) - sortKey.indexOf(b.id))
+            )
+            setOnce()
+        }
+    }, [guilds, once, setGuilds, setOnce])
 
     return (
         <>
@@ -38,18 +56,12 @@ const Sidebar = ({ hide }: SidebarProps) => {
                     </LinkButton>
                 </Tooltip>
                 <hr />
-                {guilds.map((guild: Guild) => (
-                    <Tooltip key={guild.id} placement="right" text={<b>{guild.name}</b>}>
-                        <LinkButton
-                            to={`/channels/${guild.id}`}
-                            className={`SidebarButton ServerSidebarIcon outlined ${
-                                guildId === guild.id ? "active" : ""
-                            }`}
-                        >
-                            <GuildIcon guild={guild} />
-                        </LinkButton>
-                    </Tooltip>
-                ))}
+
+                <ReactSortable list={guilds} setList={setGuilds} animation={200}>
+                    {guilds.map((guild: Guild) => (
+                        <GuildButton key={guild.id} guild={guild} active={guildId === guild.id} />
+                    ))}
+                </ReactSortable>
                 <Tooltip placement="right" text={<b>Add a Server</b>}>
                     <button
                         className="SidebarButton JoinSidebarButton outlined"
@@ -61,6 +73,35 @@ const Sidebar = ({ hide }: SidebarProps) => {
             </div>
             <GuildModal open={isGuildModalOpen} hide={() => setGuildModalOpen(false)} />
         </>
+    )
+}
+
+type GuildButtonProps = {
+    guild: Guild & SortableItem
+    active: boolean
+}
+
+const GuildButton = ({ guild, active }: GuildButtonProps) => {
+    const ref = useRef<HTMLButtonElement>(null)
+
+    const style: CSSProperties = {
+        opacity: guild.chosen ? 0.5 : 1
+    }
+
+    return (
+        <Tooltip placement="right" text={<b>{guild.name}</b>} hide={guild.chosen}>
+            <LinkButton
+                ref={ref}
+                to={`/channels/${guild.id}`}
+                style={style}
+                className={`SidebarButton ServerSidebarIcon outlined ${active ? "active" : ""} ${
+                    guild.chosen ? "sorting" : ""
+                }`}
+                // data-handler-id={handlerId}
+            >
+                <GuildIcon guild={guild} />
+            </LinkButton>
+        </Tooltip>
     )
 }
 

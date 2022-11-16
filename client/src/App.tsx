@@ -1,4 +1,6 @@
 import React, { useEffect } from "react"
+import { DndProvider } from "react-dnd"
+import { HTML5Backend } from "react-dnd-html5-backend"
 import { createGlobalState } from "react-hooks-global-state"
 import { Socket } from "socket.io-client"
 import { AlertProvider } from "./components/Alerts"
@@ -53,7 +55,9 @@ export function App(props: { socket: Socket }) {
             <SocketIO socket={props.socket}>
                 <AlertProvider>
                     <ContentMenuProvider>
-                        <Router />
+                        <DndProvider backend={HTML5Backend}>
+                            <Router />
+                        </DndProvider>
                     </ContentMenuProvider>
                 </AlertProvider>
             </SocketIO>

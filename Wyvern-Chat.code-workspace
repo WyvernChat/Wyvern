@@ -11,6 +11,9 @@
         },
         {
             "path": "voice"
+        },
+        {
+            "path": "media"
         }
     ],
     "settings": {

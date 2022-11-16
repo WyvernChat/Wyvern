@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc",
-        "serve": "nodemon",
+        "dev": "nodemon",
         "watch": "tsc --watch",
         "start": "NODE_ENV=production node build/index.js"
     },

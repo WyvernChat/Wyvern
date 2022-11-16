@@ -1,11 +1,16 @@
+html {
+    overscroll-behavior: none;
+}
+
 body {
-    margin: 0px;
-    padding: 0px;
-    background-color: $gray-dark3;
-    overflow: hidden;
+    margin: 0;
+    padding: 0;
     height: 100%;
+    background-color: $gray-dark;
+    overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .outlined:focus-visible {
@@ -125,7 +130,14 @@ hr.separator {
 .horizontal {
     overflow-x: hidden;
     width: 100vw;
+    // @media screen and (min-width: map.get($grid-breakpoints, "sm")) {
+    //     padding-top: 0;
+    //     height: 100vh;
+    // }
+    // padding-top: 50px;
+    // height: calc(100vh - 100px);
     height: 100vh;
+    //
     display: flex;
     flex: 1;
 }

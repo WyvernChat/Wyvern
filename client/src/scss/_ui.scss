@@ -164,6 +164,10 @@ hr {
     &:active {
         filter: brightness(70%);
     }
+    &:disabled {
+        cursor: not-allowed;
+        filter: brightness(70%);
+    }
     &.fill {
         width: 100%;
     }
@@ -172,6 +176,12 @@ hr {
     }
     &.secondary {
         background: $gray-light;
+    }
+    &.success {
+        background: $green;
+    }
+    &.danger {
+        background: $red;
     }
 }
 
@@ -278,14 +288,14 @@ label.Label {
             flex-direction: column;
             flex: 1 1 auto;
             align-self: stretch;
-            gap: $size;
+            gap: #{$size}px;
         }
         .HStack-#{$size} {
             display: flex;
             flex-direction: row;
             align-items: center;
             align-self: stretch;
-            gap: $size;
+            gap: #{$size}px;
         }
     }
 }

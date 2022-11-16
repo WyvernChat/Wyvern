@@ -7,3 +7,5 @@ server/database.json
 server/build
 client/build
 voice
+media
+dev-dist
