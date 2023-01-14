@@ -1,6 +1,4 @@
 import React, { ReactNode } from "react"
-import { Navigate, useLocation } from "react-router-dom"
-import { useAuth } from "./auth/Auth"
 import Sidebar from "./Sidebar"
 
 type RootProps = {
@@ -9,21 +7,11 @@ type RootProps = {
 }
 
 const Root = ({ children, hideGuilds }: RootProps) => {
-    const { authenticated } = useAuth()
-    const location = useLocation()
-
-    return authenticated ? (
+    return (
         <div className="horizontal">
             <Sidebar hide={hideGuilds} />
             {children}
         </div>
-    ) : (
-        <Navigate
-            to={{
-                pathname: "/login",
-                search: new URLSearchParams({ redirect: location.pathname }).toString()
-            }}
-        />
     )
 }
 

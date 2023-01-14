@@ -1,0 +1,116 @@
+@import "../variables";
+
+.message {
+    font-family: $app-font;
+    color: white;
+    background: $gray-dark3;
+    user-select: text;
+    -moz-user-select: text;
+    display: flex;
+    flex-direction: row;
+    padding: 5px 10px;
+    .messagewrapper {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+    }
+    .hoverdate {
+        min-width: 50px;
+        font-size: 10px;
+        color: gray;
+        visibility: hidden;
+    }
+    &:hover .hoverdate {
+        visibility: visible;
+    }
+    .contentwrapper {
+        display: block;
+        .content {
+            white-space: pre-wrap;
+            display: block;
+            overflow-wrap: break-word;
+            word-break: break-all;
+            p {
+                margin: 0;
+            }
+        }
+    }
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+        vertical-align: top;
+        cursor: pointer;
+        background: $gray-light;
+        &:active {
+            transform: translateY(2px);
+        }
+    }
+    .user {
+        font-weight: bold;
+        cursor: pointer;
+        &:hover {
+            filter: brightness(90%);
+        }
+    }
+    .date {
+        font-size: 12px;
+        color: gray;
+        margin-left: 5px;
+    }
+    &:hover {
+        background-color: darken($color: $gray-dark3, $amount: 1);
+    }
+    .embedwrapper {
+        padding-left: 50px;
+        .embed {
+            height: 320px;
+            max-width: 420px;
+            min-width: 360px;
+            border-radius: 5px;
+            background-color: $gray;
+            border-left: solid red 5px;
+            .author {
+                padding: 15px 0px 0px 20px;
+                color: #ffffff;
+                font-size: 12px;
+                a {
+                    color: #ffffff;
+                    text-decoration: none;
+                    font-weight: bold;
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+            .title {
+                padding: 15px 0px 0px 20px;
+                color: #ffffff;
+                font-size: 16px;
+                a {
+                    text-decoration: none;
+                    font-weight: bold;
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+            .yt-video {
+                padding: 15px 0px 0px 20px;
+                position: relative;
+                height: 100%;
+                iframe {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    // width: 75%;
+                    // height: 75%;
+                }
+            }
+            &:not(:last-child) {
+                margin-bottom: 5px;
+            }
+        }
+    }
+}

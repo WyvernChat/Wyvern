@@ -7,11 +7,14 @@ import { ReactSortable } from "react-sortablejs"
 import { useGlobalState } from "../App"
 import { Guild } from "../globals"
 import logoUrl from "../img/wyvern.svg"
+import modalClasses from "../scss/ui/modal.module.scss"
 import SortableItem from "../SortableItem"
 import { useOnce } from "../utils"
 import { useAlert } from "./Alerts"
 import Button from "./ui/Button"
 import LinkButton from "./ui/LinkButton"
+import Stack from "./ui/Stack"
+import TextInput from "./ui/TextInput"
 import { Tooltip } from "./ui/Tooltip"
 
 type SidebarProps = {
@@ -25,7 +28,7 @@ const Sidebar = ({ hide }: SidebarProps) => {
     const [once, setOnce] = useOnce()
 
     useEffect(() => {
-        const sortKey: string[] = JSON.parse(localStorage.getItem("guilds.sort") || "")
+        const sortKey: string[] = JSON.parse(localStorage.getItem("guilds.sort") || "[]")
         if (!sortKey || guilds.length < 1) return
         if (once) {
             localStorage.setItem("guilds.sort", JSON.stringify([...guilds].map((g) => g.id)))
@@ -83,10 +86,18 @@ type GuildButtonProps = {
 
 const GuildButton = ({ guild, active }: GuildButtonProps) => {
     const ref = useRef<HTMLButtonElement>(null)
+    const [moving, setMoving] = useState(false)
+    const [down, setDown] = useState(false)
 
     const style: CSSProperties = {
-        opacity: guild.chosen ? 0.5 : 1
+        opacity: moving && down ? 0.5 : 1
     }
+
+    useEffect(() => {
+        if (guild.chosen) return
+        setDown(false)
+        setMoving(false)
+    }, [guild.chosen])
 
     return (
         <Tooltip placement="right" text={<b>{guild.name}</b>} hide={guild.chosen}>
@@ -95,8 +106,14 @@ const GuildButton = ({ guild, active }: GuildButtonProps) => {
                 to={`/channels/${guild.id}`}
                 style={style}
                 className={`SidebarButton ServerSidebarIcon outlined ${active ? "active" : ""} ${
-                    guild.chosen ? "sorting" : ""
+                    moving && down ? "sorting" : ""
                 }`}
+                onMouseMove={() => down && setMoving(true)}
+                onMouseDown={() => setDown(true)}
+                onMouseUp={() => {
+                    setMoving(false)
+                    setDown(false)
+                }}
                 // data-handler-id={handlerId}
             >
                 <GuildIcon guild={guild} />
@@ -142,27 +159,27 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
         <Modal
             show={props.open}
             onHide={hide}
-            className="Modal"
-            renderBackdrop={(props) => <div {...props} className="ModalBackground" />}
+            className={modalClasses.modal}
+            renderBackdrop={(props) => <div {...props} className={modalClasses.background} />}
         >
             <>
                 {modal === 0 && (
                     <div className="FadeTransition">
-                        <div>
-                            <h2>Create a Server</h2>
-                        </div>
-                        <div>
-                            <div className="VStack-3">
-                                A server is where you talk and chat with multiple people inside
-                                Wyvern.
+                        <div className={modalClasses.content}>
+                            <h2 className="text-center">Create a Server</h2>
+                            <Stack size={3} className="text-center">
+                                <div className="text-center">
+                                    A server is where you talk and chat with multiple people inside
+                                    Wyvern.
+                                </div>
                                 <Button variant="primary" onClick={() => setModal(1)}>
                                     Create Your Own
                                 </Button>
-                            </div>
+                            </Stack>
                         </div>
-                        <div>
+                        <div className={modalClasses.footer}>
                             Have an invite already?
-                            <Button variant="secondary" onClick={() => setModal(2)}>
+                            <Button variant="dark" onClick={() => setModal(2)}>
                                 Join a Server
                             </Button>
                         </div>
@@ -170,25 +187,26 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
                 )}
                 {modal === 1 && (
                     <div className="FadeTransition">
-                        <div>
-                            <h2>Setup your Server</h2>
-                        </div>
-                        <div>
-                            <p>
+                        <div className={modalClasses.content}>
+                            <h2 className="text-center">Setup your Server</h2>
+                            <p className="text-center">
                                 Set your server name here, it can always be changed in the server
                                 settings.
                             </p>
                             <div className="Input-Form">
-                                <div>Server Name</div>
-                                <input
+                                <TextInput.Label>Server Name</TextInput.Label>
+                                <TextInput
                                     type="text"
                                     value={guildName}
-                                    onChange={(e) => setGuildName(e.target.value)}
+                                    fill
+                                    onChange={(e) =>
+                                        setGuildName((e.target as HTMLInputElement).value)
+                                    }
                                 />
                             </div>
                         </div>
-                        <div className="justify-content-between">
-                            <Button variant="secondary" onClick={() => setModal(0)}>
+                        <div className={modalClasses.footer}>
+                            <Button variant="dark" onClick={() => setModal(0)}>
                                 Back
                             </Button>
                             <Button
@@ -203,25 +221,26 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
                 )}
                 {modal === 2 && (
                     <div className="FadeTransition">
-                        <div>
-                            <h2>Join a Server</h2>
-                        </div>
-                        <div>
+                        <div className={modalClasses.content}>
+                            <h2 className="text-center">Join a Server</h2>
                             <p className="text-center">Enter an invite to join a server</p>
-                            <div className="VStack-3">
+                            <Stack size={3}>
                                 <div className="Input-Form">
-                                    <div>Server Invite</div>
-                                    <input
+                                    <TextInput.Label>Server Invite</TextInput.Label>
+                                    <TextInput
                                         type="text"
                                         value={invite}
-                                        onChange={(e) => setInvite(e.target.value)}
-                                        placeholder={"https://Wyvern.tkdkid1000.net/invite/abcdef"}
+                                        onChange={(e) =>
+                                            setInvite((e.target as HTMLInputElement).value)
+                                        }
+                                        fill
+                                        placeholder={"https://wyvern.tkdkid1000.net/invite/abcdef"}
                                     />
                                 </div>
-                            </div>
+                            </Stack>
                         </div>
-                        <div className="justify-content-between">
-                            <Button variant="secondary" onClick={() => setModal(0)}>
+                        <div className={modalClasses.footer}>
+                            <Button variant="dark" onClick={() => setModal(0)}>
                                 Back
                             </Button>
                             <Button
@@ -272,12 +291,7 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
                         <div>
                             <div className="VStack-3">
                                 <div className="Input-Form">
-                                    <input
-                                        type="text"
-                                        value={invite}
-                                        onChange={(e) => setInvite(e.target.value)}
-                                        disabled
-                                    />
+                                    <TextInput type="text" defaultValue={invite} readOnly />
                                 </div>
                                 <Button variant="primary">Copy</Button>
                             </div>

@@ -1,0 +1,45 @@
+@import "../variables";
+
+.button {
+    font-family: $app-font;
+    font-size: 16px;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 10px;
+    background: $purple;
+    cursor: pointer;
+    transition: filter 200ms;
+    &:hover {
+        filter: brightness(80%);
+    }
+    &:active {
+        filter: brightness(70%);
+    }
+    &:disabled {
+        cursor: not-allowed;
+        filter: brightness(70%);
+    }
+}
+
+.fill {
+    width: 100%;
+}
+.primary {
+    background: $purple;
+}
+.secondary {
+    background: $gray-light;
+}
+.success {
+    background: $green;
+}
+.warning {
+    background: $yellow;
+}
+.danger {
+    background: $red;
+}
+.dark {
+    background: $gray;
+}

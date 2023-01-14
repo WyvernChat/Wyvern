@@ -3,6 +3,7 @@ import { Offset, Placement } from "@restart/ui/usePopper"
 import React, { cloneElement, ReactElement, useEffect, useRef, useState } from "react"
 import { FaCamera, FaCommentAlt, FaPhoneAlt } from "react-icons/fa"
 import { useCachedUser } from "../../hooks/user"
+import modalClasses from "../../scss/ui/modal.module.scss"
 import classes from "../../scss/ui/usermenu.module.scss"
 import { useLocalStorage } from "../../utils"
 import Button from "./Button"
@@ -140,8 +141,8 @@ const UserMenu = ({ userId, placement, offset, children }: UserMenuProps) => {
             <Modal
                 show={modal}
                 onHide={() => setModal(false)}
-                className="Modal"
-                renderBackdrop={(props) => <div {...props} className="ModalBackground" />}
+                className={modalClasses.modal}
+                renderBackdrop={(props) => <div {...props} className={modalClasses.background} />}
             >
                 <div className="FadeTransition">
                     <div>

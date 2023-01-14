@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+
 $gray-dark: #202225;
 $gray-dark2: #303030;
 $gray-dark3: #36393f;
@@ -7,6 +9,7 @@ $green2: #6e9a76;
 $blue: #4eaece;
 $purple: #594dfb;
 $red: #dc3545;
+$yellow: #ffc107;
 $black1: #18191c;
 $gray-light: #8f8e8e;
 $gray-light2: #c1c1c1;
@@ -21,6 +24,7 @@ $grid-breakpoints: (
 );
 
 $wyvern-font: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+$app-font: "Roboto", sans-serif;
 
 // component global variables
 $guildbar-width: 50px;

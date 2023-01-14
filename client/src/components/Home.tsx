@@ -1,11 +1,16 @@
+import axios from "axios"
 import React from "react"
-import { useLocalStorage } from "../utils"
+import { pushSubscription } from "../pushManager"
+import { useLocalStorage, useTitle } from "../utils"
 import Root from "./Root"
 import Button from "./ui/Button"
 import Switch from "./ui/Switch"
 
 export function Home() {
     const [checked, setChecked] = useLocalStorage("settings.notifications", false)
+
+    useTitle("Wyvern | Friends")
+
     return (
         <Root>
             <div>
@@ -25,11 +30,11 @@ export function Home() {
                 />
                 <Button
                     onClick={() => {
-                        if (Notification.permission === "granted") {
-                            navigator.serviceWorker.getRegistration().then((req) => {
-                                req.showNotification("'tsup")
-                            })
-                        }
+                        axios.post("/api/notifications/sendNotification", {
+                            subscription: pushSubscription,
+                            payload: "test",
+                            ttl: 0
+                        })
                     }}
                 >
                     Show Notification

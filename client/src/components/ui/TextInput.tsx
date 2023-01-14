@@ -1,4 +1,5 @@
 import React, { createElement, HTMLProps } from "react"
+import classes from "../../scss/ui/input.module.scss"
 
 type TextInputLabelProps = HTMLProps<HTMLLabelElement> & {
     inline?: boolean
@@ -6,7 +7,7 @@ type TextInputLabelProps = HTMLProps<HTMLLabelElement> & {
 
 const TextInputLabel = ({ children, inline, ...rest }: TextInputLabelProps) => {
     return (
-        <label className="Label" {...rest}>
+        <label className={`${classes.label} ${inline ? classes.inline : ""}`} {...rest}>
             {children}
         </label>
     )
@@ -14,11 +15,12 @@ const TextInputLabel = ({ children, inline, ...rest }: TextInputLabelProps) => {
 
 type TextInputProps = HTMLProps<HTMLInputElement> & {
     as?: "textarea" | "input"
+    fill?: boolean
 }
 
-const TextInput = ({ className, as, ...rest }: TextInputProps) =>
+const TextInput = ({ className, as, fill, ...rest }: TextInputProps) =>
     createElement(as || "input", {
-        className: `TextInput ${className || ""}`,
+        className: `${classes.textinput} ${fill ? classes.fill : ""} ${className || ""}`,
         ...rest
     })
 

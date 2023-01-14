@@ -1,23 +1,18 @@
+/// <reference lib="dom" />
+
 import axios from "axios"
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
-import {
-    FaAngry,
-    FaBars,
-    FaGrin,
-    FaGrinHearts,
-    FaHashtag,
-    FaSadCry,
-    FaSmile,
-    FaSmileWink
-} from "react-icons/fa"
+import { FaBars, FaHashtag } from "react-icons/fa"
 import { useGlobalState } from "../../App"
 import { Message } from "../../globals"
 import { useChannel } from "../../hooks/channel"
 import { useMessages } from "../../hooks/message"
+import classes from "../../scss/chat.module.scss"
+import { useDisableScroll, useTitle } from "../../utils"
 import { useSocket } from "../SocketIO"
-import { EmojiPopup } from "../ui/EmojiPopup"
+import { ChatMessage } from "../ui/Message"
+import MessageInput from "../ui/MessageInput"
 import { MobileView } from "./Guild"
-import { ChatMessage } from "./Message"
 
 type ChatProps = {
     channelId: string
@@ -27,13 +22,17 @@ type ChatProps = {
 
 const Chat = ({ channelId, hide, setView }: ChatProps) => {
     const [token] = useGlobalState("token")
-    const [currentMessage, setCurrentMessage] = useState("")
     const [channel] = useChannel(channelId)
     const [messages, setMessages] = useMessages(channelId, {})
     const [loadingMessages, setLoadingMessages] = useState(true)
-    const messageInputRef = useRef<HTMLTextAreaElement>(null)
+    const [finishedLoading, setFinishedLoading] = useState(false)
+
     const messagesRef = useRef<HTMLDivElement>(null)
     const socket = useSocket()
+
+    useDisableScroll(messagesRef, loadingMessages && !finishedLoading)
+
+    useTitle(`Wyvern | ${channel?.name || ""}`)
 
     useEffect(() => {
         if (messagesRef.current && messages.length <= 50) {
@@ -43,55 +42,6 @@ const Chat = ({ channelId, hide, setView }: ChatProps) => {
             }, 1)
         }
     }, [messagesRef, channelId, messages])
-
-    const keyListener = (event: KeyboardEvent) => {
-        if (
-            [
-                event.ctrlKey,
-                event.metaKey,
-                event.altKey,
-                event.key === "Tab",
-                event.key === "Backspace",
-                event.key === "CapsLock",
-                event.key === "Enter",
-                event.key === "Escape",
-                event.key.startsWith("Arrow")
-            ].every((v) => v !== true)
-        ) {
-            if (document.activeElement === document.body) {
-                if (!event.shiftKey) {
-                    const [start, end] = [
-                        messageInputRef.current.selectionStart,
-                        messageInputRef.current.selectionEnd
-                    ]
-                    messageInputRef.current.setRangeText(event.key, start, end, "select")
-                    setCurrentMessage(messageInputRef.current.value)
-                }
-                messageInputRef.current.focus()
-            }
-        }
-    }
-
-    const pasteListener = () => {
-        // console.log(document.activeElement)
-        // if (document.activeElement.tagName !== "body") return
-        // const paste = event.clipboardData.getData("text")
-        // const [start, end] = [
-        //     messageInputRef.current.selectionStart,
-        //     messageInputRef.current.selectionEnd
-        // ]
-        // messageInputRef.current.setRangeText(paste, start, end, "select")
-        // messageInputRef.current.focus()
-    }
-
-    useEffect(() => {
-        document.addEventListener("keydown", keyListener)
-        document.addEventListener("paste", pasteListener)
-        return () => {
-            document.removeEventListener("keydown", keyListener)
-            document.removeEventListener("paste", pasteListener)
-        }
-    }, [])
 
     useLayoutEffect(() => {
         if (!messagesRef) return
@@ -106,9 +56,9 @@ const Chat = ({ channelId, hide, setView }: ChatProps) => {
     }, [messages])
 
     return (
-        <div className={`Chat ${hide ? "none" : ""}`}>
-            <div className="ChannelHeader">
-                <span className="text" onClick={() => setView("channels")}>
+        <div className={`${classes.chat} ${hide ? "none" : ""}`}>
+            <div className={classes.header}>
+                <span className={classes.text} onClick={() => setView("channels")}>
                     <FaBars
                         className="md-none"
                         style={{
@@ -117,17 +67,21 @@ const Chat = ({ channelId, hide, setView }: ChatProps) => {
                         }}
                     />
                 </span>
-                <span className="text">
+                <span className={classes.text}>
                     <FaHashtag /> {channel?.name}
                 </span>
-                <div className="separator"></div>
-                <span className="description">{channel?.description}</span>
+                <div className={classes.separator}></div>
+                <span className={classes.description}>{channel?.description}</span>
             </div>
             <div
                 ref={messagesRef}
-                className="Messages"
+                className={classes.messages}
                 onScroll={() => {
-                    if (!loadingMessages && messagesRef.current.scrollTop < 255) {
+                    if (
+                        !loadingMessages &&
+                        !finishedLoading &&
+                        messagesRef.current.scrollTop < 1000
+                    ) {
                         setLoadingMessages(true)
                         axios
                             .get(`/api/channels/${channelId}/messages`, {
@@ -143,139 +97,46 @@ const Chat = ({ channelId, hide, setView }: ChatProps) => {
                                 if (msgs.length > 0) {
                                     setTimeout(() => {
                                         setLoadingMessages(false)
-                                    }, 1000)
-                                    setMessages((prevMessages) => [...msgs, ...prevMessages])
+                                        setMessages((prevMessages) => [...msgs, ...prevMessages])
+                                    }, 2000)
+                                } else {
+                                    setFinishedLoading(true)
                                 }
                             })
                     }
                 }}
             >
-                <div className="beginning">
-                    <div className="content">
+                <div className={classes.beginning}>
+                    <div className={classes.content}>
                         <h3>Welcome to #{channel?.name}</h3>
                         <span>This begins the conversation in the #{channel?.name} channel</span>
                         <hr />
                     </div>
                 </div>
                 {messages.map((message: Message, index: number) => (
+                    // todo: add separator between different message days
                     <ChatMessage
                         key={message.id}
                         message={message}
                         showAvatar={
                             messages[index - 1]
-                                ? message.author !== messages[index - 1]?.author
+                                ? message.author !== messages[index - 1]?.author ||
+                                  message.sent - messages[index - 1]?.sent > 60 * 60 * 1000
                                 : true
                         }
                     />
                 ))}
-                {/* <InfiniteScroller
-                    pageStart={0}
-                    loadMore={() => {
-                        if (channel && messages && messages[0] && !messagesLoading.current) {
-                            messagesLoading.current = true
-                            socket.emit("retrieve channel messages", {
-                                channel: channel.id,
-                                guild: props.guildId,
-                                previous: messages[0].id
-                            })
-                        }
-                    }}
-                    loader={<div>Loading</div>}
-                    hasMore={true || false}
-                    useWindow={false}
-                    isReverse
-                    initialLoad={false}
-                >
-                    
-                </InfiniteScroller> */}
             </div>
-            <div className="MessageInput">
-                <div className="Input">
-                    <textarea
-                        placeholder={`Message #${channel?.name}`}
-                        ref={messageInputRef}
-                        value={currentMessage}
-                        style={{
-                            height: "2ch",
-                            overflowY:
-                                messageInputRef.current?.scrollHeight > 255 ? "scroll" : "hidden"
-                        }}
-                        onChange={(event) => {
-                            setCurrentMessage(event.target.value)
-                            messageInputRef.current.style.height = "0px"
-                            const { scrollHeight } = messageInputRef.current
-                            messageInputRef.current.style.height = `${
-                                scrollHeight > 255 ? 255 : scrollHeight
-                            }px`
-                        }}
-                        onKeyDown={(event) => {
-                            if (event.key === "Enter" && !event.shiftKey) {
-                                event.preventDefault()
-                                if (
-                                    currentMessage.trim().length > 0 &&
-                                    currentMessage.trim().length < 2000
-                                ) {
-                                    socket.emit("MESSAGE_CREATE", {
-                                        content: currentMessage,
-                                        channelId: channelId
-                                    })
-                                    messageInputRef.current.style.height = "2ch"
-                                    setCurrentMessage("")
-                                }
-                            }
-                        }}
-                    />
-                    <div className="buttons">
-                        <EmojiPopup
-                            onSelect={(emoji) => {
-                                const [start, end] = [
-                                    messageInputRef.current.selectionStart,
-                                    messageInputRef.current.selectionEnd
-                                ]
-                                messageInputRef.current.setRangeText(
-                                    `:${emoji.keywords[0]}:`,
-                                    start,
-                                    end,
-                                    "end"
-                                )
-                                setCurrentMessage(messageInputRef.current.value)
-                            }}
-                        >
-                            <EmojiCarousel />
-                        </EmojiPopup>
-                        <div
-                            className="length-indicator"
-                            style={{
-                                color: currentMessage.length > 2000 ? "red" : "white"
-                            }}
-                        >
-                            {currentMessage.length >= 1800 ? 2000 - currentMessage.length : ""}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <MessageInput
+                placeholder={`Message #${channel?.name}`}
+                onSubmit={(content) => {
+                    socket.emit("MESSAGE_CREATE", {
+                        content,
+                        channelId
+                    })
+                }}
+            />
         </div>
-    )
-}
-
-const EmojiCarousel = () => {
-    const emojis = useRef([
-        <FaSmile key="FaSmile" size={25} />,
-        <FaSmileWink key="FaSmileWink" size={25} />,
-        <FaGrin key="FaGrin" size={25} />,
-        <FaSadCry key="FaSadCry" size={25} />,
-        <FaAngry key="FaAngry" size={25} />,
-        <FaGrinHearts key="FaGrinHearts" size={25} />
-    ])
-    const [emoji, setEmoji] = useState(0)
-
-    return (
-        <button
-            className="emoji-button"
-            onMouseEnter={() => setEmoji(Math.floor(Math.random() * emojis.current.length))}
-        >
-            {emojis.current[emoji]}
-        </button>
     )
 }
 

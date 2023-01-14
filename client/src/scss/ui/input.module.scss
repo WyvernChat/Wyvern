@@ -1,0 +1,39 @@
+@import "../variables";
+
+.textinput {
+    box-sizing: border-box;
+    font-size: 16px;
+    outline: none;
+    border: solid $gray-dark 1px;
+    border-radius: 3px;
+    background-color: $gray-dark3;
+    padding: 8px;
+    &:not(:last-child) {
+        margin-bottom: 12px;
+    }
+    color: #ffffff;
+    &:focus {
+        border: solid $blue 1px;
+    }
+    &.fill {
+        width: 100%;
+    }
+}
+
+.label {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: block;
+    &:not(:first-child) {
+        margin-top: 8px;
+    }
+    &:not(:last-child) {
+        margin-bottom: 8px;
+    }
+    color: #b8b2b2;
+    &.inline {
+        display: inline;
+        margin-right: 4px;
+    }
+}

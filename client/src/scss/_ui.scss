@@ -1,5 +1,3 @@
-@import "modal";
-
 .ContextMenu {
     z-index: 2;
     font-size: 14px;
@@ -149,42 +147,6 @@ hr {
     opacity: 0.25;
 }
 
-.WyvernButton {
-    font-size: 16px;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    padding: 10px;
-    background: $purple;
-    cursor: pointer;
-    transition: filter 200ms;
-    &:hover {
-        filter: brightness(80%);
-    }
-    &:active {
-        filter: brightness(70%);
-    }
-    &:disabled {
-        cursor: not-allowed;
-        filter: brightness(70%);
-    }
-    &.fill {
-        width: 100%;
-    }
-    &.primary {
-        background: $purple;
-    }
-    &.secondary {
-        background: $gray-light;
-    }
-    &.success {
-        background: $green;
-    }
-    &.danger {
-        background: $red;
-    }
-}
-
 input[type="checkbox"].Switch {
     width: 0;
     height: 0;
@@ -249,55 +211,3 @@ label.Switch {
         height: fit-content;
     }
 }
-
-input.TextInput,
-textarea.TextInput {
-    box-sizing: border-box;
-    font-size: 16px;
-    outline: none;
-    border: solid $gray-dark 1px;
-    border-radius: 3px;
-    background-color: $gray-dark3;
-    padding: 8px;
-    &:not(:last-child) {
-        margin-bottom: 12px;
-    }
-    color: #ffffff;
-    &:focus {
-        border: solid $blue 1px;
-    }
-}
-
-label.Label {
-    font-size: 12px;
-    text-transform: uppercase;
-    font-weight: bold;
-    &:not(:first-child) {
-        margin-top: 8px;
-    }
-    &:not(:last-child) {
-        margin-bottom: 8px;
-    }
-    color: #b8b2b2;
-}
-
-@mixin stack($sizes) {
-    @each $size in $sizes {
-        .VStack-#{$size} {
-            display: flex;
-            flex-direction: column;
-            flex: 1 1 auto;
-            align-self: stretch;
-            gap: #{$size}px;
-        }
-        .HStack-#{$size} {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            align-self: stretch;
-            gap: #{$size}px;
-        }
-    }
-}
-
-@include stack((1, 2, 3, 4, 5));

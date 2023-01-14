@@ -1,18 +1,14 @@
 @use "sass:map";
 
-* {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
-body {
-    color: white;
-}
-
 @import "variables";
 @import "utils";
-@import "chat";
 @import "serverlist";
 @import "ui";
 @import "userbar";
 @import "settings";
 @import "transitions";
+
+* {
+    font-family: $app-font;
+    color: white;
+}

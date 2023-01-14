@@ -1,4 +1,4 @@
-import { Modal } from "@restart/ui"
+import { Button as RestartButton, Modal } from "@restart/ui"
 import axios from "axios"
 import React, { useRef, useState } from "react"
 import {
@@ -200,7 +200,8 @@ function ChannelLink({ guildId, channelId, setView }: ChannelLinkProps) {
                     </>
                 }
             >
-                <div
+                <RestartButton
+                    as="div"
                     className={`ChannelLink ${params.channelId === channel?.id ? "active" : ""}`}
                     onClick={() => {
                         setView("chat")
@@ -221,7 +222,7 @@ function ChannelLink({ guildId, channelId, setView }: ChannelLinkProps) {
                             </span>
                         </Tooltip>
                     </div>
-                </div>
+                </RestartButton>
             </ContextMenu>
             {/* <ChannelEditor
                 guildId={props.guild}

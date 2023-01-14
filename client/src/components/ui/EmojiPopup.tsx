@@ -1,23 +1,7 @@
 import { Button, Overlay } from "@restart/ui"
+import emojis from "emoji.json"
 import React, { ReactNode, useEffect, useRef, useState } from "react"
 import { FaDog, FaFlag, FaGamepad, FaGem, FaPlane, FaSmileWink, FaStop } from "react-icons/fa"
-import emojis from "./emojis.json"
-import { Tooltip } from "./Tooltip"
-
-interface Emoji {
-    no: number
-    code: string
-    flagged: boolean
-    keywords: string[]
-}
-
-const useEmojis = () => {
-    const emojiList = useRef<Record<string, Emoji[]>>({})
-    useEffect(() => {
-        emojiList.current = emojis
-    }, [])
-    return emojiList
-}
 
 const filterEmojis = (text: string) => {
     const baseEmojis = Object.keys(emojis).map((category) => emojis[category])
@@ -33,12 +17,18 @@ const filterEmojis = (text: string) => {
     return text
 }
 
-function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => void }) {
+const groupArray = <T,>(array: T[], by: string) =>
+    array.reduce((memo, x) => {
+        if (!memo[x[by]]) memo[x[by]] = []
+        memo[x[by]].push(x)
+        return x
+    }, {})
+
+function EmojiPopup(props: { children: ReactNode; onSelect: (emoji) => void }) {
     const [open, setOpen] = useState(false)
     const [search, setSearch] = useState("")
     const buttonRef = useRef<HTMLElement>(null)
     const menuRef = useRef<HTMLElement>(null)
-    const emojis = useEmojis()
 
     const closeMenu = (event: MouseEvent) => {
         if (menuRef.current) {
@@ -92,13 +82,13 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
         <>
             <Overlay placement="top-end" ref={menuRef} target={buttonRef} show={open}>
                 {(props) => (
-                    <div className="EmojiPopup">
+                    <div className="EmojiPopup" {...props}>
                         <div className="GroupList">
-                            {Object.keys(emojis.current).map((category, index) => (
+                            {/* {Object.keys(emojis).map((category, index) => (
                                 <Tooltip placement="left" text={<b>{category}</b>} key={index}>
                                     <div className="Group">{categoryIcons[index]}</div>
                                 </Tooltip>
-                            ))}
+                            ))} */}
                         </div>
                         <div className="EmojiContainer">
                             <div className="Search">
@@ -109,7 +99,8 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
                                 />
                             </div>
                             <div className="EmojiList">
-                                {Object.keys(emojis.current).map((categoryName, index) => {
+                                {/* {groupArray(emojis, "group").map(emoji => )} */}
+                                {/* {Object.keys(emojis.current).map((categoryName, index) => {
                                     const category = emojis.current[categoryName]
                                     return (
                                         <div className="Section" key={index}>
@@ -122,14 +113,17 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
                                                         <div
                                                             className="Emoji"
                                                             key={i}
-                                                            dangerouslySetInnerHTML={{
-                                                                __html:
-                                                                    emoji.code
-                                                                        .split(" ")[0]
-                                                                        .replace("U+", "&#x") + ";"
-                                                            }}
                                                             onClick={() => props.onSelect(emoji)}
-                                                        ></div>
+                                                        >
+                                                            <Twemoji
+                                                                src={
+                                                                    emojisList.find(
+                                                                        (e) =>
+                                                                            e.codes === emoji.code
+                                                                    )?.char || ""
+                                                                }
+                                                            />
+                                                        </div>
                                                     ) : (
                                                         emoji.keywords.some((kw) =>
                                                             kw.includes(search)
@@ -142,19 +136,20 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
                                                                 <div
                                                                     className="Emoji"
                                                                     key={i}
-                                                                    dangerouslySetInnerHTML={{
-                                                                        __html:
-                                                                            emoji.code
-                                                                                .split(" ")[0]
-                                                                                .replace(
-                                                                                    "U+",
-                                                                                    "&#x"
-                                                                                ) + ";"
-                                                                    }}
                                                                     onClick={() =>
                                                                         props.onSelect(emoji)
                                                                     }
-                                                                ></div>
+                                                                >
+                                                                    <Twemoji
+                                                                        src={
+                                                                            emojisList.find(
+                                                                                (e) =>
+                                                                                    e.codes ===
+                                                                                    emoji.code
+                                                                            )?.char || ""
+                                                                        }
+                                                                    />
+                                                                </div>
                                                             </Tooltip>
                                                         )
                                                     )
@@ -162,7 +157,7 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
                                             </div>
                                         </div>
                                     )
-                                })}
+                                })} */}
                             </div>
                         </div>
                     </div>
@@ -181,4 +176,4 @@ function EmojiPopup(props: { children: ReactNode; onSelect: (emoji: Emoji) => vo
     )
 }
 
-export { Emoji, useEmojis, filterEmojis, EmojiPopup }
+export { filterEmojis, EmojiPopup }

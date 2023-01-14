@@ -1,0 +1,61 @@
+@import "../variables";
+
+.messagecontainer {
+    display: flex;
+    background-color: $gray;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 0 10px 20px 10px;
+}
+
+.textarea {
+    height: 20px;
+    line-height: 20px;
+    align-self: center;
+    vertical-align: middle;
+    font-size: 16px;
+    display: flex;
+    resize: none;
+    outline: none;
+    border: none;
+    width: 100%;
+    background-color: transparent;
+    color: #ffffff;
+}
+
+.buttons {
+    position: relative;
+    display: flex;
+    align-items: center;
+    &.top {
+        align-items: flex-start;
+    }
+    button {
+        color: $gray-light;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        filter: grayscale(100%);
+        &:hover {
+            filter: grayscale(0%);
+            color: #ffffff;
+            scale: 1.1;
+        }
+    }
+}
+
+.button {
+    display: flex;
+}
+.lengthindicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+.toolong {
+    color: $red;
+}
+
+.grayscale {
+    filter: saturate(0%);
+}

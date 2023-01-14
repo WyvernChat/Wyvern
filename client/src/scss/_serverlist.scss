@@ -22,17 +22,27 @@
         &.active {
             border-radius: 20px;
         }
-        &:not(.sorting).active::before {
+        &::before {
+            scale: 0 1;
             position: absolute;
-            top: 0;
+            top: 50%;
             left: -15px;
             content: "";
             width: 10px;
-            height: 50%;
-            transform: translateY(50%);
+            transform: translateY(-50%);
             border-radius: 5px;
             background-color: #ffffff;
-            transition: height 0.5s;
+            transition: all 300ms;
+        }
+        &:hover::before,
+        &.active::before {
+            scale: 1 1;
+        }
+        &:not(.sorting):hover::before {
+            height: 40%;
+        }
+        &:not(.sorting).active::before {
+            height: 80%;
         }
         &:active {
             transform: translateY(2px);

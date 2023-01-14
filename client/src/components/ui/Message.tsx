@@ -1,13 +1,15 @@
 import axios from "axios"
 import dayjs from "dayjs"
 import React, { memo, useCallback, useEffect, useState } from "react"
+import ReactMarkdown from "react-markdown"
 import { useGlobalState } from "../../App"
 import { Message } from "../../globals"
 import { useCachedUser } from "../../hooks/user"
 import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
-import { filterEmojis } from "../ui/EmojiPopup"
-import { useMarkdown } from "../ui/Markdown"
-import UserMenu from "../ui/UserMenu"
+import classes from "../../scss/ui/message.module.scss"
+import { useMarkdown } from "./Markdown"
+import Twemoji from "./Twemoji"
+import UserMenu from "./UserMenu"
 
 export const ChatMessage = memo(function ChatMessage(props: {
     message: Message
@@ -31,11 +33,11 @@ export const ChatMessage = memo(function ChatMessage(props: {
     }, [])
 
     return (
-        <div className="message">
-            {props.showAvatar && (
+        <div className={classes.message}>
+            {props.showAvatar ? (
                 <>
                     <UserMenu userId={author?.id} placement="right" offset={[0, 0]}>
-                        <img src={logoUrl} className="avatar" />
+                        <img src={logoUrl} className={classes.avatar} />
                     </UserMenu>
                     <div>
                         <UserMenu userId={author?.id} placement="right" offset={[8, 0]}>
@@ -44,59 +46,76 @@ export const ChatMessage = memo(function ChatMessage(props: {
                                     color: author?.id === user.id ? "red" : ""
                                 }}
                                 tabIndex={0}
-                                className="user outlined"
+                                className={`${classes.user} outlined`}
                             >
                                 {author?.username}
                             </span>
                         </UserMenu>
-                        <span className="date">{formatDate(new Date(props.message.sent))}</span>
-                        <div className="messagewrapper">
+                        <span className={classes.date}>
+                            {formatDate(new Date(props.message.sent))}
+                        </span>
+                        <div className={classes.messagewrapper}>
                             {!props.showAvatar && (
-                                <div className="hoverdate">
+                                <div className={classes.hoverdate}>
                                     {formatTime(new Date(props.message.sent))}
                                 </div>
                             )}
-                            <div className="contentwrapper">
+                            <div className={classes.contentwrapper}>
                                 <div
                                     // ref={(ref) => {
                                     //     if (ref) {
                                     //         embedCallback(ref)
                                     //     }
                                     // }}
-                                    className="content"
-                                    // dangerouslySetInnerHTML={{
-                                    //     __html: markdown
-                                    // }}
+                                    className={classes.content}
                                 >
-                                    {props.message.content}
+                                    <ReactMarkdown
+                                        allowedElements={[
+                                            "p",
+                                            "strong",
+                                            "delete",
+                                            "emphasis",
+                                            "link"
+                                        ]}
+                                        unwrapDisallowed
+                                    >
+                                        {props.message.content}
+                                    </ReactMarkdown>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </>
-            )}
-            {!props.showAvatar && (
-                <div className="messagewrapper">
+            ) : (
+                <div className={classes.messagewrapper}>
                     {!props.showAvatar && (
-                        <div className="hoverdate">{formatTime(new Date(props.message.sent))}</div>
+                        <div className={classes.hoverdate}>
+                            {formatTime(new Date(props.message.sent))}
+                        </div>
                     )}
-                    <div className="contentwrapper">
+                    <div className={classes.contentwrapper}>
                         <div
                             // ref={(ref) => {
                             //     if (ref) {
                             //         embedCallback(ref)
                             //     }
                             // }}
-                            className="content"
-                            dangerouslySetInnerHTML={{
-                                __html: filterEmojis(markdown)
-                            }}
-                        />
+                            className={classes.content}
+                        >
+                            <ReactMarkdown
+                                components={{
+                                    img: Twemoji
+                                }}
+                                allowedElements={["p", "strong", "delete", "emphasis", "link"]}
+                            >
+                                {props.message.content}
+                            </ReactMarkdown>
+                        </div>
                     </div>
                 </div>
             )}
             {embeds.length > 0 && (
-                <div className="embedwrapper">
+                <div className={classes.embedwrapper}>
                     {embeds.map((embed, index) => (
                         <MessageEmbed key={index} url={embed} />
                     ))}
