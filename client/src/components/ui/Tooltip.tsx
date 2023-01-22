@@ -8,9 +8,10 @@ type TooltipProps = {
     text: ReactElement
     placement?: Placement
     hide?: boolean
+    showHover?: boolean
 }
 
-const Tooltip = ({ children, placement, text, hide }: TooltipProps) => {
+const Tooltip = ({ children, placement, text, hide, showHover }: TooltipProps) => {
     const ref = useRef<HTMLElement>()
     const [hover, setHover] = useState(false)
     return (
@@ -27,7 +28,16 @@ const Tooltip = ({ children, placement, text, hide }: TooltipProps) => {
                 transition={FadeTransition}
             >
                 {(props, { arrowProps, popper }) => (
-                    <span className="Tooltip" {...props}>
+                    <span
+                        className="Tooltip"
+                        {...props}
+                        {...(showHover
+                            ? {
+                                  onMouseEnter: () => setHover(true),
+                                  onMouseLeave: () => setHover(false)
+                              }
+                            : {})}
+                    >
                         <div
                             {...arrowProps}
                             style={{

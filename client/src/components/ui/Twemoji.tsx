@@ -1,27 +1,43 @@
-import emojis from "emoji.json"
+import emojis from "emoji-dictionary"
 import React, { DetailedHTMLProps, ImgHTMLAttributes } from "react"
+import classes from "../../scss/ui/twemoji.module.scss"
+import { Tooltip } from "./Tooltip"
 
 type TwemojiProps = {
-    size?: number | string
+    size?: number | string | "auto"
+    tooltip?: boolean
 } & DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>
 
-const emoji = (text: string) => {
-    console.log(text)
-    return [text]
-}
-
-const Twemoji = ({ src, size, ...rest }: TwemojiProps) => {
-    const emoji = emojis.find((e) => e.char === src || e.codes === src)
+const Twemoji = ({ src, size, tooltip, ...rest }: TwemojiProps) => {
+    const emoji = emojis.unicode.includes(src || "") ? src : emojis.getUnicode(src)
     if (emoji) {
         return (
-            <img
-                src={`https://twemoji.maxcdn.com/v/latest/svg/${emoji.codes.toLowerCase()}.${"svg"}`}
-                tabIndex={-1}
-                height={size || 24}
-                width={size || 24}
-                alt={src}
-                {...rest}
-            />
+            <Tooltip
+                text={
+                    <div>
+                        <Twemoji src={src} size={48} /> <strong>:{src}:</strong>
+                    </div>
+                }
+                hide={!tooltip}
+                placement="top"
+                showHover
+            >
+                <img
+                    src={`https://twemoji.maxcdn.com/v/latest/svg/${emoji
+                        .codePointAt(0)
+                        .toString(16)}.${"svg"}`}
+                    tabIndex={-1}
+                    height={size || 24}
+                    width={size || 24}
+                    alt={emoji}
+                    className={classes.emoji}
+                    onDragStart={(event) => {
+                        event.dataTransfer.effectAllowed = "all"
+                        event.dataTransfer.setData("text/plain", `:${emojis.getName(emoji)}:`)
+                    }}
+                    {...rest}
+                />
+            </Tooltip>
         )
     } else {
         return <span {...rest}>:{src}:</span>
@@ -29,5 +45,4 @@ const Twemoji = ({ src, size, ...rest }: TwemojiProps) => {
 }
 
 export type { TwemojiProps }
-export { emoji }
 export default Twemoji
