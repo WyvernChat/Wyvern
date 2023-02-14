@@ -11,7 +11,7 @@ import classes from "../../scss/chat.module.scss"
 import { useDisableScroll, useTitle } from "../../utils"
 import { useSocket } from "../SocketIO"
 import { ChatMessage } from "../ui/Message"
-import MessageInput from "../ui/MessageInput"
+import { MessageInputTextarea } from "../ui/MessageInput"
 import { MobileView } from "./Guild"
 
 type ChatProps = {
@@ -127,7 +127,7 @@ const Chat = ({ channelId, hide, setView }: ChatProps) => {
                     />
                 ))}
             </div>
-            <MessageInput
+            <MessageInputTextarea
                 placeholder={`Message #${channel?.name}`}
                 onSubmit={(content) => {
                     socket.emit("MESSAGE_CREATE", {

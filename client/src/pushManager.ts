@@ -21,7 +21,18 @@ navigator.serviceWorker
         // todo: send user token/id along with notification subscription
         pushSubscription = subscription
         console.log(subscription)
-        axios.post("/api/notifications/register", JSON.stringify({ subscription }))
+        const token = localStorage.getItem("token")
+        if (token) {
+            axios.post(
+                "/api/notifications/register",
+                { subscription },
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }
+            )
+        }
     })
 
 export { pushSubscription }

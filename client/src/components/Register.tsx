@@ -1,6 +1,10 @@
 import axios from "axios"
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import Button from "./ui/Button"
+import Card from "./ui/Card"
+import Stack from "./ui/Stack"
+import TextInput from "./ui/TextInput"
 
 export function Register() {
     const [email, setEmail] = useState("")
@@ -9,7 +13,7 @@ export function Register() {
     const navigate = useNavigate()
 
     return (
-        <div className="Login-Card">
+        <Card>
             <form
                 onSubmit={async (event) => {
                     event.preventDefault()
@@ -24,55 +28,61 @@ export function Register() {
                         navigate("/login")
                     }
                 }}
+                className="fill-x"
                 noValidate
                 autoComplete="off"
             >
                 <div className="text-center">
-                    <h4>Create an account</h4>
+                    <h2>Create an account</h2>
+                    <span
+                        style={{
+                            color: "gray"
+                        }}
+                    >
+                        Register with an email, password, and username.
+                    </span>
                 </div>
-                <div className="VStack-4">
-                    <div className="Input-Form">
-                        <div>Email</div>
-                        <input
+                <Stack size={4}>
+                    <div>
+                        <TextInput.Label>Email</TextInput.Label>
+                        <TextInput
                             id="email"
                             type="email"
+                            fill
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
                         />
                     </div>
-                    <div className="Input-Form">
-                        <div>Username</div>
-                        <input
+                    <div>
+                        <TextInput.Label>Username</TextInput.Label>
+                        <TextInput
                             id="username"
                             type="username"
+                            fill
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={(e) => setUsername((e.target as HTMLInputElement).value)}
                         />
                     </div>
-                    <div className="Input-Form">
-                        <div>Password</div>
-                        <input
+                    <div>
+                        <TextInput.Label>Password</TextInput.Label>
+                        <TextInput
                             id="password"
                             type="password"
+                            fill
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
                         />
                     </div>
-                    <div className="Input-Form">
-                        <button
-                            type="submit"
-                            style={{
-                                width: "100%"
-                            }}
-                        >
-                            Login
-                        </button>
+                    <div>
+                        <Button type="submit" fill>
+                            Register
+                        </Button>
                         <div>
                             Already have an account? <Link to="/login">Login</Link>
                         </div>
                     </div>
-                </div>
+                </Stack>
             </form>
-        </div>
+        </Card>
     )
 }

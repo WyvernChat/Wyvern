@@ -8,7 +8,10 @@
     transform: translate(-50%, -50%);
     background: $gray;
     border-radius: 5px;
-    width: 33vw;
+    @media screen and (min-width: map-get($grid-breakpoints, "sm")) {
+        width: 440px;
+    }
+    width: 100vw;
 }
 
 .content {

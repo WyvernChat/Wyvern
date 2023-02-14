@@ -12,7 +12,12 @@ type MarkdownParagraph = {
 
 type MarkdownQuote = {
     content?: MarkdownText[]
-    type?: "quote"
+    type?: "blockQuote"
+}
+
+type MarkdownMention = {
+    content?: string[]
+    type: "mention"
 }
 
 type MarkdownEmoji = {
@@ -41,6 +46,7 @@ type MarkdownNode =
     | MarkdownStyle
     | MarkdownLink
     | MarkdownEmoji
+    | MarkdownMention
     | MarkdownQuote
     | MarkdownParagraph
 
@@ -62,12 +68,23 @@ const emojiRule = {
         }
     }
 }
+const mentionRule = {
+    order: defaultRules.link.order - 0.5,
+    match(source: string) {
+        return /^@([\w\s]*)#(\d{4})/.exec(source)
+    },
+    parse(capture: RegExpExecArray) {
+        return {
+            content: [capture[1], capture[2]]
+        }
+    }
+}
 const quoteRule = {
     order: 0,
     match(source: string) {
         const regex = /^>[^\S\r\n]([^\n\r]{1,})/
         const exec = regex.exec(source)
-        console.log({ source, regex, exec })
+        // console.log({ source, regex, exec })
         return exec
     },
     parse(
@@ -80,10 +97,10 @@ const quoteRule = {
         }
     }
 }
-const rules = Object.assign({ ...defaultRules }, { emoji: emojiRule, quote: quoteRule })
+const rules = Object.assign({ ...defaultRules }, { emoji: emojiRule, mention: mentionRule })
 console.log(rules.Array)
 const parser = parserFor(rules)
-const parse = (source: string) => {
+const parseMarkdown = (source: string) => {
     return parser(source, {
         inline: false
     })
@@ -128,7 +145,7 @@ const RenderMarkdownNode = ({ node }: RenderMarkdownNodeProps) => {
                 <RenderMarkdownNode node={node.content} />
             </p>
         )
-    } else if (node.type === "quote") {
+    } else if (node.type === "blockQuote") {
         return (
             <blockquote>
                 <RenderMarkdownNode node={node.content} />
@@ -154,6 +171,16 @@ const RenderMarkdownNode = ({ node }: RenderMarkdownNodeProps) => {
         )
     } else if (node.type === "emoji") {
         return <Twemoji src={node.content} tooltip />
+    } else if (node.type === "mention") {
+        return (
+            <span
+                style={{
+                    color: "blue"
+                }}
+            >
+                {node.content[0]}#{node.content[1]}
+            </span>
+        )
     } else {
         return createElement(node.type, null, <RenderMarkdownNode node={node.content} />)
     }
@@ -168,16 +195,16 @@ const Markdown = ({ text }: MarkdownProps) => {
             (match) => `:${emojis.getName(match)}:` || match
         )
         .replace(/^.{0}$/gm, " ")
-    const md: MarkdownNode[] = parse(text) as unknown as MarkdownNode[]
+    const md: MarkdownNode[] = parseMarkdown(text) as unknown as MarkdownNode[]
     return (
         <>
-            <pre
+            {/* <pre
                 style={{
                     fontFamily: "monospace"
                 }}
             >
                 {JSON.stringify(md, null, 2)}
-            </pre>
+            </pre> */}
             <RenderMarkdownNode node={md} />
         </>
     )
@@ -193,6 +220,15 @@ const Markdown = ({ text }: MarkdownProps) => {
     )
 }
 
-export type { MarkdownProps }
-export { useMarkdown }
+export type {
+    MarkdownProps,
+    MarkdownParagraph,
+    MarkdownQuote,
+    MarkdownEmoji,
+    MarkdownLink,
+    MarkdownStyle,
+    MarkdownText,
+    MarkdownNode
+}
+export { useMarkdown, parseMarkdown }
 export default Markdown

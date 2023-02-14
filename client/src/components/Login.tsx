@@ -5,6 +5,7 @@ import { useAlert } from "./Alerts"
 import { useAuth } from "./auth/Auth"
 import Button from "./ui/Button"
 import Card from "./ui/Card"
+import Stack from "./ui/Stack"
 import TextInput from "./ui/TextInput"
 
 export function Login() {
@@ -54,29 +55,34 @@ export function Login() {
                         Log in with your email and password.
                     </span>
                 </div>
-                <div className="VStack-4">
-                    <TextInput.Label>Email</TextInput.Label>
-                    <TextInput
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
-                    />
-                    <TextInput.Label>Password</TextInput.Label>
-                    <TextInput
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
-                    />
-
-                    <Button type="submit" fill>
-                        Log In
-                    </Button>
+                <Stack size={4}>
                     <div>
+                        <TextInput.Label>Email</TextInput.Label>
+                        <TextInput
+                            id="email"
+                            type="email"
+                            fill
+                            value={email}
+                            onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
+                        />
+                    </div>
+                    <div>
+                        <TextInput.Label>Password</TextInput.Label>
+                        <TextInput
+                            id="password"
+                            type="password"
+                            fill
+                            value={password}
+                            onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
+                        />
+                    </div>
+                    <div>
+                        <Button type="submit" fill>
+                            Log In
+                        </Button>
                         Don&apos;t have an account? <Link to="/register">Register</Link>
                     </div>
-                </div>
+                </Stack>
             </form>
         </Card>
     )

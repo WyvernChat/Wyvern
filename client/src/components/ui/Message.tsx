@@ -1,14 +1,12 @@
 import axios from "axios"
 import dayjs from "dayjs"
 import React, { memo, useCallback, useEffect, useState } from "react"
-import ReactMarkdown from "react-markdown"
 import { useGlobalState } from "../../App"
 import { Message } from "../../globals"
 import { useCachedUser } from "../../hooks/user"
 import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import classes from "../../scss/ui/message.module.scss"
-import { useMarkdown } from "./Markdown"
-import Twemoji from "./Twemoji"
+import Markdown, { useMarkdown } from "./Markdown"
 import UserMenu from "./UserMenu"
 
 export const ChatMessage = memo(function ChatMessage(props: {
@@ -69,7 +67,7 @@ export const ChatMessage = memo(function ChatMessage(props: {
                                     // }}
                                     className={classes.content}
                                 >
-                                    <ReactMarkdown
+                                    {/* <ReactMarkdown
                                         allowedElements={[
                                             "p",
                                             "strong",
@@ -80,7 +78,8 @@ export const ChatMessage = memo(function ChatMessage(props: {
                                         unwrapDisallowed
                                     >
                                         {props.message.content}
-                                    </ReactMarkdown>
+                                    </ReactMarkdown> */}
+                                    <Markdown text={props.message.content} />
                                 </div>
                             </div>
                         </div>
@@ -102,14 +101,15 @@ export const ChatMessage = memo(function ChatMessage(props: {
                             // }}
                             className={classes.content}
                         >
-                            <ReactMarkdown
+                            {/* <ReactMarkdown
                                 components={{
                                     img: Twemoji
                                 }}
                                 allowedElements={["p", "strong", "delete", "emphasis", "link"]}
                             >
                                 {props.message.content}
-                            </ReactMarkdown>
+                            </ReactMarkdown> */}
+                            <Markdown text={props.message.content} />
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
-import { Button as RestartButton, Modal } from "@restart/ui"
+import { Button as RestartButton, Dropdown, Modal } from "@restart/ui"
 import axios from "axios"
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import {
     FaAngleDown,
     FaCog,
@@ -14,9 +14,12 @@ import { useGlobalState } from "../../App"
 import { useChannel } from "../../hooks/channel"
 import { useGuild } from "../../hooks/guild"
 import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
+import menuClasses from "../../scss/ui/contextmenu.module.scss"
+import modalClasses from "../../scss/ui/modal.module.scss"
 import { useAlert } from "../Alerts"
 import Button from "../ui/Button"
 import { ContextMenu, ContextMenuButton } from "../ui/ContextMenu"
+import TextInput from "../ui/TextInput"
 import { Tooltip } from "../ui/Tooltip"
 import { MobileView } from "./Guild"
 
@@ -29,60 +32,92 @@ type ChannelsProps = {
 const Channels = ({ guildId, hide, setView }: ChannelsProps) => {
     const [user] = useGlobalState("user")
     const guild = useGuild(guildId)
-    const [menuOpen, setMenuOpen] = useState(false)
     const [channelCreate, setChannelCreate] = useState(false)
-    const actionRef = useRef<HTMLDivElement>(null)
-    const menuRef = useRef<HTMLDivElement>(null)
     const alert = useAlert()
 
     return (
         <div className={`GuildBar ${hide ? "none" : ""}`}>
-            <div
-                className={`GuildMenu ${menuOpen ? "active" : ""}`}
-                ref={actionRef}
-                onClick={() => setMenuOpen(!menuOpen)}
-            >
-                <div className="name">{guild?.name}</div>
-                <div className="icon FadeTransition">
-                    {menuOpen ? <FaWindowClose /> : <FaAngleDown />}
-                </div>
-            </div>
-            <div ref={menuRef} className={`Menu ${menuOpen ? "show" : "hide"}`}>
-                <div className="ContextMenu">
-                    <ContextMenuButton
-                        onClick={() => {
-                            alert({
-                                text: "Copied invite!",
-                                type: "success"
-                            })
-                            navigator.clipboard.writeText(guild.invites[0])
-                        }}
-                        color="blue"
-                    >
-                        Copy Invite
-                    </ContextMenuButton>
-                    {user?.id === guild?.owner && (
-                        <ContextMenuButton
-                            onClick={() => {
-                                setChannelCreate(true)
-                            }}
-                            color="gray"
+            <Dropdown>
+                <Dropdown.Toggle>
+                    {(props, { show }) => (
+                        <RestartButton
+                            as="div"
+                            className={`GuildMenu ${show ? "active" : ""}`}
+                            {...props}
                         >
-                            Create Channel
-                        </ContextMenuButton>
+                            <div className="name">{guild?.name}</div>
+                            <div className="icon FadeTransition">
+                                {show ? <FaWindowClose /> : <FaAngleDown />}
+                            </div>
+                        </RestartButton>
                     )}
+                </Dropdown.Toggle>
+                <Dropdown.Menu offset={[0, 0]} usePopper={false}>
+                    {({ style, ...props }, { show }) => (
+                        <div
+                            className={`${menuClasses.menuitems}`}
+                            style={{
+                                ...style,
+                                transition: "visibility 300ms, opacity 300ms",
+                                visibility: show ? "visible" : "hidden",
+                                opacity: show ? 1 : 0,
+                                translate: "-50% 0",
+                                left: "50%",
+                                top: "50px",
+                                width: "90%",
+                                position: "absolute"
+                            }}
+                            {...props}
+                        >
+                            <ContextMenuButton
+                                onClick={() => {
+                                    alert({
+                                        text: "Copied invite!",
+                                        type: "success"
+                                    })
+                                    navigator.clipboard.writeText(guild.invites[0])
+                                }}
+                                color="purple"
+                                dropdown
+                            >
+                                Copy Invite
+                            </ContextMenuButton>
+                            {user?.id === guild?.owner && (
+                                <ContextMenuButton
+                                    onClick={() => {
+                                        setChannelCreate(true)
+                                    }}
+                                    color="gray"
+                                    dropdown
+                                >
+                                    Create Channel
+                                </ContextMenuButton>
+                            )}
+                        </div>
+                    )}
+                </Dropdown.Menu>
+            </Dropdown>
+            <ContextMenu
+                buttons={
+                    <>
+                        <ContextMenuButton onClick={() => {}}>Create Channel</ContextMenuButton>
+                        <ContextMenuButton onClick={() => {}} color="purple">
+                            Invite
+                        </ContextMenuButton>
+                    </>
+                }
+            >
+                <div className="ChannelsList">
+                    {guild?.channels.map((channelId, index) => (
+                        <ChannelLink
+                            key={index}
+                            guildId={guildId}
+                            channelId={channelId}
+                            setView={setView}
+                        />
+                    ))}
                 </div>
-            </div>
-            <div className="ChannelsList">
-                {guild?.channels.map((channelId, index) => (
-                    <ChannelLink
-                        key={index}
-                        guildId={guildId}
-                        channelId={channelId}
-                        setView={setView}
-                    />
-                ))}
-            </div>
+            </ContextMenu>
             <div className="User-Card">
                 <div className="first">
                     <img src={logoUrl} className="avatar" />
@@ -127,25 +162,34 @@ function CreateChannelMenu(props: { open: boolean; hide: () => void; guildId: st
     const [token] = useGlobalState("token")
     const [channelName, setChannelName] = useState("")
     return (
-        <Modal show={props.open} onHide={props.hide}>
+        <Modal
+            enforceFocus
+            autoFocus
+            show={props.open}
+            onHide={props.hide}
+            className={modalClasses.modal}
+            renderBackdrop={(props) => <div {...props} className={modalClasses.background} />}
+        >
             <>
-                <div>
-                    <h2>Create Text Channel</h2>
-                </div>
-                <div>
+                <div className={modalClasses.content}>
+                    <h2 className="text-center">Create Text Channel</h2>
                     <div className="Input-Form">
-                        <div>Channel Name</div>
-                        <input
+                        <TextInput.Label>Channel Name</TextInput.Label>
+                        <TextInput
                             type="text"
-                            placeholder="general"
                             value={channelName}
+                            fill
                             onChange={(e) =>
-                                setChannelName(e.target.value.toLowerCase().replace(" ", "-"))
+                                setChannelName(
+                                    (e.target as HTMLInputElement).value
+                                        .toLowerCase()
+                                        .replace(/[\s-]+/g, "-")
+                                )
                             }
                         />
                     </div>
                 </div>
-                <div>
+                <div className={modalClasses.footer}>
                     <Button
                         variant="primary"
                         disabled={channelName.length < 1}
@@ -190,13 +234,13 @@ function ChannelLink({ guildId, channelId, setView }: ChannelLinkProps) {
             <ContextMenu
                 buttons={
                     <>
-                        {/* <ContextMenuButton onClick={() => {}}>Edit Channel</ContextMenuButton>
-                        <ContextMenuButton onClick={() => {}} color="blue">
+                        <ContextMenuButton onClick={() => {}}>Edit Channel</ContextMenuButton>
+                        <ContextMenuButton onClick={() => {}} color="purple">
                             Share
                         </ContextMenuButton>
                         <ContextMenuButton onClick={() => {}} color="red">
                             Delete Channel
-                        </ContextMenuButton> */}
+                        </ContextMenuButton>
                     </>
                 }
             >
@@ -205,6 +249,7 @@ function ChannelLink({ guildId, channelId, setView }: ChannelLinkProps) {
                     className={`ChannelLink ${params.channelId === channel?.id ? "active" : ""}`}
                     onClick={() => {
                         setView("chat")
+                        console.log("chat")
                         navigate(`/channels/${guildId}/${channel?.id}`)
                     }}
                 >

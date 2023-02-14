@@ -1,13 +1,22 @@
 import react from "@vitejs/plugin-react"
+import dotenv from "dotenv"
+import fs from "fs"
+import { join } from "path"
 import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
+
+dotenv.config({ path: join(__dirname, "../.env") })
 
 export default defineConfig(({ command }) => ({
     server: {
         port: 3001
     },
     preview: {
-        port: 3001
+        port: 3001,
+        https: {
+            key: fs.readFileSync(process.env.SSL_KEY || "").toString(),
+            cert: fs.readFileSync(process.env.SSL_CERT || "").toString()
+        }
     },
     root: "src",
     publicDir: "../public",
@@ -15,6 +24,10 @@ export default defineConfig(({ command }) => ({
         outDir: "../build",
         emptyOutDir: true,
         rollupOptions: {
+            input: {
+                main: "src/index.html",
+                about: "src/about/index.html"
+            },
             output: {
                 manualChunks: {
                     vendor: [
@@ -61,7 +74,9 @@ export default defineConfig(({ command }) => ({
         })
     ],
     define: {
-        __API_URI__: `'${command === "build" ? "wyvern.tkdkid1000.net" : "localhost:3000"}'`,
+        __API_URI__: `'${
+            command === "build" ? process.env.HOST || "wyvern.tkdkid1000.net" : "localhost:3000"
+        }'`,
         __APP_ENV__: `'${command === "build" ? "PRODUCTION" : "DEVELOPMENT"}'`
     }
 }))

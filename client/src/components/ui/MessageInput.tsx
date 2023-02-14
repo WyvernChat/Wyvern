@@ -1,17 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { FaPlusCircle } from "react-icons/fa"
-import { createEditor, Descendant, type BaseEditor } from "slate"
+import { SingleASTNode } from "simple-markdown-2"
+import { createEditor, Descendant, Range, Text, type BaseEditor } from "slate"
 import { withHistory, type HistoryEditor } from "slate-history"
 import {
     DefaultElement,
     Editable,
     RenderElementProps,
+    RenderLeafProps,
     Slate,
     withReact,
     type ReactEditor
 } from "slate-react"
 import classes from "../../scss/ui/messageinput.module.scss"
 import { EmojiPopup } from "./EmojiPopup"
+import { parseMarkdown } from "./Markdown"
 import Twemoji from "./Twemoji"
 
 type MessageInputProps = {
@@ -51,6 +54,7 @@ declare module "slate" {
 const MessageInput = ({ placeholder, onSubmit, min, max, lengthWarning }: MessageInputProps) => {
     const [message, setMessage] = useState("")
     const [editor] = useState(() => withReact(withHistory(createEditor())))
+    const [editorHeight, setEditorHeight] = useState(0)
 
     const defaultValue: Descendant[] = [
         {
@@ -63,6 +67,60 @@ const MessageInput = ({ placeholder, onSubmit, min, max, lengthWarning }: Messag
         }
     ]
 
+    const decorate = useCallback(([node, path]) => {
+        const ranges = []
+        if (!Text.isText(node)) {
+            return ranges
+        }
+
+        const getLength = (token: string | SingleASTNode): number => {
+            if (typeof token === "string") {
+                return token.length
+            } else if (typeof token.content === "string") {
+                return token.content.length
+            } else if (token.content instanceof Array) {
+                return token.content.reduce((l, t) => l + getLength(t), 0)
+            } else {
+                return 0
+            }
+        }
+
+        const tokens = parseMarkdown(node.text)
+        let start = 0
+
+        const parseTokens = (tokens: SingleASTNode[]) => {
+            for (const token of tokens) {
+                console.log(token)
+                const length = getLength(token)
+                const end = start + length
+
+                if (token.content instanceof Array) {
+                    console.log("parsing", token.content)
+                    parseTokens(token.content)
+                } else {
+                    ranges.push({
+                        [token.type]: true,
+                        anchor: { path, offset: start },
+                        focus: { path, offset: end }
+                    })
+                    console.log("wadoamk")
+                    console.log(
+                        Range.isRange({
+                            [token.type]: true,
+                            anchor: { path, offset: start },
+                            focus: { path, offset: end }
+                        })
+                    )
+                    start = end
+                }
+            }
+        }
+        parseTokens(tokens)
+        console.log({ ranges, tokens })
+
+        return ranges
+    }, [])
+
     const renderElement = useCallback((props: RenderElementProps) => {
         switch (props.element.type) {
             case "code":
@@ -71,6 +129,16 @@ const MessageInput = ({ placeholder, onSubmit, min, max, lengthWarning }: Messag
                 return <DefaultElement {...props} />
         }
     }, [])
+
+    // const resizeEditor = () => {
+    //     setEditorHeight(0)
+    //     const { scrollHeight } = messageInputRef.current
+    //     const lineHeight = 20
+    //     const lines = Math.floor(scrollHeight / lineHeight)
+    //     const maxLines = Math.floor(window.innerHeight / 45)
+    //     messageInputRef.current.style.height =
+    //         lines <= maxLines ? lines * 20 + "px" : maxLines * 20 + "px"
+    // }
 
     return (
         <Slate
@@ -91,17 +159,20 @@ const MessageInput = ({ placeholder, onSubmit, min, max, lengthWarning }: Messag
                     </button>
                 </div>
                 <Editable
+                    decorate={decorate}
+                    renderLeaf={(props) => <Leaf {...props} />}
                     placeholder={"Placeholder"}
                     className={classes.textarea}
                     renderPlaceholder={() => {
                         return <div></div>
                     }}
                     onKeyDown={(event) => {
-                        if (event.key === "&") {
+                        if (event.key === "Enter") {
                             event.preventDefault()
-                            editor.insertText("and")
+                            editor.insertText("\n")
                         }
                     }}
+                    style={{}}
                 />
                 <div className={classes.buttons}>
                     <EmojiPopup
@@ -122,6 +193,19 @@ const MessageInput = ({ placeholder, onSubmit, min, max, lengthWarning }: Messag
                 </div>
             </div>
         </Slate>
+    )
+}
+
+const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
+    return (
+        <span
+            {...attributes}
+            style={{
+                fontWeight: leaf.bold ? "bold" : "normal"
+            }}
+        >
+            {children}
+        </span>
     )
 }
 
@@ -298,4 +382,5 @@ const EmojiCarousel = () => {
 }
 
 export type { MessageInputProps }
+export { MessageInputTextarea }
 export default MessageInput

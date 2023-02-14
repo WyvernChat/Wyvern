@@ -1,142 +1,137 @@
+import { Button as RestartButton, Dropdown, Overlay as RestartOverlay } from "@restart/ui"
+import FocusTrap from "focus-trap-react"
 import React, {
-    createContext,
-    Dispatch,
+    cloneElement,
+    HTMLProps,
     MouseEventHandler,
-    MutableRefObject,
+    ReactElement,
     ReactNode,
-    SetStateAction,
-    useContext,
+    useEffect,
     useRef,
     useState
 } from "react"
+import classes from "../../scss/ui/contextmenu.module.scss"
 
-interface ContextMenuConfig {
-    ref: MutableRefObject<Node>
+const closeContextMenuEvent = new Event("closecontextmenu")
+
+type ContextMenuProps = {
+    children: ReactElement
     buttons: ReactNode
-    open: boolean
-    id?: number
-}
+} & HTMLProps<HTMLDivElement>
 
-const ContextMenuContext =
-    createContext<
-        [
-            [ContextMenuConfig[], Dispatch<SetStateAction<ContextMenuConfig[]>>],
-            [boolean, Dispatch<SetStateAction<boolean>>],
-            [[number, number], Dispatch<SetStateAction<[number, number]>>]
-        ]
-    >(null)
-
-export function ContentMenuProvider(props: { children: ReactNode }) {
-    const [menus, setMenus] = useState<ContextMenuConfig[]>([])
+const ContextMenu = ({ children, buttons, ...props }: ContextMenuProps) => {
     const [open, setOpen] = useState(false)
-    const [position, setPosition] = useState<[number, number]>([0, 0])
-
-    // useEffect(() => {
-    //     const openMenu = (event: MouseEvent) => {
-    //         const menu = (event.target as Element).closest(".ContextMenuClass") as HTMLElement
-    //         const contextMenu = menus.find((m) => m.id === parseInt(menu.dataset.contextmenu))
-    //         event.preventDefault()
-    //         setMenus((menus) => {
-    //             menus.find((m) => m.id === contextMenu.id).open = true
-    //             setPosition([event.clientX, event.clientY])
-    //             return menus
-    //         })
-    //         setOpen(true)
-    //     }
-    //     const hide = () => {
-    //         setOpen(false)
-    //         setMenus((menus) => menus.map((m) => ({ ...m, open: false })))
-    //     }
-    //     const hideKey = (event: KeyboardEvent) => {
-    //         if (event.key === "Escape") {
-    //             setMenus((menus) => menus.map((m) => ({ ...m, open: false })))
-    //             setOpen(false)
-    //         }
-    //     }
-    //     document.addEventListener("contextmenu", openMenu)
-    //     document.addEventListener("click", hide)
-    //     document.addEventListener("keydown", hideKey)
-    //     return () => {
-    //         document.removeEventListener("contextmenu", openMenu)
-    //         document.removeEventListener("click", hide)
-    //         document.removeEventListener("keydown", hideKey)
-    //     }
-    // }, [menus])
-
+    const [pos, setPos] = useState({
+        x: 0,
+        y: 0
+    })
+    const containerRef = useRef<HTMLDivElement>()
+    const menuRef = useRef<HTMLDivElement>()
+    useEffect(() => {
+        const closeListener = () => setOpen(false)
+        const escapeListener = (event: KeyboardEvent) => {
+            if (event.key === "Escape") setOpen(false)
+        }
+        window.addEventListener("click", closeListener)
+        window.addEventListener("contextmenu", closeListener)
+        window.addEventListener("keydown", escapeListener)
+        window.addEventListener("closecontextmenu", closeListener)
+        return () => {
+            window.removeEventListener("click", closeListener)
+            window.removeEventListener("contextmenu", closeListener)
+            window.removeEventListener("keydown", escapeListener)
+            window.removeEventListener("closecontextmenu", closeListener)
+        }
+    })
     return (
-        <ContextMenuContext.Provider
-            value={[
-                [menus, setMenus],
-                [open, setOpen],
-                [position, setPosition]
-            ]}
-        >
-            <div
-                style={{
-                    display: open ? "block" : "none",
-                    top: position[1],
-                    left: position[0]
-                }}
-                className="ContextMenu"
-            >
-                {menus.map((menu, index) => {
-                    if (menu.open) {
-                        return <div key={index}>{menu.buttons}</div>
+        <>
+            {cloneElement(children, {
+                ref: containerRef,
+                onContextMenu(event: MouseEvent) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    window.dispatchEvent(closeContextMenuEvent)
+                    setOpen(true)
+                    setPos({
+                        x: event.clientX,
+                        y: event.clientY
+                    })
+                },
+                ...props
+            })}
+            <RestartOverlay
+                show={open}
+                flip
+                target={{
+                    getBoundingClientRect() {
+                        return {
+                            width: menuRef.current ? menuRef.current.clientWidth : 2000,
+                            height: 0,
+                            top: pos.y,
+                            right: pos.x,
+                            bottom: pos.y,
+                            left: pos.x,
+                            x: pos.x,
+                            y: pos.y,
+                            toJSON() {
+                                return this
+                            }
+                        }
                     }
-                })}
-            </div>
-            {props.children}
-        </ContextMenuContext.Provider>
+                }}
+            >
+                {({ className, ...props }) => (
+                    <FocusTrap
+                        focusTrapOptions={{
+                            initialFocus: false,
+                            escapeDeactivates: false,
+                            allowOutsideClick: true,
+                            isKeyBackward: (event) => event.key === "ArrowUp",
+                            isKeyForward: (event) => event.key === "ArrowDown"
+                        }}
+                    >
+                        <div className={`${classes.contextmenu} ${className}`} {...props}>
+                            <div className={classes.menuitems} ref={menuRef}>
+                                {buttons}
+                            </div>
+                        </div>
+                    </FocusTrap>
+                )}
+            </RestartOverlay>
+        </>
     )
 }
 
-export function ContextMenu(props: { children: ReactNode; buttons: ReactNode }) {
-    const context = useContext(ContextMenuContext)
-    const menuRef = useRef<HTMLDivElement>(null)
-    const [menus, setMenus] = context[0]
-    const [open, setOpen] = context[1]
-    const [position, setPosition] = context[2]
-    const [id, setId] = useState(0)
-
-    // useEffect(() => {
-    //     setMenus((menus) => {
-    //         setId(menus.length + 1)
-    //         menus.push({
-    //             ref: menuRef,
-    //             buttons: props.buttons,
-    //             open: false,
-    //             id: id
-    //         })
-    //         return menus
-    //     })
-    //     return () => {
-    //         setMenus((menus) => {
-    //             setId(menus.length + 1)
-    //             menus = menus.filter((m) => m.id !== id)
-    //             return menus
-    //         })
-    //     }
-    // }, [props.buttons, menuRef, setMenus, id])
-
-    return (
-        <div className="ContextMenuClass" ref={menuRef}>
-            {props.children}
-        </div>
-    )
-}
-
-export function ContextMenuButton(props: {
+type ContextMenuButtonProps = {
     children: ReactNode
     onClick: MouseEventHandler
-    color?: "gray" | "blue" | "red"
+    color?: "gray" | "purple" | "red"
     disabled?: boolean
-}) {
+    dropdown?: boolean
+}
+
+const ContextMenuButton = ({ onClick, color, children, dropdown }: ContextMenuButtonProps) => {
+    if (dropdown) {
+        return (
+            <Dropdown.Item
+                className={`${classes.menubutton} ${color ? classes[color] : ""}`}
+                onClick={onClick}
+                onContextMenu={(event) => event.preventDefault()}
+            >
+                {children}
+            </Dropdown.Item>
+        )
+    }
     return (
-        <div
-            className={`ContextMenuButton ${props.color ? props.color : "gray"}`}
-            onClick={props.onClick}
+        <RestartButton
+            className={`${classes.menubutton} ${color ? classes[color] : ""}`}
+            onClick={onClick}
+            onContextMenu={(event) => event.preventDefault()}
         >
-            {props.children}
-        </div>
+            {children}
+        </RestartButton>
     )
 }
+
+export type { ContextMenuProps, ContextMenuButtonProps }
+export { ContextMenu, ContextMenuButton }

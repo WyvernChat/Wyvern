@@ -32,7 +32,7 @@ export function Home() {
                     onClick={() => {
                         axios.post("/api/notifications/sendNotification", {
                             subscription: pushSubscription,
-                            payload: "test",
+                            payload: JSON.stringify({ body: "test" }),
                             ttl: 0
                         })
                     }}

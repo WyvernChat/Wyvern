@@ -1,7 +1,7 @@
 import { Modal } from "@restart/ui"
 import axios from "axios"
 import React, { CSSProperties, useEffect, useRef, useState } from "react"
-import { FaPlusCircle } from "react-icons/fa"
+import { IoAdd } from "react-icons/io5"
 import { useParams } from "react-router-dom"
 import { ReactSortable } from "react-sortablejs"
 import { useGlobalState } from "../App"
@@ -70,7 +70,7 @@ const Sidebar = ({ hide }: SidebarProps) => {
                         className="SidebarButton JoinSidebarButton outlined"
                         onClick={() => setGuildModalOpen(true)}
                     >
-                        <FaPlusCircle />
+                        <IoAdd size={28} />
                     </button>
                 </Tooltip>
             </div>
@@ -157,6 +157,8 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
     }
     return (
         <Modal
+            enforceFocus
+            autoFocus
             show={props.open}
             onHide={hide}
             className={modalClasses.modal}
@@ -285,15 +287,15 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
                 )}
                 {modal === 3 && (
                     <div className="FadeTransition">
-                        <div>
-                            <h2>Invite People</h2>
-                        </div>
-                        <div>
-                            <div className="VStack-3">
-                                <div className="Input-Form">
-                                    <TextInput type="text" defaultValue={invite} readOnly />
-                                </div>
-                                <Button variant="primary">Copy</Button>
+                        <div className={modalClasses.content}>
+                            <h2 className="text-center">Invite People</h2>
+                            <div>
+                                <Stack size={3}>
+                                    <div className="Input-Form">
+                                        <TextInput type="text" defaultValue={invite} readOnly />
+                                    </div>
+                                    <Button variant="primary">Copy</Button>
+                                </Stack>
                             </div>
                         </div>
                     </div>

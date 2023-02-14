@@ -1,0 +1,52 @@
+@import "../variables";
+
+.contextmenu {
+    z-index: 2;
+    min-width: 188px;
+    max-width: 320px;
+    position: fixed;
+}
+
+.menuitems {
+    box-sizing: border-box;
+    font-size: 14px;
+    background-color: #000;
+    padding: 5px;
+    border-radius: 3px;
+    box-shadow: 0 0 2px #000;
+}
+
+.menubutton {
+    cursor: pointer;
+    padding: 0.5em;
+    color: #b8b2b2;
+    border-radius: 2px;
+    outline: none;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    &:active {
+        filter: brightness(80%);
+    }
+    &:hover,
+    &:focus-visible {
+        color: #fff;
+        background-color: $purple;
+    }
+    &.red {
+        color: $red;
+        &:hover,
+        &:focus-visible {
+            color: #fff;
+            background-color: $red;
+        }
+    }
+    &.purple {
+        color: $purple;
+        &:hover,
+        &:focus-visible {
+            color: #fff;
+        }
+    }
+}
