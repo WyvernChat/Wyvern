@@ -7,7 +7,6 @@ import { AlertProvider } from "./components/Alerts"
 import { AuthProvider } from "./components/auth/Auth"
 import { Router } from "./components/Router"
 import { SocketIO } from "./components/SocketIO"
-import { ContentMenuProvider } from "./components/ui/ContextMenu"
 import { Channel, Guild, User } from "./globals"
 import { useOffline } from "./hooks/offline"
 import { getUser } from "./hooks/user"
@@ -54,11 +53,9 @@ export function App(props: { socket: Socket }) {
         <AuthProvider>
             <SocketIO socket={props.socket}>
                 <AlertProvider>
-                    <ContentMenuProvider>
-                        <DndProvider backend={HTML5Backend}>
-                            <Router />
-                        </DndProvider>
-                    </ContentMenuProvider>
+                    <DndProvider backend={HTML5Backend}>
+                        <Router />
+                    </DndProvider>
                 </AlertProvider>
             </SocketIO>
         </AuthProvider>
