@@ -1,6 +1,6 @@
 import cuid from "cuid"
 import express from "express"
-import { createGuild } from "../functions/guild"
+import { createGuild } from "../controllers/guild"
 import { TextChannelModel } from "../models/channel"
 import { GuildModel } from "../models/guild"
 import { UserModel } from "../models/user"

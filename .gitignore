@@ -6,6 +6,7 @@ install.sh
 server/database.json
 server/build
 client/build
-voice
-media
+Socialization
+MediaWare
 dev-dist
+*.pem

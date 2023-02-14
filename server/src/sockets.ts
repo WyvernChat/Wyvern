@@ -1,6 +1,6 @@
 import { Server as HttpServer } from "http"
 import { Server } from "socket.io"
-import { createMessage } from "./functions/message"
+import { createMessage } from "./controllers/message"
 import { UserModel } from "./models/user"
 
 const connectedClients = new Map<string, string>()

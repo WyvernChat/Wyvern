@@ -1,6 +1,5 @@
 node_modules/
 build/
-public/
 old_assets/
 desktop/
 .env

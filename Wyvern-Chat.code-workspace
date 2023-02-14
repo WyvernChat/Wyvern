@@ -10,10 +10,10 @@
             "path": "client"
         },
         {
-            "path": "voice"
+            "path": "Socialization"
         },
         {
-            "path": "media"
+            "path": "MediaWare"
         }
     ],
     "settings": {
@@ -30,7 +30,8 @@
             "**/CVS": true,
             "**/.DS_Store": true,
             "**/Thumbs.db": true,
-            "**/node_modules": true
+            "**/node_modules": true,
+            "**/packages": true
         }
     },
     "launch": {
