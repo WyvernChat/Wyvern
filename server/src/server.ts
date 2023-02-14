@@ -2,13 +2,24 @@ import cors from "cors"
 import dotenv from "dotenv"
 import express from "express"
 import fs from "fs"
-import { createServer } from "http"
+import http from "http"
+import https from "https"
 import { join, resolve } from "path"
-import { Database, WyvernDatabase } from "./database"
 import { initSockets } from "./sockets"
 
+dotenv.config({ path: join(__dirname, "../../.env") })
+
 const app = express()
-const server = createServer(app)
+const server =
+    process.env.SSL === "true"
+        ? https.createServer(
+              {
+                  key: fs.readFileSync(process.env.SSL_KEY).toString(),
+                  cert: fs.readFileSync(process.env.SSL_CERT).toString()
+              },
+              app
+          )
+        : http.createServer(app)
 
 dotenv.config({ path: join(__dirname, "../../.env") })
 
@@ -19,12 +30,9 @@ app.use(
         methods: ["GET", "POST", "PUT", "DELETE"]
     })
 )
+app.set("trust proxy", true)
 
 const io = initSockets(server)
-const database = new Database<WyvernDatabase>(join(__dirname, "..", "database.json"), {
-    guilds: [],
-    users: []
-})
 
 fs.readdirSync(join(__dirname, "routes")).forEach((file) => {
     import("./" + join("routes", file)).then((r) => r.default(app))
