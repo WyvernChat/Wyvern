@@ -1,5 +1,5 @@
 import express from "express"
-import { GuildModel } from "../models/guild"
+import { joinGuild } from "../controllers/guild"
 import { UserModel } from "../models/user"
 
 export default function (app: express.Application) {
@@ -41,23 +41,17 @@ export default function (app: express.Application) {
             token: req.headers.authorization
         })
         if (user) {
-            const guild = await GuildModel.findOne({
-                id: req.body.guildId
-            })
-            if (guild) {
-                user.updateOne({
-                    $push: {
-                        guilds: guild.id
-                    }
+            try {
+                const guild = await joinGuild({
+                    userId: user.id,
+                    guildId: req.body.guildId
                 })
                 res.status(200).json({
                     success: "Guild joined",
                     guildID: guild.id
                 })
-            } else {
-                res.status(400).json({
-                    error: "Guild not found"
-                })
+            } catch (error) {
+                res.status(400).json({ error })
             }
         } else {
             res.status(401).json({

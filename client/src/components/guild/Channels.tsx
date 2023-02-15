@@ -12,7 +12,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom"
 import { useGlobalState } from "../../App"
 import { useChannel } from "../../hooks/channel"
-import { useGuild } from "../../hooks/guild"
+import { useGuild, useGuildChannels } from "../../hooks/guild"
 import logoUrl from "../../img/logos/WyvernLogoGrayscale-512x512.png"
 import menuClasses from "../../scss/ui/contextmenu.module.scss"
 import modalClasses from "../../scss/ui/modal.module.scss"
@@ -34,9 +34,10 @@ const Channels = ({ guildId, hide, setView }: ChannelsProps) => {
     const guild = useGuild(guildId)
     const [channelCreate, setChannelCreate] = useState(false)
     const alert = useAlert()
+    const channels = useGuildChannels(guildId)
 
     return (
-        <div className={`GuildBar ${hide ? "none" : ""}`}>
+        <div className="GuildBar" style={{ display: hide && "none" }}>
             <Dropdown>
                 <Dropdown.Toggle>
                     {(props, { show }) => (
@@ -108,11 +109,11 @@ const Channels = ({ guildId, hide, setView }: ChannelsProps) => {
                 }
             >
                 <div className="ChannelsList">
-                    {guild?.channels.map((channelId, index) => (
+                    {channels.map((channel, index) => (
                         <ChannelLink
                             key={index}
                             guildId={guildId}
-                            channelId={channelId}
+                            channelId={channel.id}
                             setView={setView}
                         />
                     ))}

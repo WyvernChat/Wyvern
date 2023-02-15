@@ -1,12 +1,12 @@
-import cuid from "cuid"
 import express from "express"
-import { createGuild } from "../controllers/guild"
+import { createGuild, joinGuild } from "../controllers/guild"
+import { createTextChannel } from "../controllers/textChannel"
 import { TextChannelModel } from "../models/channel"
 import { GuildModel } from "../models/guild"
 import { UserModel } from "../models/user"
 
 export default function (app: express.Application) {
-    app.post("/api/guilds/create", async (req, res) => {
+    app.post("/api/guilds", async (req, res) => {
         const user = await UserModel.findOne({
             token: req.headers.authorization
         })
@@ -39,7 +39,11 @@ export default function (app: express.Application) {
                 id: req.params.guildId
             })
             if (guild) {
-                res.status(200).json(guild)
+                res.status(200).json({
+                    id: guild.id,
+                    name: guild.name,
+                    owner: guild.owner
+                })
             } else {
                 res.status(404).json({
                     error: "Guild not found"
@@ -76,34 +80,23 @@ export default function (app: express.Application) {
     })
 
     app.post("/api/guilds/:guildId/channels", async (req, res) => {
-        const guild = await GuildModel.findOne({
-            id: req.params.guildId
-        })
         const user = await UserModel.findOne({
             token: req.headers.authorization
         })
         if (user) {
-            if (guild && guild.members.includes(user.id) && guild.owner === user.id) {
-                const channel = await TextChannelModel.create({
+            try {
+                const channel = await createTextChannel({
                     name: req.body.name || "undefined",
-                    description: "",
-                    type: "TEXT",
-                    slowmode: 0,
-                    messages: [],
-                    id: cuid()
-                })
-                await guild.updateOne({
-                    $push: {
-                        channels: channel.id
-                    }
+                    guildId: req.params.guildId,
+                    userId: user.id
                 })
                 res.json({
                     id: channel.id,
                     name: channel.name
                 })
-            } else {
-                res.status(404).json({
-                    error: "Guild not found"
+            } catch (error) {
+                res.status(403).json({
+                    error
                 })
             }
         } else {
@@ -121,7 +114,7 @@ export default function (app: express.Application) {
             token: req.headers.authorization
         })
         if (user && guild) {
-            if (guild.members.find((u) => u === user.id)) {
+            if (guild.members.includes(user.id)) {
                 res.status(200).json({
                     invites: [guild.invites]
                 })
@@ -138,34 +131,31 @@ export default function (app: express.Application) {
     })
 
     app.post("/api/guilds/invites/:inviteCode/join", async (req, res) => {
-        const guild = await GuildModel.findOne({
-            invites: req.params.inviteCode
-        })
         const user = await UserModel.findOne({
             token: req.headers.authorization
         })
-        if (guild && user) {
-            if (!guild.members.includes(user.id)) {
-                await guild.updateOne({
-                    $push: {
-                        members: user.id
-                    }
-                })
-                await user.updateOne({
-                    $push: {
-                        guilds: guild.id
-                    }
+        if (user) {
+            // await guild.updateOne({
+            //     $push: {
+            //         members: user.id
+            //     }
+            // })
+            // await user.updateOne({
+            //     $push: {
+            //         guilds: guild.id
+            //     }
+            // })
+            try {
+                const guild = await joinGuild({
+                    userId: user.id,
+                    invite: req.params.inviteCode
                 })
                 res.status(201).json({
                     name: guild.name,
                     id: guild.id
                 })
-            } else {
-                res.status(200).json({
-                    name: guild.name,
-                    id: guild.id,
-                    message: "User is already in this guild!"
-                })
+            } catch (error) {
+                res.status(404).json({ error })
             }
         } else {
             res.status(404).json({

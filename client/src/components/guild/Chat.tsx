@@ -56,7 +56,7 @@ const Chat = ({ channelId, hide, setView }: ChatProps) => {
     }, [messages])
 
     return (
-        <div className={`${classes.chat} ${hide ? "none" : ""}`}>
+        <div className={classes.chat} style={{ display: hide && "none" }}>
             <div className={classes.header}>
                 <span className={classes.text} onClick={() => setView("channels")}>
                     <FaBars
@@ -78,6 +78,7 @@ const Chat = ({ channelId, hide, setView }: ChatProps) => {
                 className={classes.messages}
                 onScroll={() => {
                     if (
+                        messages.length > 0 &&
                         !loadingMessages &&
                         !finishedLoading &&
                         messagesRef.current.scrollTop < 1000

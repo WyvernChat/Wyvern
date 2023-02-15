@@ -38,7 +38,7 @@ const Users = ({ guildId, hide }: UsersProps) => {
     const offlineUsers = users.filter((u) => !u.online)
 
     return (
-        <div className={`UserBar ${hide ? "none" : ""}`}>
+        <div className="UserBar" style={{ display: hide && "none" }}>
             <div className="TopBar"></div>
             <div className="Users">
                 <div className="Title">Online - {onlineUsers.length}</div>

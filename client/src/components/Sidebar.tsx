@@ -43,7 +43,7 @@ const Sidebar = ({ hide }: SidebarProps) => {
 
     return (
         <>
-            <div className={`ServerList ${hide ? "none" : ""}`}>
+            <div className="ServerList" style={{ display: hide && "none" }}>
                 <Tooltip placement="right" text={<b>Home</b>}>
                     <LinkButton
                         to="/channels/@me"
@@ -131,7 +131,7 @@ function GuildModal(props: { open: boolean; hide: () => void }) {
 
     const createGuild = () => {
         const result = axios.post(
-            "/api/guilds/create",
+            "/api/guilds",
             {
                 guildName: guildName
             },

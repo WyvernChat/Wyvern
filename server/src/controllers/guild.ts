@@ -72,12 +72,12 @@ const joinGuild = async ({ userId, guildId, invite }: JoinGuildOptions) => {
         ]
     })
     if (!guild) throw new Error("Guild not found!")
-    user.updateOne({
+    await user.updateOne({
         $push: {
             guilds: guild.id
         }
     })
-    guild.updateOne({
+    await guild.updateOne({
         $push: {
             members: user.id
         }
@@ -93,9 +93,11 @@ const joinGuild = async ({ userId, guildId, invite }: JoinGuildOptions) => {
         }
         if (socket.data.userId === user.id) {
             socket.emit("GUILD_JOIN", guild)
+            socket.join(guild.id)
         }
     })
     return guild
 }
 
-export { CreateGuildOptions, createGuild }
+export type { CreateGuildOptions, JoinGuildOptions }
+export { createGuild, joinGuild }

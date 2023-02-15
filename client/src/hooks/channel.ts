@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useCallback, useEffect } from "react"
 import { useGlobalState } from "../App"
+import { useSocketListener } from "../components/SocketIO"
 import { Channel } from "../globals"
 
 const useChannel = <T extends Channel>(channelId: string): [T, (channel: T) => void] => {
@@ -32,12 +33,18 @@ const useChannels = (token: string) => {
                 )
             )
             newChannels = newChannels.filter(Boolean)
-            setChannels((prevChannels) => [...prevChannels, ...newChannels])
+            setChannels((prevChannels) => [
+                ...prevChannels,
+                ...newChannels.filter((c) => !prevChannels.map(({ id }) => id).includes(c.id))
+            ])
         }
     }, [guilds, setChannels, token])
     useEffect(() => {
         fetchChannels()
     }, [fetchChannels])
+    useSocketListener("CHANNEL_CREATE", (channel: Channel) => {
+        setChannels((prevChannels) => [...prevChannels, channel])
+    })
 }
 
 export { useChannel, useChannels }
