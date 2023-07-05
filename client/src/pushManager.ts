@@ -4,7 +4,9 @@ import { urlBase64ToUint8Array } from "./utils"
 let pushSubscription: PushSubscription
 
 navigator.serviceWorker
-    .register("/worker.js")
+    .register("/worker.js", {
+        scope: "/push"
+    })
     .then(async (registration) => {
         return registration.pushManager.getSubscription().then(async (subscription) => {
             if (subscription) return subscription

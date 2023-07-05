@@ -3,7 +3,9 @@ import { NotificationSubscriptionModel } from "../models/notificationsubscriptio
 
 type SendNotificationOptions = {
     users: string[]
-    payload: NotificationOptions
+    payload: NotificationOptions & {
+        title: string
+    }
 }
 
 const sendNotification = async ({ users, payload }: SendNotificationOptions) => {
@@ -13,9 +15,9 @@ const sendNotification = async ({ users, payload }: SendNotificationOptions) => 
         }
     })
     await Promise.all([
-        subscriptions.map(async (subscription) => {
-            await webPush.sendNotification(subscription, JSON.stringify(payload))
-        })
+        subscriptions.map((subscription) =>
+            webPush.sendNotification(subscription, JSON.stringify(payload)).catch((err) => err)
+        )
     ])
 }
 

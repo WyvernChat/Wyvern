@@ -1,5 +1,6 @@
 html {
     overscroll-behavior: none;
+    touch-action: manipulation;
 }
 
 body:has(#app) {
@@ -130,13 +131,13 @@ hr.separator {
 .horizontal {
     overflow-x: hidden;
     width: 100vw;
-    // @media screen and (min-width: map.get($grid-breakpoints, "sm")) {
-    //     padding-top: 0;
-    //     height: 100vh;
-    // }
-    // padding-top: 50px;
-    // height: calc(100vh - 100px);
-    height: 100vh;
+    @media screen and (min-width: map.get($grid-breakpoints, "sm")) {
+        padding-top: 0;
+        height: 100vh;
+    }
+    padding-top: env(safe-area-inset-top);
+    height: calc(100vh - env(safe-area-inset-top));
+    // height: 100vh;
     //
     display: flex;
     flex: 1;

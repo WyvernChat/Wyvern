@@ -46,7 +46,7 @@ export default defineConfig(({ command }) => ({
         // viteCompression(),
         VitePWA({
             registerType: "autoUpdate",
-            injectRegister: null,
+            injectRegister: "auto",
             devOptions: {
                 enabled: true
             },
@@ -54,7 +54,7 @@ export default defineConfig(({ command }) => ({
                 name: "Wyvern",
                 short_name: "Wyvern",
                 start_url: "/channels/@me",
-                display: "fullscreen",
+                display: "standalone",
                 background_color: "#303030",
                 theme_color: "#202225",
                 description: "Wyvern chat progressive web app",
@@ -69,7 +69,8 @@ export default defineConfig(({ command }) => ({
                         type: "image/png",
                         sizes: "512x512"
                     }
-                ]
+                ],
+                prefer_related_applications: false
             }
         })
     ],

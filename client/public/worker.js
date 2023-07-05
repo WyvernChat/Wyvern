@@ -11,7 +11,7 @@ const ctx = self
 ctx.addEventListener("push", (event) => {
     const payload = event.data?.json()
     if (!payload) return
-    event.waitUntil(ctx.registration.showNotification("Wyvern", payload))
+    event.waitUntil(ctx.registration.showNotification(payload.title, payload))
 })
 
 ctx.addEventListener("notificationclick", (event) => {

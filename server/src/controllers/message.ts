@@ -54,6 +54,7 @@ const createMessage = async ({ content, author, channelId }: CreateMessageOption
     await sendNotification({
         users: mentions,
         payload: {
+            title: `${message.author}`,
             body: message.content,
             data: {
                 type: "MESSAGE_CREATE",

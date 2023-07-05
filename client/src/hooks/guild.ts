@@ -50,7 +50,10 @@ const useGuilds = (token: string | undefined) => {
                             return guild
                         })
                     )
-                    setGuilds((prevGuilds) => [...prevGuilds, ...newGuilds])
+                    setGuilds((prevGuilds) => [
+                        ...prevGuilds,
+                        ...newGuilds.filter((c) => !prevGuilds.map(({ id }) => id).includes(c.id))
+                    ])
                     // todo: listen for GUILD_CREATE, GUILD_UPDATE, and GUILD_DELETE here
                     socket.on("GUILD_CREATE", (guild: Guild) => {
                         setGuilds((prevGuilds) => [...prevGuilds, guild])
